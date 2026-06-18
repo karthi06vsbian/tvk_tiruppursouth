@@ -18,7 +18,9 @@ import {
   Users,
   X,
   MessageCircle,
-  Send
+  Send,
+  Camera,
+  Inbox
 } from "lucide-react";
 import "./styles.css";
 
@@ -297,7 +299,7 @@ const defaultEvents = [
   { src: `${A}rallies/vijay-coimbatore-bang.webp`, caption: "Avinashi Road Roadshow", span: { col: 4, row: 1 } }
 ];
 
-function Header({ lang, setLang }) {
+function Header({ lang, setLang, setShowTrackModal }) {
   const [open, setOpen] = useState(false);
   const t = copy[lang];
 
@@ -320,6 +322,13 @@ function Header({ lang, setLang }) {
         <a href="#news">{t.news}</a>
         <a href="#events">{t.events}</a>
         <a href="#contact">{t.contact}</a>
+        <button 
+          type="button" 
+          onClick={() => setShowTrackModal(true)} 
+          className="nav-track-btn"
+        >
+          {lang === 'en' ? 'Track Petition' : 'மனுவை தேட'}
+        </button>
         <a href="#join" style={{ background: '#ffd84a', color: '#3f0608', padding: '8px 16px', borderRadius: '20px', marginLeft: '10px' }}>{t.join}</a>
       </nav>
       
@@ -347,6 +356,13 @@ function Header({ lang, setLang }) {
             <a href="#news" onClick={() => setOpen(false)}>{t.news}</a>
             <a href="#events" onClick={() => setOpen(false)}>{t.events}</a>
             <a href="#contact" onClick={() => setOpen(false)}>{t.contact}</a>
+            <a 
+              href="#track-petition" 
+              onClick={(e) => { e.preventDefault(); setOpen(false); setShowTrackModal(true); }}
+              style={{ color: '#ffd84a' }}
+            >
+              {lang === 'en' ? 'Track Petition' : 'மனுவைக் கண்காணிக்க'}
+            </a>
             <a href="#join" onClick={() => setOpen(false)} style={{ color: '#ffd84a', fontWeight: 'bold' }}>{t.join}</a>
           </div>
         </div>
@@ -801,7 +817,7 @@ function NewsSection({ lang }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/news/?lang=${lang}`)
+    fetch(`/api/news/?lang=${lang}`)
       .then((res) => {
         if (!res.ok) throw new Error("API Error");
         return res.json();
@@ -846,7 +862,7 @@ function EventsSection({ lang }) {
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/events/?lang=${lang}`)
+    fetch(`/api/events/?lang=${lang}`)
       .then((res) => { if (!res.ok) throw new Error("API Error"); return res.json(); })
       .then((data) => { setEvents(data.length > 0 ? data : defaultEvents); setLoading(false); })
       .catch(() => { setEvents(defaultEvents); setLoading(false); });
@@ -886,36 +902,424 @@ function EventsSection({ lang }) {
 }
 
 function Join({ lang }) {
-  const t = copy[lang];
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [area, setArea] = useState("");
-  const [sent, setSent] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setSubmitting(true);
-    fetch("http://127.0.0.1:8000/api/join/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, phone, area }) })
-      .then((res) => { if (!res.ok) throw new Error("Submit failed"); return res.json(); })
-      .then(() => { setSent(true); setSubmitting(false); })
-      .catch(() => { setSent(true); setSubmitting(false); });
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    dob: '',
+    gender: '',
+    address: '',
+    area: 'Tiruppur South',
+    occupation: '',
+    interests: [],
+    photo_data: '',
+    photo_name: ''
+  });
+
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
+
+  const handleInterestChange = (interest) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
+    }));
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError(lang === 'en' ? 'Photo size exceeds 5MB limit' : 'புகைப்படம் 5MB வரம்பை மீறுகிறது');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFormData(prev => ({
+          ...prev,
+          photo_data: event.target.result,
+          photo_name: file.name
+        }));
+        setPhotoPreview(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setFormData(prev => ({
+      ...prev,
+      photo_data: '',
+      photo_name: ''
+    }));
+    setPhotoPreview(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/join/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          dob: '',
+          gender: '',
+          address: '',
+          area: 'Tiruppur South',
+          occupation: '',
+          interests: [],
+          photo_data: '',
+          photo_name: ''
+        });
+        setPhotoPreview(null);
+      } else {
+        setError(data.message || (lang === 'en' ? 'Failed to submit application' : 'விண்ணப்பத்தை சமர்ப்பிக்க முடியவில்லை'));
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError(lang === 'en' ? 'Failed to submit application. Please try again.' : 'விண்ணப்பத்தை சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const labels = {
+    en: {
+      eyebrow: "MEMBERSHIP",
+      title: "Join TVK Today",
+      lead: "Become a primary member of Tamilaga Vettri Kazhagam – the people's party for a better Tamil Nadu.",
+      formTitle: "Membership Application Form",
+      name: "Full Name *",
+      namePlaceholder: "Enter your full name",
+      phone: "Phone Number *",
+      phonePlaceholder: "10-digit mobile number",
+      email: "Email Address",
+      emailPlaceholder: "your.email@example.com",
+      dob: "Date of Birth *",
+      gender: "Gender *",
+      genderMale: "Male",
+      genderFemale: "Female",
+      genderOther: "Other",
+      address: "Residential Address *",
+      addressPlaceholder: "Enter your full residential address",
+      area: "Ward / Area *",
+      occupation: "Occupation / Profession",
+      occupationPlaceholder: "e.g. Student, Business, Farmer",
+      interests: "Areas of Interest (Select all that apply) *",
+      photo: "Profile Photo",
+      photoPlaceholder: "Click to upload your photo",
+      photoHint: "JPG, PNG up to 5 MB",
+      photoRemove: "Remove Photo",
+      terms: "I agree to TVK membership terms and conditions",
+      submit: "Submit Application",
+      submitting: "Submitting...",
+      successTitle: "✓ Application Submitted!",
+      successMessage1: "Your membership application has been received.",
+      successMessage2: "We will contact you soon with next steps.",
+      whyJoin: "Why Join TVK?",
+      benefit1Title: "Be Part of a Movement",
+      benefit1Desc: "Join millions working to transform Tamil Nadu's political landscape",
+      benefit2Title: "Contribute Your Skills",
+      benefit2Desc: "Apply your expertise in grassroot social and political initiatives",
+      benefit3Title: "Access Direct Resources",
+      benefit3Desc: "Get training, event updates, and direct channel to local leaders",
+      benefit4Title: "Shape Governance",
+      benefit4Desc: "Help draft local manifestos and drive policy development",
+      needHelp: "Need Help?",
+      helpDesc: "Have questions about the membership process?",
+      callUs: "Call our helpline",
+      helpHours: "Available 9 AM - 6 PM, Every day"
+    },
+    ta: {
+      eyebrow: "உறுப்பினர் சேர்க்கை",
+      title: "இன்றே தவெக-வில் இணையுங்கள்",
+      lead: "தமிழகத்தின் சிறந்த எதிர்காலத்திற்கான மக்கள் கட்சியான தமிழக வெற்றிக் கழகத்தின் அடிப்படை உறுப்பினராகுங்கள்.",
+      formTitle: "உறுப்பினர் விண்ணப்பப் படிவம்",
+      name: "முழு பெயர் *",
+      namePlaceholder: "உங்கள் முழு பெயரை உள்ளிடவும்",
+      phone: "தொலைபேசி எண் *",
+      phonePlaceholder: "10 இலக்க கைபேசி எண்",
+      email: "மின்னஞ்சல் முகவரி",
+      emailPlaceholder: "your.email@example.com",
+      dob: "பிறந்த தேதி *",
+      gender: "பாலினம் *",
+      genderMale: "ஆண்",
+      genderFemale: "பெண்",
+      genderOther: "இதர",
+      address: "வீட்டு முகவரி *",
+      addressPlaceholder: "உங்கள் முழு வீட்டு முகவரியை உள்ளிடவும்",
+      area: "வார்டு / பகுதி *",
+      occupation: "தொழில் / வேலை",
+      occupationPlaceholder: "எ.கா. மாணவர், வணிகம், விவசாயி",
+      interests: "ஆர்வமுள்ள துறைகள் (பொருந்தும் அனைத்தையும் தேர்ந்தெடுக்கவும்) *",
+      photo: "சுயவிவரப் புகைப்படம்",
+      photoPlaceholder: "புகைப்படத்தை பதிவேற்ற கிளிக் செய்யவும்",
+      photoHint: "JPG, PNG 5 எம்பி வரை",
+      photoRemove: "புகைப்படத்தை நீக்கு",
+      terms: "நான் தவெக உறுப்பினர் விதிமுறைகள் மற்றும் நிபந்தனைகளை ஒப்புக்கொள்கிறேன்",
+      submit: "விண்ணப்பத்தை சமர்ப்பிக்கவும்",
+      submitting: "சமர்ப்பிக்கப்படுகிறது...",
+      successTitle: "✓ விண்ணப்பம் சமர்ப்பிக்கப்பட்டது!",
+      successMessage1: "உங்கள் உறுப்பினர் விண்ணப்பம் பெறப்பட்டது.",
+      successMessage2: "அடுத்த கட்ட நடவடிக்கைகள் குறித்து விரைவில் உங்களைத் தொடர்புகொள்வோம்.",
+      whyJoin: "ஏன் தவெக-வில் இணைய வேண்டும்?",
+      benefit1Title: "ஒரு இயக்கத்தின் அங்கமாக இருங்கள்",
+      benefit1Desc: "தமிழகத்தின் அரசியல் சூழலை மாற்ற உழைக்கும் லட்சக்கணக்கானோருடன் இணையுங்கள்",
+      benefit2Title: "உங்கள் திறமைகளை பங்களிக்கவும்",
+      benefit2Desc: "அடிமட்ட சமூக மற்றும் அரசியல் முயற்சிகளில் உங்கள் நிபுணத்துவத்தைப் பயன்படுத்துங்கள்",
+      benefit3Title: "நேரடி ஆதாரங்களை அணுகவும்",
+      benefit3Desc: "பயிற்சி, நிகழ்வு அறிவிப்புகள் மற்றும் உள்ளூர் தலைவர்களுடன் நேரடித் தொடர்பு பெறுங்கள்",
+      benefit4Title: "ஆட்சியை வடிவமைக்கவும்",
+      benefit4Desc: "உள்ளூர் தேர்தல் அறிக்கைகளைத் தயாரிக்கவும் கொள்கைகளை உருவாக்கவும் உதவுங்கள்",
+      needHelp: "உதவி தேவையா?",
+      helpDesc: "உறுப்பினர் சேர்க்கை குறித்து ஏதேனும் கேள்விகள் உள்ளதா?",
+      callUs: "எங்கள் உதவி எண்ணை அழைக்கவும்",
+      helpHours: "காலை 9 மணி முதல் மாலை 6 மணி வரை, அனைத்து நாட்களிலும்"
+    }
+  };
+
+  const t = labels[lang];
+
+  const interestOptions = [
+    { id: 'social_dev', labelEn: 'Social Development', labelTa: 'சமூக மேம்பாடு' },
+    { id: 'community', labelEn: 'Community Service', labelTa: 'சமூக சேவை' },
+    { id: 'digital', labelEn: 'Digital & Technology', labelTa: 'டிஜிட்டல் & தொழில்நுட்பம்' },
+    { id: 'political', labelEn: 'Political Training', labelTa: 'அரசியல் பயிற்சி' },
+    { id: 'events', labelEn: 'Event Management', labelTa: 'நிகழ்வு மேலாண்மை' },
+    { id: 'other', labelEn: 'Other', labelTa: 'இதர' }
+  ];
+
   return (
-    <section id="join" className="join section">
-      <div>
-        <p className="eyebrow">{lang === 'en' ? 'MEMBERSHIP' : '\u0b89\u0bb1\u0bc1\u0baa\u0bcd\u0baa\u0bbf\u0ba9\u0bb0\u0bcd \u0b9a\u0bc7\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bc8'}</p>
-        <h2>{t.joinTitle}</h2>
-        <p>{t.joinLead}</p>
+    <section id="join" className="join-section-container">
+      <div className="join-section-head">
+        <p className="eyebrow">{t.eyebrow}</p>
+        <h2>{t.title}</h2>
+        <p className="join-lead-text">{t.lead}</p>
       </div>
-      <form className="join-form" onSubmit={handleSubmit}>
-        <input required placeholder={t.formName} value={name} onChange={(e) => setName(e.target.value)} />
-        <input required placeholder={t.formPhone} value={phone} onChange={(e) => setPhone(e.target.value)} />
-        <input required placeholder={t.formArea} value={area} onChange={(e) => setArea(e.target.value)} />
-        <button className="primary-btn" type="submit" disabled={submitting}>
-          <Handshake size={18} />
-          {sent ? (lang === 'en' ? "Submitted Successfully!" : "\u0bb5\u0bc6\u0bb1\u0bcd\u0bb1\u0bbf\u0b95\u0bb0\u0bae\u0bbe\u0b95 \u0baa\u0ba4\u0bbf\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1!") : (submitting ? (lang === 'en' ? "Submitting..." : "\u0baa\u0ba4\u0bbf\u0bb5\u0bbe\u0b95\u0bbf\u0bb1\u0ba4\u0bc1...") : t.formSubmit)}
-        </button>
-      </form>
+
+      <div className="join-grid-layout">
+        {/* Form Column */}
+        <div className="join-form-column">
+          {!submitted ? (
+            <div className="join-form-card">
+              <h3 className="join-form-header">{t.formTitle}</h3>
+              {error && <div className="join-form-error">{error}</div>}
+              <form onSubmit={handleSubmit} className="membership-form">
+                <div className="form-group">
+                  <label>{t.name}</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder={t.namePlaceholder}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t.phone}</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder={t.phonePlaceholder}
+                    pattern="[0-9]{10}"
+                    maxLength="10"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t.email}</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder={t.emailPlaceholder}
+                  />
+                </div>
+
+                <div className="form-group-row">
+                  <div className="form-group">
+                    <label>{t.dob}</label>
+                    <input
+                      type="date"
+                      name="dob"
+                      value={formData.dob}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t.gender}</label>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">--</option>
+                      <option value="Male">{t.genderMale}</option>
+                      <option value="Female">{t.genderFemale}</option>
+                      <option value="Other">{t.genderOther}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>{t.address}</label>
+                  <textarea
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder={t.addressPlaceholder}
+                    rows="3"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t.area}</label>
+                  <select
+                    name="area"
+                    value={formData.area}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="Tiruppur South">Tiruppur South</option>
+                    <option value="Tiruppur North">Tiruppur North</option>
+                    <option value="Tiruppur West">Tiruppur West</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>{t.occupation}</label>
+                  <input
+                    type="text"
+                    name="occupation"
+                    value={formData.occupation}
+                    onChange={handleChange}
+                    placeholder={t.occupationPlaceholder}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t.interests}</label>
+                  <div className="interests-checkbox-grid">
+                    {interestOptions.map(opt => (
+                      <label key={opt.id} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={formData.interests.includes(opt.id)}
+                          onChange={() => handleInterestChange(opt.id)}
+                        />
+                        <span>{lang === 'en' ? opt.labelEn : opt.labelTa}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>{t.photo}</label>
+                  <div className="photo-upload-container">
+                    <label className="photo-upload-trigger">
+                      <Camera size={20} />
+                      <span>{t.photoPlaceholder}</span>
+                      <small>{t.photoHint}</small>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoChange}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                    {photoPreview && (
+                      <div className="photo-preview-box">
+                        <img src={photoPreview} alt="Preview" />
+                        <button type="button" onClick={handleRemovePhoto} className="remove-photo-btn">
+                          {t.photoRemove}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="checkbox-label terms-checkbox">
+                  <input type="checkbox" required />
+                  <span>{t.terms}</span>
+                </div>
+
+                <button type="submit" className="primary-btn submit-membership-btn" disabled={loading}>
+                  <Handshake size={18} />
+                  {loading ? t.submitting : t.submit}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="join-success-card">
+              <h3>{t.successTitle}</h3>
+              <p>{t.successMessage1}</p>
+              <p>{t.successMessage2}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Info Column */}
+        <div className="join-info-column">
+          <div className="benefits-card">
+            <h3>{t.whyJoin}</h3>
+            <div className="benefits-list">
+              {[
+                { title: t.benefit1Title, desc: t.benefit1Desc },
+                { title: t.benefit2Title, desc: t.benefit2Desc },
+                { title: t.benefit3Title, desc: t.benefit3Desc },
+                { title: t.benefit4Title, desc: t.benefit4Desc }
+              ].map((benefit, idx) => (
+                <div key={idx} className="benefit-item">
+                  <div className="benefit-number">{idx + 1}</div>
+                  <div className="benefit-content">
+                    <h4>{benefit.title}</h4>
+                    <p>{benefit.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
     </section>
   );
 }
@@ -962,14 +1366,14 @@ function PetitionSection({ lang }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setStatus('submitting');
-    fetch("http://127.0.0.1:8000/api/petitions/submit/", {
+    fetch("/api/petitions/submit/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, phone, subject, summary })
     })
       .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
       .then(() => { setStatus('success'); setName(''); setPhone(''); setSubject(''); setSummary(''); })
-      .catch(() => { setStatus('success'); setName(''); setPhone(''); setSubject(''); setSummary(''); });
+      .catch((err) => { console.error(err); setStatus('error'); });
   };
 
   const resetForm = () => { setStatus(null); };
@@ -1246,10 +1650,10 @@ function ChatBot() {
     if (petStep < 4) { setPetStep(petStep + 1); addMsg("bot", prompts[petStep - 1]); }
     else {
       addMsg("bot", t.pet_submitting);
-      fetch("http://127.0.0.1:8000/api/petitions/submit/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newData) })
+      fetch("/api/petitions/submit/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newData) })
         .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
         .then(() => { addMsg("bot", t.pet_confirm, { buttons: [{ label: t.back_menu, action: "back_menu" }] }); setMode("menu"); setPetStep(0); setPetData({ name: "", phone: "", subject: "", summary: "" }); })
-        .catch(() => { addMsg("bot", t.pet_confirm, { buttons: [{ label: t.back_menu, action: "back_menu" }] }); setMode("menu"); setPetStep(0); setPetData({ name: "", phone: "", subject: "", summary: "" }); });
+        .catch(() => { addMsg("bot", t.pet_error, { buttons: [{ label: t.back_menu, action: "back_menu" }] }); setMode("menu"); setPetStep(0); setPetData({ name: "", phone: "", subject: "", summary: "" }); });
     }
   };
 
@@ -1308,8 +1712,555 @@ function ChatBot() {
   );
 }
 
+function TrackPetitionModal({ lang, isOpen, onClose }) {
+  const [phone, setPhone] = useState("");
+  const [petitions, setPetitions] = useState([]);
+  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!isOpen) return null;
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!phone.trim()) return;
+    setLoading(true);
+    setError("");
+    setSearched(false);
+
+    try {
+      const response = await fetch(`/api/petitions/track/?phone=${phone}`);
+      const data = await response.json();
+      if (data.status === 'success') {
+        setPetitions(data.data);
+        setSearched(true);
+      } else {
+        setError(data.message || (lang === 'en' ? 'Error tracking petitions' : 'மனுக்களைத் தேடுவதில் பிழை'));
+      }
+    } catch (err) {
+      console.error(err);
+      setError(lang === 'en' ? 'Network error. Please try again.' : 'பிணையப் பிழை. மீண்டும் முயற்சிக்கவும்.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statusBadges = {
+    'Pending': { en: 'Pending', ta: 'நிலுவையில் உள்ளது', color: '#718096', bg: '#EDF2F7' },
+    'In Progress': { en: 'In Progress', ta: 'செயல்பாட்டில் உள்ளது', color: '#3182CE', bg: '#EBF8FF' },
+    'Rejected': { en: 'Rejected', ta: 'நிராகரிக்கப்பட்டது', color: '#E53E3E', bg: '#FFF5F5' },
+    'Solved': { en: 'Solved', ta: 'தீர்வு காணப்பட்டது', color: '#38A169', bg: '#F0FFF4' },
+  };
+
+  return (
+    <div className="track-modal-overlay" onClick={onClose}>
+      <div className="track-modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="track-modal-close" onClick={onClose} aria-label="Close track modal">
+          <X size={20} />
+        </button>
+        <h3 className="track-modal-title">{lang === 'en' ? 'Track Your Petitions' : 'மனுவைக் கண்காணித்தல்'}</h3>
+        <p className="track-modal-subtitle">
+          {lang === 'en' ? 'Enter your 10-digit registered phone number to view submitted petitions.' : 'நீங்கள் பதிவு செய்த 10 இலக்க தொலைபேசி எண்ணை உள்ளிட்டு மனுக்களைத் தேடவும்.'}
+        </p>
+
+        <form onSubmit={handleSearch} className="track-search-form">
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder={lang === 'en' ? 'e.g. 9876543210' : 'எ.கா. 9876543210'}
+            required
+            pattern="[0-9]{10}"
+            maxLength="10"
+            style={{
+              padding: '10px 14px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              fontSize: '1rem',
+              width: '100%',
+              boxSizing: 'border-box',
+              marginBottom: '12px'
+            }}
+          />
+          <button type="submit" className="primary-btn track-search-btn" disabled={loading} style={{ width: '100%' }}>
+            {loading ? (lang === 'en' ? 'Searching...' : 'தேடப்படுகிறது...') : (lang === 'en' ? 'Search' : 'தேடு')}
+          </button>
+        </form>
+
+        {error && <div className="track-modal-error" style={{ color: '#E53E3E', marginTop: '12px', fontSize: '0.9rem' }}>{error}</div>}
+
+        {searched && (
+          <div className="track-results-container" style={{ marginTop: '20px', maxHeight: '300px', overflowY: 'auto' }}>
+            {petitions.length > 0 ? (
+              <div className="track-petitions-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {petitions.map(p => {
+                  const badge = statusBadges[p.status] || { en: p.status, ta: p.status, color: '#4A5568', bg: '#EDF2F7' };
+                  return (
+                    <div key={p.id} className="track-petition-item" style={{ border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px' }}>
+                      <div className="track-petition-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>{p.subject}</h4>
+                        <span 
+                          className="status-badge"
+                          style={{
+                            color: badge.color,
+                            backgroundColor: badge.bg,
+                            border: `1px solid ${badge.color}`,
+                            fontSize: '0.78rem',
+                            fontWeight: 'bold',
+                            padding: '3px 8px',
+                            borderRadius: '12px'
+                          }}
+                        >
+                          {lang === 'en' ? badge.en : badge.ta}
+                        </span>
+                      </div>
+                      <p className="track-petition-summary" style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#4a5568' }}>{p.summary}</p>
+                      <small className="track-petition-date" style={{ color: '#718096', fontSize: '0.78rem' }}>
+                        {lang === 'en' ? 'Submitted: ' : 'சமர்ப்பிக்கப்பட்டது: '}
+                        {new Date(p.submitted_at).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </small>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="track-no-results" style={{ textAlign: 'center', color: '#718096', padding: '20px 0' }}>
+                {lang === 'en' ? 'No petitions found for this phone number.' : 'இந்த தொலைபேசி எண்ணில் மனுக்கள் எதுவும் காணப்படவில்லை.'}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdminPanel({ lang }) {
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'petitions'
+  const [members, setMembers] = useState([]);
+  const [petitions, setPetitions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [selectedPetition, setSelectedPetition] = useState(null);
+  
+  const [memberNotes, setMemberNotes] = useState('');
+  const [memberStatus, setMemberStatus] = useState('');
+  const [savingMember, setSavingMember] = useState(false);
+
+  const [petitionStatus, setPetitionStatus] = useState('');
+  const [savingPetition, setSavingPetition] = useState(false);
+
+  const [memberSearch, setMemberSearch] = useState('');
+  const [petitionSearch, setPetitionSearch] = useState('');
+
+  const fetchMembers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/members/');
+      const data = await response.json();
+      if (data.status === 'success') {
+        setMembers(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPetitions = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/petitions/');
+      const data = await response.json();
+      setPetitions(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'applications') {
+      fetchMembers();
+    } else {
+      fetchPetitions();
+    }
+  }, [activeTab]);
+
+  const handleSelectMember = async (memberId) => {
+    try {
+      const response = await fetch(`/api/members/${memberId}/`);
+      const data = await response.json();
+      if (data.status === 'success') {
+        setSelectedMember(data.data);
+        setMemberNotes(data.data.admin_notes || '');
+        setMemberStatus(data.data.status || 'pending');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateMember = async (e) => {
+    e.preventDefault();
+    if (!selectedMember) return;
+    setSavingMember(true);
+    try {
+      const response = await fetch(`/api/members/${selectedMember.id}/update/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: memberStatus, admin_notes: memberNotes })
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setSelectedMember(prev => ({ ...prev, status: memberStatus, admin_notes: memberNotes }));
+        setMembers(prev => prev.map(m => m.id === selectedMember.id ? { ...m, status: memberStatus, admin_notes: memberNotes } : m));
+        alert('Application updated successfully!');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update application.');
+    } finally {
+      setSavingMember(false);
+    }
+  };
+
+  const handleSelectPetition = (petition) => {
+    setSelectedPetition(petition);
+    setPetitionStatus(petition.status || 'Pending');
+  };
+
+  const handleUpdatePetition = async (e) => {
+    e.preventDefault();
+    if (!selectedPetition) return;
+    setSavingPetition(true);
+    try {
+      const response = await fetch(`/api/petitions/${selectedPetition.id}/update/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: petitionStatus })
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setSelectedPetition(prev => ({ ...prev, status: petitionStatus }));
+        setPetitions(prev => prev.map(p => p.id === selectedPetition.id ? { ...p, status: petitionStatus } : p));
+        alert('Petition status updated successfully!');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update petition.');
+    } finally {
+      setSavingPetition(false);
+    }
+  };
+
+  const filteredMembers = members.filter(m => 
+    m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+    m.phone.includes(memberSearch) ||
+    m.area.toLowerCase().includes(memberSearch.toLowerCase())
+  );
+
+  const filteredPetitions = petitions.filter(p => 
+    p.name.toLowerCase().includes(petitionSearch.toLowerCase()) ||
+    p.phone.includes(petitionSearch) ||
+    p.subject.toLowerCase().includes(petitionSearch.toLowerCase())
+  );
+
+  return (
+    <div className="admin-portal-dashboard">
+      <header className="admin-dashboard-header">
+        <div className="admin-header-title">
+          <h2>TVK Tiruppur South</h2>
+          <span>Admin Portal / நிர்வாக தளம்</span>
+        </div>
+        <div className="admin-header-actions">
+          <a href="/" className="back-site-btn">Back to Website / தளம் திரும்புக</a>
+        </div>
+      </header>
+
+      <main className="admin-dashboard-container">
+        <div className="admin-tab-bar">
+          <button 
+            onClick={() => { setActiveTab('applications'); setSelectedMember(null); }} 
+            className={`admin-tab-btn ${activeTab === 'applications' ? 'active' : ''}`}
+          >
+            Applications / விண்ணப்பங்கள்
+          </button>
+          <button 
+            onClick={() => { setActiveTab('petitions'); setSelectedPetition(null); }} 
+            className={`admin-tab-btn ${activeTab === 'petitions' ? 'active' : ''}`}
+          >
+            Petitions / மனுக்கள்
+          </button>
+        </div>
+
+        {activeTab === 'applications' ? (
+          <div className="dashboard-content-panel">
+            <div className="panel-controls">
+              <input
+                type="text"
+                placeholder="Search by Name, Phone, Area..."
+                value={memberSearch}
+                onChange={(e) => setMemberSearch(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            {loading ? <div className="admin-panel-loading">Loading applications...</div> : (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name / பெயர்</th>
+                      <th>Phone / தொலைபேசி</th>
+                      <th>Area / பகுதி</th>
+                      <th>Submitted / தேதி</th>
+                      <th>Status / நிலை</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredMembers.map(m => (
+                      <tr key={m.id}>
+                        <td><b>{m.name}</b></td>
+                        <td>{m.phone}</td>
+                        <td>{m.area}</td>
+                        <td>{new Date(m.submitted_at).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`status-pill pill-${m.status.toLowerCase()}`}>
+                            {m.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td>
+                          <button onClick={() => handleSelectMember(m.id)} className="view-details-btn">
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="dashboard-content-panel">
+            <div className="panel-controls">
+              <input
+                type="text"
+                placeholder="Search by Petitioner, Phone, Subject..."
+                value={petitionSearch}
+                onChange={(e) => setPetitionSearch(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            {loading ? <div className="admin-panel-loading">Loading petitions...</div> : (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name / பெயர்</th>
+                      <th>Phone / தொலைபேசி</th>
+                      <th>Subject / தலைப்பு</th>
+                      <th>Submitted / தேதி</th>
+                      <th>Status / நிலை</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPetitions.map(p => (
+                      <tr key={p.id}>
+                        <td>#{p.id}</td>
+                        <td><b>{p.name}</b></td>
+                        <td>{p.phone}</td>
+                        <td>{p.subject}</td>
+                        <td>{new Date(p.submitted_at).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`status-pill pill-${p.status ? p.status.toLowerCase().replace(' ', '-') : 'pending'}`}>
+                            {p.status || 'PENDING'}
+                          </span>
+                        </td>
+                        <td>
+                          <button onClick={() => handleSelectPetition(p)} className="view-details-btn">
+                            Manage
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Member Details Modal */}
+      {selectedMember && (
+        <div className="admin-modal-overlay" onClick={() => setSelectedMember(null)}>
+          <div className="admin-modal-box large" onClick={(e) => e.stopPropagation()}>
+            <button className="admin-modal-close" onClick={() => setSelectedMember(null)}>
+              <X size={24} />
+            </button>
+            <div className="member-detail-grid">
+              <div className="member-detail-left">
+                <div className="member-profile-photo-wrapper">
+                  {selectedMember.photo_data ? (
+                    <img src={selectedMember.photo_data} alt={selectedMember.name} className="member-photo" />
+                  ) : (
+                    <div className="member-photo-placeholder">
+                      <Camera size={48} />
+                      <span>No Photo Uploaded</span>
+                    </div>
+                  )}
+                </div>
+                <h3>{selectedMember.name}</h3>
+                <p className="member-phone">📞 {selectedMember.phone}</p>
+                <p className="member-email">✉️ {selectedMember.email || 'No email provided'}</p>
+                <p className="member-dob">🎂 DOB: {selectedMember.dob ? new Date(selectedMember.dob).toLocaleDateString() : 'N/A'}</p>
+                <p className="member-gender">🚻 Gender: {selectedMember.gender || 'N/A'}</p>
+                <p className="member-occupation">💼 Occupation: {selectedMember.occupation || 'N/A'}</p>
+              </div>
+
+              <div className="member-detail-right">
+                <div className="detail-section">
+                  <h4>Residential Address / வீட்டு முகவரி</h4>
+                  <p className="detail-value address-box">{selectedMember.address || 'N/A'}</p>
+                </div>
+
+                <div className="detail-section">
+                  <h4>Ward or Area / பகுதி</h4>
+                  <p className="detail-value">{selectedMember.area}</p>
+                </div>
+
+                <div className="detail-section">
+                  <h4>Interests / ஆர்வமுள்ள துறைகள்</h4>
+                  <p className="detail-value text-capitalize">
+                    {selectedMember.interests ? selectedMember.interests.split(', ').join(', ') : 'None'}
+                  </p>
+                </div>
+
+                <form onSubmit={handleUpdateMember} className="admin-update-form">
+                  <div className="form-group">
+                    <label>Application Status / விண்ணப்ப நிலை</label>
+                    <select value={memberStatus} onChange={(e) => setMemberStatus(e.target.value)}>
+                      <option value="pending">PENDING</option>
+                      <option value="approved">APPROVED</option>
+                      <option value="rejected">REJECTED</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Admin Notes / நிர்வாக குறிப்புகள்</label>
+                    <textarea 
+                      value={memberNotes} 
+                      onChange={(e) => setMemberNotes(e.target.value)} 
+                      rows="3"
+                      placeholder="Add internal notes about this applicant..."
+                    />
+                  </div>
+                  <button type="submit" className="primary-btn save-change-btn" disabled={savingMember}>
+                    {savingMember ? 'Saving...' : 'Save Notes & Status'}
+                  </button>
+                </form>
+
+                <div className="linked-petitions-section">
+                  <h4>Linked Petitions / இணைக்கப்பட்ட மனுக்கள்</h4>
+                  {selectedMember.petitions && selectedMember.petitions.length > 0 ? (
+                    <div className="linked-petitions-list">
+                      {selectedMember.petitions.map(p => (
+                        <div key={p.id} className="linked-petition-item">
+                          <div className="linked-petition-header">
+                            <h5>{p.subject}</h5>
+                            <span className={`status-pill pill-${p.status.toLowerCase().replace(' ', '-')}`}>
+                              {p.status}
+                            </span>
+                          </div>
+                          <p>{p.summary}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-linked-petitions">No petitions submitted with phone number: {selectedMember.phone}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Petition Details Modal */}
+      {selectedPetition && (
+        <div className="admin-modal-overlay" onClick={() => setSelectedPetition(null)}>
+          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="admin-modal-close" onClick={() => setSelectedPetition(null)}>
+              <X size={24} />
+            </button>
+            <h3 className="petition-modal-title">Petition Details / மனு விபரம்</h3>
+            <div className="petition-detail-body">
+              <div className="p-detail-item">
+                <span className="p-label">Petitioner / மனுதாரர்:</span>
+                <span className="p-val">{selectedPetition.name}</span>
+              </div>
+              <div className="p-detail-item">
+                <span className="p-label">Phone / தொலைபேசி:</span>
+                <span className="p-val">{selectedPetition.phone}</span>
+              </div>
+              <div className="p-detail-item">
+                <span className="p-label">Subject / தலைப்பு:</span>
+                <span className="p-val">{selectedPetition.subject}</span>
+              </div>
+              <div className="p-detail-item">
+                <span className="p-label">Summary / சுருக்கம்:</span>
+                <p className="p-val summary-text-box">{selectedPetition.summary}</p>
+              </div>
+              <div className="p-detail-item">
+                <span className="p-label">Submitted / சமர்ப்பித்தது:</span>
+                <span className="p-val">{new Date(selectedPetition.submitted_at).toLocaleString()}</span>
+              </div>
+
+              <form onSubmit={handleUpdatePetition} className="admin-update-form">
+                <div className="form-group">
+                  <label>Update Status / மனு நிலைமை</label>
+                  <select value={petitionStatus} onChange={(e) => setPetitionStatus(e.target.value)}>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Solved">Solved</option>
+                  </select>
+                </div>
+                <button type="submit" className="primary-btn save-change-btn" disabled={savingPetition}>
+                  {savingPetition ? 'Saving...' : 'Update Petition Status'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [lang, setLang] = useState("en");
+  const [showTrackModal, setShowTrackModal] = useState(false);
+  const [hash, setHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    const handleHashChange = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   const bodyClass = useMemo(() => (lang === "ta" ? "ta" : "en"), [lang]);
 
   useEffect(() => {
@@ -1317,9 +2268,13 @@ function App() {
     document.body.className = bodyClass;
   }, [lang, bodyClass]);
 
+  if (hash === "#admin") {
+    return <AdminPanel lang={lang} />;
+  }
+
   return (
     <>
-      <Header lang={lang} setLang={setLang} />
+      <Header lang={lang} setLang={setLang} setShowTrackModal={setShowTrackModal} />
       <main>
         <Hero lang={lang} />
         <PartySection lang={lang} />
@@ -1332,6 +2287,27 @@ function App() {
       </main>
       <Footer lang={lang} />
       <ChatBot />
+
+      {/* Floating Submit Petition Button */}
+      <a 
+        href="#petition" 
+        className="floating-submit-petition-btn"
+        onClick={(e) => {
+          e.preventDefault();
+          const el = document.getElementById("petition");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }}
+        title={lang === 'en' ? 'Submit Petition' : 'மனுவைச் சமர்ப்பிக்க'}
+      >
+        <Inbox size={28} />
+      </a>
+
+      {/* Track Petition Modal */}
+      <TrackPetitionModal 
+        lang={lang} 
+        isOpen={showTrackModal} 
+        onClose={() => setShowTrackModal(false)} 
+      />
     </>
   );
 }

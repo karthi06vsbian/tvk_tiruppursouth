@@ -77,10 +77,18 @@ class JoinRequest(models.Model):
 
 
 class Petition(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Rejected', 'Rejected'),
+        ('Solved', 'Solved'),
+    ]
+
     name = models.CharField(max_length=255, verbose_name="Petitioner Name")
     phone = models.CharField(max_length=50, verbose_name="Phone Number")
     subject = models.CharField(max_length=500, verbose_name="Subject")
     summary = models.TextField(verbose_name="Summary")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending', verbose_name="Petition Status")
     submitted_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False, verbose_name="Read by Admin")
 

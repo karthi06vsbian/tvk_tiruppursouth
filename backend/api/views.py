@@ -124,6 +124,7 @@ def petition_list_api(request):
             'phone': p.phone,
             'subject': p.subject,
             'summary': p.summary,
+            'status': p.status,
             'submitted_at': p.submitted_at.isoformat(),
             'is_read': p.is_read,
         })
@@ -165,6 +166,19 @@ def membership_detail_api(request, member_id):
     if request.method == 'GET':
         try:
             member = JoinRequest.objects.get(id=member_id)
+            petitions_qs = Petition.objects.filter(phone=member.phone)
+            petitions_data = []
+            for p in petitions_qs:
+                petitions_data.append({
+                    'id': p.id,
+                    'name': p.name,
+                    'phone': p.phone,
+                    'subject': p.subject,
+                    'summary': p.summary,
+                    'status': p.status,
+                    'is_read': p.is_read,
+                    'submitted_at': p.submitted_at.isoformat()
+                })
             data = {
                 'id': member.id,
                 'name': member.name,
@@ -180,7 +194,8 @@ def membership_detail_api(request, member_id):
                 'photo_name': member.photo_name,
                 'status': member.status,
                 'admin_notes': member.admin_notes,
-                'submitted_at': member.submitted_at.isoformat()
+                'submitted_at': member.submitted_at.isoformat(),
+                'petitions': petitions_data
             }
             return JsonResponse({'status': 'success', 'data': data})
         except JoinRequest.DoesNotExist:
@@ -224,4 +239,71 @@ def membership_update_api(request, member_id):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
+    return JsonResponse({'status': 'error', 'message': 'Only PUT method is allowed'}, status=405)
+
+# New API: Track petitions by phone number
+@csrf_exempt
+def petition_track_api(request):
+    if request.method == 'GET':
+        phone = request.GET.get('phone')
+        if not phone:
+            return JsonResponse({'status': 'error', 'message': 'Phone number parameter is required'}, status=400)
+        
+        try:
+            petitions = Petition.objects.filter(phone=phone)
+            data = []
+            for p in petitions:
+                data.append({
+                    'id': p.id,
+                    'name': p.name,
+                    'phone': p.phone,
+                    'subject': p.subject,
+                    'summary': p.summary,
+                    'status': p.status,
+                    'is_read': p.is_read,
+                    'submitted_at': p.submitted_at.isoformat()
+                })
+            return JsonResponse({'status': 'success', 'data': data})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+            
+    return JsonResponse({'status': 'error', 'message': 'Only GET method is allowed'}, status=405)
+
+# New API: Update petition status and read flag (admin)
+@csrf_exempt
+def petition_update_api(request, petition_id):
+    if request.method == 'PUT':
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+
+            petition = Petition.objects.get(id=petition_id)
+            
+            if 'status' in data:
+                petition.status = data.get('status')
+            if 'is_read' in data:
+                val = data.get('is_read')
+                if isinstance(val, str):
+                    petition.is_read = val.lower() == 'true'
+                else:
+                    petition.is_read = bool(val)
+            
+            petition.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Petition updated successfully',
+                'data': {
+                    'id': petition.id,
+                    'status': petition.status,
+                    'is_read': petition.is_read
+                }
+            })
+        except Petition.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Petition not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+            
     return JsonResponse({'status': 'error', 'message': 'Only PUT method is allowed'}, status=405)
