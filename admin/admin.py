@@ -67,6 +67,7 @@ class PetitionAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'subject', 'is_read', 'submitted_at')
     search_fields = ('name', 'phone', 'subject', 'summary')
     list_filter = ('is_read', 'submitted_at')
+    list_editable = ('is_read',)
     readonly_fields = ('submitted_at',)
     
     fieldsets = (
