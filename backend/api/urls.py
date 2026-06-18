@@ -12,4 +12,5 @@ urlpatterns = [
     path('members/<int:member_id>/update/', views.membership_update_api, name='membership_update_api'),
     path('petitions/track/', views.petition_track_api, name='petition_track_api'),
     path('petitions/<int:petition_id>/update/', views.petition_update_api, name='petition_update_api'),
+    path('contact/submit/', views.contact_submit_api, name='contact_submit_api'),
 ]

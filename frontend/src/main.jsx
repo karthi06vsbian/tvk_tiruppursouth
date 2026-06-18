@@ -1572,7 +1572,41 @@ function PetitionSection({ lang, setShowTrackModal }) {
 
 function Footer({ lang }) {
   const t = copy[lang];
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [topic, setTopic] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
+
   const scrollToTop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      alert(lang === 'en' ? 'Please enter a valid 10-digit phone number.' : 'தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.');
+      return;
+    }
+    setStatus('submitting');
+    fetch("/api/contact/submit/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, phone: cleanPhone, topic, message })
+    })
+      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
+      .then(() => {
+        setStatus('success');
+        setEmail('');
+        setPhone('');
+        setTopic('');
+        setMessage('');
+      })
+      .catch((err) => {
+        console.error(err);
+        setStatus('error');
+      });
+  };
+
   return (
     <footer className="tvk-foot" id="contact">
       <div className="foot-hero">
@@ -1588,7 +1622,7 @@ function Footer({ lang }) {
           <p>{t.foot_p}</p>
           <div className="foot-cta-row">
             <a className="btn-gold" href="#join">
-              {lang === "en" ? "Join TVK" : "\u0ba4\u0bb5\u0bc6\u0b95\u0bb5\u0bbf\u0bb2\u0bcd \u0b9a\u0bc7\u0bb0"}
+              {lang === "en" ? "Join TVK" : "தவெகவில் சேர"}
               <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
             </a>
           </div>
@@ -1606,26 +1640,79 @@ function Footer({ lang }) {
         <div className="foot-bg-crowd-gold" aria-hidden="true"></div>
         <div className="foot-wordmark">
           <div className="foot-wordmark-brand">
-            <div className="en">{lang === "en" ? "Tamilaga Vettri Kazhagam" : "\u0ba4\u0bae\u0bbf\u0bb4\u0b95 \u0bb5\u0bc6\u0bb1\u0bcd\u0bb1\u0bbf\u0b95\u0bcd \u0b95\u0bb4\u0b95\u0bae\u0bcd"}</div>
-            <div className="ta">{lang === "en" ? "Tiruppur South" : "\u0ba4\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0bc2\u0bb0\u0bcd \u0ba4\u0bc6\u0bb1\u0bcd\u0b95\u0bc1"}</div>
+            <div className="en">{lang === "en" ? "Tamilaga Vettri Kazhagam" : "தமிழக வெற்றிக் கழகம்"}</div>
+            <div className="ta">{lang === "en" ? "Tiruppur South" : "திருப்பூர் தெற்கு"}</div>
             <div className="domain num">tvktiruppursouth.com</div>
           </div>
           <div className="foot-wordmark-copy">{t.copyright}</div>
         </div>
-        <div className="foot-cols foot-cols-trim">
-          <div><h5>{t.col_election}</h5><ul><li><a href="#join">{t.l_candidates}</a></li><li><a href="#join">{t.l_guarantees}</a></li><li><a href="#join">{t.l_disclosures}</a></li></ul></div>
-          <div><h5>{t.col_party}</h5><ul><li><a href="#party">{t.l_about}</a></li><li><a href="#party">{t.l_ideology}</a></li><li><a href="#party">{t.l_action}</a></li></ul></div>
-          <div><h5>{t.col_org}</h5><ul><li><a href="#events">{t.l_leadership}</a></li><li><a href="#events">{t.l_district_str}</a></li><li><a href="#events">{t.l_wings}</a></li><li><a href="#events">{t.l_committees}</a></li></ul></div>
-          <div><h5>{t.col_updates}</h5><ul><li><a href="#news">{t.l_resolutions}</a></li><li><a href="#news">{t.l_announcements}</a></li><li><a href="#events">{t.l_events}</a></li></ul></div>
-          <div><h5>{t.col_more}</h5><ul><li><a href="#events">{t.l_gallery}</a></li><li><a href="#contact">{t.l_contact}</a></li></ul></div>
+        
+        <div className="foot-contact-form-container" style={{ flex: '1 1 450px', maxWidth: '550px' }}>
+          <h5 style={{ color: '#ffd84a', fontFamily: 'Teko, sans-serif', fontSize: '1.8rem', letterSpacing: '1px', marginBottom: '16px', textTransform: 'uppercase' }}>
+            {lang === 'en' ? 'Contact Us / எங்களைத் தொடர்பு கொள்ள' : 'எங்களைத் தொடர்பு கொள்ள / Contact Us'}
+          </h5>
+          {status === 'success' ? (
+            <div style={{ color: '#22c55e', fontSize: '1.1rem', fontWeight: 'bold', padding: '15px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '8px', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+              {lang === 'en' ? '✅ Thank you! Your message has been sent successfully.' : '✅ நன்றி! உங்கள் செய்தி வெற்றிகரமாக அனுப்பப்பட்டது.'}
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="foot-contact-grid">
+                <input
+                  type="email"
+                  required
+                  placeholder={lang === 'en' ? 'Email ID *' : 'மின்னஞ்சல் முகவரி *'}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}
+                />
+                <input
+                  type="tel"
+                  required
+                  placeholder={lang === 'en' ? 'Phone Number *' : 'தொலைபேசி எண் *'}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}
+                />
+              </div>
+              <input
+                type="text"
+                required
+                placeholder={lang === 'en' ? 'Topic / Subject *' : 'தொடர்புக்கான தலைப்பு *'}
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}
+              />
+              <textarea
+                placeholder={lang === 'en' ? 'Message (Optional)' : 'செய்தி (விருப்பத்திற்குரியது)'}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={2}
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem', resize: 'vertical' }}
+              />
+              <button
+                type="submit"
+                disabled={status === 'submitting'}
+                style={{ background: 'linear-gradient(135deg, #ffd84a 0%, #f3ad20 100%)', color: '#3f0608', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem', transition: 'transform 0.2s', fontFamily: 'Teko, sans-serif', textTransform: 'uppercase', letterSpacing: '1px' }}
+              >
+                {status === 'submitting' ? (lang === 'en' ? 'Sending...' : 'அனுப்பப்படுகிறது...') : (lang === 'en' ? 'Submit' : 'சமர்ப்பி')}
+              </button>
+              {status === 'error' && (
+                <div style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '5px' }}>
+                  {lang === 'en' ? '❌ Failed to send message. Please try again.' : '❌ செய்தி அனுப்புவதில் தோல்வி. மீண்டும் முயலவும்.'}
+                </div>
+              )}
+            </form>
+          )}
         </div>
+
         <div className="foot-meta foot-meta-compact">
           <div className="foot-meta-cell"><b>{t.office_label}</b>{t.office}</div>
           <div className="foot-meta-cell"><b>{t.media_label}</b>{t.media_val}</div>
         </div>
         <div className="foot-builtby">
           <div className="foot-builtby-card">
-            <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "\u0bb5\u0b9f\u0bbf\u0bb5\u0bae\u0bc8\u0baa\u0bcd\u0baa\u0bc1 & \u0baa\u0bb0\u0bbe\u0bae\u0bb0\u0bbf\u0baa\u0bcd\u0baa\u0bc1"}</span>
+            <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "வடிவமைப்பு & பராமரிப்பு"}</span>
             <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
           </div>
         </div>

@@ -3691,4 +3691,11 @@ body.ta .foot-builtby-label {
   color: #8c897d !important;
 }
 
+/* Footer Contact Form Responsive Styling */
+@media (max-width: 580px) {
+  .foot-contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 

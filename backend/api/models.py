@@ -103,3 +103,19 @@ class Petition(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.subject} ({self.submitted_at.strftime('%Y-%m-%d')})"
+
+
+class ContactMessage(models.Model):
+    email = models.EmailField(verbose_name="Email Address")
+    phone = models.CharField(max_length=50, verbose_name="Phone Number")
+    topic = models.CharField(max_length=255, verbose_name="Topic / Subject")
+    message = models.TextField(verbose_name="Message", blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Contact Message"
+        verbose_name_plural = "Contact Messages"
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.email} - {self.topic} ({self.submitted_at.strftime('%Y-%m-%d')})"

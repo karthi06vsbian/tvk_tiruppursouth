@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import News, Event, JoinRequest, Petition
+from .models import News, Event, JoinRequest, Petition, ContactMessage
 
 def clean_phone_number(phone_str):
     if not phone_str:
@@ -344,3 +344,34 @@ def petition_update_api(request, petition_id):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
             
     return JsonResponse({'status': 'error', 'message': 'Only PUT method is allowed'}, status=405)
+
+
+@csrf_exempt
+def contact_submit_api(request):
+    if request.method == 'POST':
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+
+            email = data.get('email')
+            phone = data.get('phone')
+            topic = data.get('topic')
+            message = data.get('message', '')
+
+            if not email or not phone or not topic:
+                return JsonResponse({'status': 'error', 'message': 'Email, phone, and topic are required'}, status=400)
+
+            cleaned_phone = clean_phone_number(phone)
+            msg = ContactMessage.objects.create(
+                email=email,
+                phone=cleaned_phone,
+                topic=topic,
+                message=message
+            )
+            return JsonResponse({'status': 'success', 'message': 'Message sent successfully', 'id': msg.id})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'}, status=405)

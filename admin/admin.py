@@ -1,5 +1,5 @@
 from django.contrib import admin
-from api.models import News, Event, JoinRequest, Petition
+from api.models import News, Event, JoinRequest, Petition, ContactMessage
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
@@ -86,5 +86,16 @@ class PetitionAdmin(admin.ModelAdmin):
         }),
     )
 
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('email', 'phone', 'topic', 'submitted_at')
+    search_fields = ('email', 'phone', 'topic', 'message')
+    list_filter = ('submitted_at',)
+    readonly_fields = ('submitted_at',)
+    
     def has_add_permission(self, request):
         return False
