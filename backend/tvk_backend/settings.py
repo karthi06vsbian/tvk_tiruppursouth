@@ -25,12 +25,20 @@ sys.path.append(os.path.abspath(os.path.join(BASE_DIR, '..')))
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-cnhobnp%1s))^(rbh5rqe7@l5$kdg*mx+b)ne3(ex!e)c^gq_f'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-cnhobnp%1s))^(rbh5rqe7@l5$kdg*mx+b)ne3(ex!e)c^gq_f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+# Render deploy detection
+RENDER = os.environ.get('RENDER', 'false').lower() == 'true'
+
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+else:
+    ALLOWED_HOSTS.append('*')
 
 
 # Application definition
@@ -48,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'tvk_backend.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,39 +90,12 @@ WSGI_APPLICATION = 'tvk_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-import pymysql
-try:
-    # Try to verify MySQL connection (with a short timeout of 1s)
-    conn = pymysql.connect(
-        host='127.0.0.1',
-        user='root',
-        password='',
-        port=3306,
-        connect_timeout=1
-    )
-    conn.close()
-    
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'tvk_db',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': '127.0.0.1',
-            'PORT': '3306',
-            'OPTIONS': {
-                'charset': 'utf8mb4',
-            }
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-except Exception:
-    # Fallback to local SQLite file
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
@@ -151,6 +133,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
