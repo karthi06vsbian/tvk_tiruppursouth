@@ -508,57 +508,57 @@ const timelineEvents = {
     },
     {
       year: "2001",
-      title: "Welfare Outreach Expansion",
-      desc: "By 2001, Vijay established himself as a dominant force in Tamil cinema. His fan clubs expanded their charitable activities, distributing food, books, and medical aid to the needy across Tamil Nadu, laying the foundation for public service.",
-      img: "/assets/branding/hero-vj-sampath.jpg"
+      title: "Extending a Helping Hand, He Took to the Streets with a Cause",
+      desc: "During natural disasters such as the tsunami and the Gujarat Bhuj earthquake, he stepped forward to extend support, personally taking to the streets with a donation box. Inspired by his actions, lakhs of supporters joined the cause and rose to the occasion. When it comes to stepping into the field and delivering help, none can match the dedication and spirit of the welfare association.",
+      img: "/assets/timeline/2001_welfare.jpg"
     },
     {
       year: "2008",
-      title: "Social Advocacy Through Cinema",
-      desc: "In 2008, his films began to heavily address social issues and justice, reflecting his personal evolution toward public advocacy. Welfare clubs organized blood donation drives and assisted during natural disasters, earning wide respect.",
-      img: "/assets/rallies/vijay-roadshow.jpg"
+      title: "Hunger Strike for Eelam Tamils - A Stand for Justice",
+      desc: "In 2008, as Tamils in Sri Lanka - our own blood and kin - faced brutal atrocities, our leader rose in defiance and led a hunger strike in Chepauk, condemning the injustice. This was not just a protest - it was a call to conscience. Across Tamil Nadu, members of the welfare association took to the streets, staging hunger strikes in solidarity. What began as one voice turned into a powerful wave of resistance, echoing the demand for justice and dignity.",
+      img: "/assets/timeline/2008_eelam.jpg"
     },
     {
       year: "2011",
-      title: "Vijay Makkal Iyakkam Electoral Support",
-      desc: "In 2011, the Vijay Makkal Iyakkam (VMI) took its first political stance by supporting the AIADMK-led alliance in the state assembly elections, demonstrating its immense mobilizing capability at the booth level.",
-      img: "/assets/branding/flag-flowing.png"
+      title: "Protest for Tamil Nadu Fishermen",
+      desc: "In Nagapattinam, condemning the brutal killing of Tamil Nadu fishermen, our leader led a massive protest gathering. Calling it a “Cruelty where even palm-wood boats become coffins,” he spoke with fire and conviction. In that charged moment, he invoked the spirit of the fearless Tamil woman who once struck down a tiger with bare courage, declaring, “We are the descendants of that bravery… We are tiger cubs!”. It was a roar of resistance rather than a mere speech.",
+      img: "/assets/timeline/2011_fishermen.jpg"
     },
     {
       year: "2017",
-      title: "Voice for Public Accountability",
-      desc: "The release of Mersal in 2017 showcased a powerful critique of healthcare and taxation systems. The film resonated deeply with the masses and sparked state-wide political discussions, cementing Vijay’s role as a voice for public accountability.",
-      img: "/assets/rallies/vijay-addressing-cadres.jpg"
+      title: "With Anitha’s Family - Standing in Solidarity",
+      desc: "In 2017, after Anitha - who scored 1176 out of 1200 in her Class 12 exams - lost her life due to the NEET examination, our leader personally visited her home. He stood with her grieving family, offering comfort and support in their moment of profound loss.",
+      img: "/assets/timeline/2017_anitha.jpg"
     },
     {
       year: "2020",
-      title: "Grassroots Electoral Entry",
-      desc: "In 2020, VMI candidates contested local body elections independently in several districts, winning multiple seats and demonstrating genuine political appeal and grassroots leadership.",
-      img: "/assets/rallies/vijay-departs.jpg"
+      title: "A Helping Hand in Times of Crisis - Kerala Floods & Pandemic Relief",
+      desc: "During the devastating COVID-19 pandemic in 2020, our leader contributed ₹1.3 crore as relief support, standing firmly with the people in a time of global crisis. When Kerala was affected by floods, he extended immediate assistance by sending relief materials in truckloads, reaching those affected in their hour of need.",
+      img: "/assets/timeline/2020_kerala_flood.png"
     },
     {
       year: "2021",
-      title: "Establishing Electoral Footprint",
-      desc: "Following the 2020 success, the 2021 local body polls saw VMI securing a significant number of wards, establishing a formal electoral footprint and proving the readiness of the cadres for a larger political transition.",
-      img: "/assets/posters/leadership-composite.jpg"
+      title: "2021 Rural Local Body Elections",
+      desc: "In the 2021 rural local body elections, members of the Makkal Iyakkam contested by showcasing only Thalapathi’s photo. They emerged victorious in 127 seats, marking a significant grassroots breakthrough. Beyond electoral success, Makkal Iyakkam continued to act where systems often fall short - through initiatives like blood banks, eye care support, educational centers, libraries, legal aid services, Bread, Milk, and Egg Scheme, and housing support - delivering real impact on the ground.",
+      img: "/assets/timeline/2021_local_body.webp"
     },
     {
       year: "2024",
-      title: "Launch of Tamilaga Vettri Kazhagam",
-      desc: "On February 2, 2024, Vijay officially launched his political party, Tamilaga Vettri Kazhagam (TVK). He announced his retirement from cinema to focus entirely on public service, pledging to fight for equality and secular social justice.",
-      img: "/assets/branding/whistle.svg"
+      title: "Tamilaga Vetri Kazhagam - The Beginning of a New Chapter",
+      desc: "On February 2, 2024, our leader announced the formation of the political party, Tamilaga Vetri Kazhagam, marking the start of a new political journey. On August 22, 2024, the party’s flag was formally unveiled.",
+      img: "/assets/timeline/2024_tvk_launch.webp"
     },
     {
       year: "2024",
-      title: "Historic First State Conference",
-      desc: "On October 27, 2024, TVK held its historic first state conference in Vikravandi. Attended by millions of supporters, the conference unveiled the party’s flag, symbol, and core ideological principles, declaring war on corruption and divisive politics.",
-      img: "/assets/rallies/western-region-conference.jpg"
+      title: "Vetri Kolgai Thiruvizha - A Historic First State Conference",
+      desc: "On October 27, 2024, in Vikravandi, Villupuram district, a massive conference titled “Vetri Kolgai Thiruvizha” was held, drawing participation from over 1.5 million people. At this first state conference, our leader unveiled the movement’s five core ideological leaders, sending a powerful message across all directions. Tamilaga Vetri Kazhagam stands as the only political party in Tamil Nadu to declare women as ideological leaders - marking a bold and historic step in political representation.",
+      img: "/assets/timeline/2024_state_conference.jpg"
     },
     {
       year: "2025",
-      title: "Massive Membership Drive",
-      desc: "Throughout 2025, TVK launched a massive membership drive, enrolling over 15 million members, and structured its wings to prepare for the historic 2026 assembly elections.",
-      img: "/assets/sampath/cabinet-expansion.webp"
+      title: "Parandur Protest - A Leader Who Rose as the Voice of the People",
+      desc: "Stepping into the field against the Parandur airport issue - which threatens water bodies, agricultural lands, and farming communities - our leader stood firmly with the people. When he came to meet his own people, countless obstacles were placed in his path. Yet, rising above every barrier, he became the voice of the voiceless - and continues to echo their concerns.",
+      img: "/assets/timeline/2025_parandur.webp"
     }
   ],
   ta: [
@@ -570,57 +570,57 @@ const timelineEvents = {
     },
     {
       year: "2001",
-      title: "நற்பணி மன்ற விரிவாக்கம்",
-      desc: "2001 ஆம் ஆண்டிற்குள், விஜய் தமிழ் சினிமாவில் ஒரு முக்கிய சக்தியாக தன்னை நிலைநிறுத்திக் கொண்டார். அவரது ரசிகர் மன்றங்கள் நற்பணி மன்றங்களாக மாறி ஏழைகளுக்கு உணவு, புத்தகங்கள் மற்றும் மருத்துவ உதவிகளை வழங்கத் தொடங்கின, இது மக்கள் சேவைக்கு அடித்தளம் அமைத்தது.",
-      img: "/assets/branding/hero-vj-sampath.jpg"
+      title: "உதவிக்கரம் நீட்டிய தளபதி, உண்டியல் ஏந்தி தெருத்தெருவாக சென்றார்",
+      desc: "சுனாமி, குஜராத் பூஜ் பூகம்பம் போன்ற இயற்கை பேரிடர் சம்பவங்களுக்கு உதவிக்கரம் நீட்டிய தளபதி, உண்டியல் ஏந்தி தெருத்தெருவாக சென்றார். அவரைப் பார்த்து லட்சக்கணக்கான ரசிகர்களும் களத்தில் குதித்தார்கள். களத்தில் இறங்கி உதவி செய்வதில் மக்கள் இயக்கத்தினருக்கு நிகர் ஏதுமில்லை.",
+      img: "/assets/timeline/2001_welfare.jpg"
     },
     {
       year: "2008",
-      title: "திரைப்படம் மூலம் சமூக ஆதரவு",
-      desc: "2008 ஆம் ஆண்டில், அவரது திரைப்படங்கள் சமூக பிரச்சினைகள் மற்றும் நீதியை முன்னிலைப்படுத்த தொடங்கின, இது அவரது சமூகப் பொறுப்பை பிரதிபலித்தது. அவரது நற்பணி மன்றங்கள் இரத்த தான முகாம்களை ஏற்பாடு செய்தும், பேரிடர் காலங்களில் உதவியும் மக்களின் மதிப்பை பெற்றன.",
-      img: "/assets/rallies/vijay-roadshow.jpg"
+      title: "ஈழத் தமிழர்களுக்காக உண்ணாவிரதப் போராட்டம் - நீதிக்கான குரல்",
+      desc: "2008 இல், இலங்கையில் நமது தொப்புள்கொடி உறவுகளான ஈழத் தமிழர்கள் கொடூரமான அத்துமீறல்களையும் இன்னல்களையும் சந்தித்தபோது, நமது தலைவர் அதற்கு கண்டனம் தெரிவித்து சென்னை சேப்பாக்கத்தில் உண்ணாவிரதப் போராட்டத்தை முன்னெடுத்தார். இது வெறும் போராட்டம் மட்டுமல்ல - மக்களின் மனசாட்சிக்கான அழைப்பு. தமிழகம் முழுவதும் நற்பணி மன்ற உறுப்பினர்கள் தார்மீக ஆதரவாக வீதிகளில் இறங்கி உண்ணாவிரதப் போராட்டங்களை நடத்தினார்கள். ஒரு குரலாகத் தொடங்கியது, நீதியையும் கண்ணியத்தையும் கோரும் சக்திவாய்ந்த எதிர்ப்பலையாக மாறியது.",
+      img: "/assets/timeline/2008_eelam.jpg"
     },
     {
       year: "2011",
-      title: "மக்கள் இயக்கத்தின் அரசியல் பங்களிப்பு",
-      desc: "2011 இல், விஜய் மக்கள் இயக்கம் (VMI) மாநில சட்டமன்றத் தேர்தலில் தனது முதல் அரசியல் பங்களிப்பை வழங்கியது. இது அடிமட்ட அளவில் பூத் வரை இயக்கத்தின் மாபெரும் ஒருங்கிணைப்பு பலத்தை நிரூபித்தது.",
-      img: "/assets/branding/flag-flowing.png"
+      title: "தமிழக மீனவர்களுக்கான கண்டனப் போராட்டம்",
+      desc: "நாகப்பட்டினத்தில், தமிழக மீனவர்கள் கொடூரமாகக் கொல்லப்பட்டதைக் கண்டித்து, நமது தலைவர் ஒரு மாபெரும் கண்டனப் போராட்டத்தை நடத்தினார். \"பனை மரப் படகுகளும் சவப்பெட்டிகளாக மாறும் கொடுமை\" என்று அதனை வர்ணித்த அவர், மிகுந்த ஆவேசத்துடனும் உறுதியுடனும் பேசினார். அந்த உணர்ச்சிப்பூர்வமான தருணத்தில், வெறும் கையால் புலியை விரட்டியடித்த வீரத் தமிழ்ப் பெண்ணின் வீரத்தை நினைவு கூர்ந்த அவர், “நாம் அந்த வீரத்தின் வழிவந்தவர்கள்… நாம் புலிக்குட்டிகள்!” என்று முழங்கினார். இது வெறும் பேச்சு அல்ல, எதிர்ப்பின் கர்ஜனை!",
+      img: "/assets/timeline/2011_fishermen.jpg"
     },
     {
       year: "2017",
-      title: "பொதுப் பொறுப்புக்கான குரல்",
-      desc: "2017 இல் வெளியான மெர்சல் திரைப்படம், சுகாதாரத் துறை மற்றும் வரி விதிப்பு முறைகளை கடுமையாக விமர்சித்தது. இது மாநிலம் தழுவிய அரசியல் விவாதங்களை தூண்டி, விஜய் அவர்களின் சமூகப் பொறுப்பை வெளிப்படுத்தியது.",
-      img: "/assets/rallies/vijay-addressing-cadres.jpg"
+      title: "தங்கை அனிதாவின் வீட்டில் தளபதி",
+      desc: "பிளஸ் டூ தேர்வில் 1200க்கு 1176 மதிப்பெண்களை பெற்றும் மருத்துவராக முடியாத தங்கை அனிதாவை நீட் தேர்வு கொன்றது. 2017 ஆம் ஆண்டு அவரது வீட்டுக்கே சென்று, அவரது குடும்பத்தினருக்கு ஆறுதல் வழங்கினார்.",
+      img: "/assets/timeline/2017_anitha.jpg"
     },
     {
       year: "2020",
-      title: "உள்ளாட்சித் தேர்தல் களம்",
-      desc: "2020 இல், மக்கள் இயக்கத்தின் சார்பாக உள்ளாட்சித் தேர்தல்களில் சுயேச்சையாக போட்டியிட்டு பல இடங்களில் வெற்றி பெற்றனர். இது அடிமட்ட அளவில் இயக்கத்திற்கு உள்ள அரசியல் செல்வாக்கை காட்டியது.",
-      img: "/assets/rallies/vijay-departs.jpg"
+      title: "கேரள வெள்ளத்தின் போது தளபதியின் உதவிக் கரம்",
+      desc: "2020 ல் கொடிய கொரோனா பேரிடர் காலம். ஒரு கோடியே 30 லட்சம் ரூபாயை நன்கொடையாக கொடுத்தார் தளபதி. கேரளா, வெள்ளத்தில் மிதந்த போது, லாரி லாரியாய் நிவாரண பொருட்களை அனுப்பி வைத்தார் தளபதி அவர்கள்.",
+      img: "/assets/timeline/2020_kerala_flood.png"
     },
     {
       year: "2021",
-      title: "தேர்தல் முத்திரை பதித்தல்",
-      desc: "2020 வெற்றியைத் தொடர்ந்து, 2021 உள்ளாட்சித் தேர்தல்களிலும் மக்கள் இயக்கம் குறிப்பிடத்தக்க வார்டுகளைக் கைப்பற்றி, தனது அரசியல் முத்திரையைப் பதித்தது, மேலும் தொண்டர்கள் பெரிய அரசியல் மாற்றத்திற்கு தயாராக இருப்பதை காட்டியது.",
-      img: "/assets/posters/leadership-composite.jpg"
+      title: "2021 ஊரக உள்ளாட்சித் தேர்தல்",
+      desc: "2021ல் ஊரக உள்ளாட்சித் தேர்தல். தளபதியின் போட்டோவை மட்டும் காட்டி இயக்கத் தோழர்கள் போட்டியிட்டார்கள். 127 இடங்களில் வெற்றி வாகை சூடினார்கள். குருதியகம், விழியகம், பயிலகம், நூலகம், சட்ட ஆலோசனை மையம், ரொட்டி பால் முட்டை திட்டம், விலையில்லா விருந்தகம், விலையில்லா வீடு கட்டும் திட்டம் இப்படி ஒரு அரசாங்கம் செய்ய வேண்டிய வேலையை மக்கள் இயக்கம் செய்கிறது.",
+      img: "/assets/timeline/2021_local_body.webp"
     },
     {
       year: "2024",
-      title: "தமிழக வெற்றிக் கழகம் தொடக்கம்",
-      desc: "பிப்ரவரி 2, 2024 அன்று, விஜய் தனது அரசியல் கட்சியான \"தமிழக வெற்றிக் கழகத்தை\" (தவெக) அதிகாரப்பூர்வமாகத் தொடங்கினார். மக்கள் சேவைக்காக முழுமையாக உழைக்கப் போவதாகவும், சமத்துவம் மற்றும் மதச்சார்பற்ற சமூக நீதிக்காக போராடப் போவதாகவும் அறிவித்தார்.",
-      img: "/assets/branding/whistle.svg"
+      title: "தமிழக வெற்றிக் கழகம்: புது அத்தியாயத்தின் தொடக்கம்",
+      desc: "2024ஆம் ஆண்டு பிப்ரவரி மாதம் 2 ஆம் தேதி தமிழக வெற்றிக் கழகம் என்ற அரசியல் கட்சியை அறிவித்தார் தலைவர் அவர்கள். 22.08.2024 அன்று தமிழக வெற்றி கழகத்தின் கொடி முறைப்படி அறிமுகம் செய்யப்பட்டது.",
+      img: "/assets/timeline/2024_tvk_launch.webp"
     },
     {
       year: "2024",
-      title: "வரலாற்று சிறப்புமிக்க முதல் மாநாடு",
-      desc: "அக்டோபர் 27, 2024 அன்று, விக்கிரவாண்டியில் தவெகவின் முதல் மாநில மாநாடு நடைபெற்றது. கோடிக்கணக்கான தொண்டர்கள் பங்கேற்ற இந்த மாநாட்டில் கட்சியின் கொள்கைகள், கொடி மற்றும் சின்னம் அறிமுகப்படுத்தப்பட்டு ஊழல் மற்றும் பிரிவினைவாதத்திற்கு எதிராக பிரகடனம் செய்யப்பட்டது.",
-      img: "/assets/rallies/western-region-conference.jpg"
+      title: "வெற்றிக் கொள்கைத் திருவிழா: வரலாறு படைத்த முதல் மாநில மாநாடு",
+      desc: "விழுப்புரம் மாவட்டம், விக்கிரவாண்டியில் 27.10.2024 அன்று வெற்றிக் கொள்கைத் திருவிழா என்ற பெயரில் 15 லட்சத்திற்கும் அதிகமானோர் பங்கேற்ற மாநாடு நடத்தப்பட்டது. முதல் மாநில மாநாட்டில் கழகத்தின் ஐம்பெரும் கொள்கைத் தலைவர்களை அறிவித்து அத்தனை திசைகளையும் அதிர வைத்தார். தமிழ் நிலப் பரப்பில் பெண்களை கொள்கை தலைவர்களாக பிரகடனம் செய்த ஒரே கட்சி தமிழக வெற்றிக் கழகம்.",
+      img: "/assets/timeline/2024_state_conference.jpg"
     },
     {
       year: "2025",
-      title: "மாபெரும் உறுப்பினர் சேர்க்கை",
-      desc: "2025 ஆம் ஆண்டு முழுவதும், தவெக ஒரு பெரிய உறுப்பினர் சேர்க்கை இயக்கத்தைத் தொடங்கி, 1.5 கோடிக்கும் அதிகமான உறுப்பினர்களைச் சேர்த்தது, மேலும் 2026 சட்டமன்றத் தேர்தலுக்குத் தயாரானது.",
-      img: "/assets/sampath/cabinet-expansion.webp"
+      title: "பரந்தூர் போராட்டம்: மக்களின் குரலாக எழுந்த தலைவர்",
+      desc: "நீர்நிலைகளை, விவசாய நிலங்களை, விவசாயப் பெருங்குடி மக்களைப் பாதிக்கும் பரந்தூர் விமான நிலைய பிரச்சனைக்காக களத்திற்கு வந்தார். சொந்த நாட்டு மக்களை பார்ப்பதற்காக ஒரு தலைவர் வருகிறார் அவருக்கு எத்தனை தொல்லைகள் செய்தார்கள். அத்தனையும் தாண்டி குரல் அற்றவர்களின் குரலாக ஒலித்தார், ஒலித்துக்கொண்டிருக்கிறார்.",
+      img: "/assets/timeline/2025_parandur.webp"
     }
   ]
 };
