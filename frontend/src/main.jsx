@@ -389,10 +389,10 @@ function Hero({ lang }) {
           />
         </div>
       </div>
-      <div className="hero-copy official-box" style={{ marginTop: '80px' }}>
+      <div className="hero-copy official-box">
         <p className="eyebrow">{t.heroKicker}</p>
         <h1>{t.heroTitle}</h1>
-        <p style={{ color: '#695050', fontSize: '1.15rem', lineHeight: '1.6', maxWidth: '780px' }}>{t.heroLead}</p>
+        <p className="hero-lead">{t.heroLead}</p>
         <div className="hero-actions">
           <a className="primary-btn" href="#join">
             {t.heroCta}
