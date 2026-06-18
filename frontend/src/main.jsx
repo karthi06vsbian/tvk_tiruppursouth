@@ -1092,7 +1092,7 @@ function Footer({ lang }) {
         <div className="foot-builtby">
           <div className="foot-builtby-card">
             <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "\u0bb5\u0b9f\u0bbf\u0bb5\u0bae\u0bc8\u0baa\u0bcd\u0baa\u0bc1 & \u0baa\u0bb0\u0bbe\u0bae\u0bb0\u0bbf\u0baa\u0bcd\u0baa\u0bc1"}</span>
-            <img src="/assets/branding/dds-logo-light.png" alt="Digital and Design Solutions" />
+            <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
           </div>
         </div>
       </div>
