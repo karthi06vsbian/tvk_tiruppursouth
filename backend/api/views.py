@@ -41,15 +41,50 @@ def join_submit_api(request):
             else:
                 data = request.POST
 
+            # Basic fields
             name = data.get('name')
             phone = data.get('phone')
             area = data.get('area')
 
-            if not name or not phone or not area:
-                return JsonResponse({'status': 'error', 'message': 'Missing required fields'}, status=400)
+            # Enhanced fields
+            email = data.get('email', '')
+            dob = data.get('dob', '')
+            gender = data.get('gender', '')
+            address = data.get('address', '')
+            occupation = data.get('occupation', '')
+            interests = data.get('interests', '')  # Can be JSON string or comma-separated
+            photo_data = data.get('photo_data', '')
+            photo_name = data.get('photo_name', '')
 
-            join_req = JoinRequest.objects.create(name=name, phone=phone, area=area)
-            return JsonResponse({'status': 'success', 'message': 'Registration successful', 'id': join_req.id})
+            if not name or not phone or not area:
+                return JsonResponse({'status': 'error', 'message': 'Missing required fields: name, phone, area'}, status=400)
+
+            # Convert interests list to string if needed
+            if isinstance(interests, list):
+                interests = ', '.join(interests)
+
+            join_req = JoinRequest.objects.create(
+                name=name,
+                phone=phone,
+                email=email,
+                dob=dob,
+                gender=gender,
+                address=address,
+                area=area,
+                occupation=occupation,
+                interests=interests,
+                photo_data=photo_data,
+                photo_name=photo_name,
+                status='pending'
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Membership application submitted successfully',
+                'id': join_req.id,
+                'name': join_req.name,
+                'area': join_req.area
+            })
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
             
@@ -93,3 +128,100 @@ def petition_list_api(request):
             'is_read': p.is_read,
         })
     return JsonResponse(data, safe=False)
+
+# New API: Get all membership applications (admin)
+@csrf_exempt
+def membership_list_api(request):
+    if request.method == 'GET':
+        try:
+            members = JoinRequest.objects.all()
+            data = []
+            for member in members:
+                data.append({
+                    'id': member.id,
+                    'name': member.name,
+                    'phone': member.phone,
+                    'email': member.email,
+                    'dob': member.dob.isoformat() if member.dob else '',
+                    'gender': member.gender,
+                    'address': member.address,
+                    'area': member.area,
+                    'occupation': member.occupation,
+                    'interests': member.interests,
+                    'photo_name': member.photo_name,
+                    'status': member.status,
+                    'admin_notes': member.admin_notes,
+                    'submitted_at': member.submitted_at.isoformat()
+                })
+            return JsonResponse({'status': 'success', 'data': data})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Only GET method is allowed'}, status=405)
+
+# New API: Get single membership details (admin)
+@csrf_exempt
+def membership_detail_api(request, member_id):
+    if request.method == 'GET':
+        try:
+            member = JoinRequest.objects.get(id=member_id)
+            data = {
+                'id': member.id,
+                'name': member.name,
+                'phone': member.phone,
+                'email': member.email,
+                'dob': member.dob.isoformat() if member.dob else '',
+                'gender': member.gender,
+                'address': member.address,
+                'area': member.area,
+                'occupation': member.occupation,
+                'interests': member.interests,
+                'photo_data': member.photo_data,
+                'photo_name': member.photo_name,
+                'status': member.status,
+                'admin_notes': member.admin_notes,
+                'submitted_at': member.submitted_at.isoformat()
+            }
+            return JsonResponse({'status': 'success', 'data': data})
+        except JoinRequest.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Member not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Only GET method is allowed'}, status=405)
+
+# New API: Update membership status and notes (admin)
+@csrf_exempt
+def membership_update_api(request, member_id):
+    if request.method == 'PUT':
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+
+            member = JoinRequest.objects.get(id=member_id)
+            
+            if 'status' in data:
+                member.status = data.get('status')
+            if 'admin_notes' in data:
+                member.admin_notes = data.get('admin_notes')
+            
+            member.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Membership application updated successfully',
+                'data': {
+                    'id': member.id,
+                    'name': member.name,
+                    'status': member.status,
+                    'admin_notes': member.admin_notes
+                }
+            })
+        except JoinRequest.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Member not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Only PUT method is allowed'}, status=405)

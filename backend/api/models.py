@@ -37,14 +37,39 @@ class Event(models.Model):
 
 
 class JoinRequest(models.Model):
+    INTEREST_CHOICES = [
+        ('social_dev', 'Social Development'),
+        ('community', 'Community Service'),
+        ('digital', 'Digital & Technology'),
+        ('political', 'Political Training'),
+        ('events', 'Event Management'),
+        ('other', 'Other'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
     name = models.CharField(max_length=255, verbose_name="Full Name")
     phone = models.CharField(max_length=50, verbose_name="Phone Number")
+    email = models.EmailField(verbose_name="Email Address", blank=True, null=True)
+    dob = models.DateField(verbose_name="Date of Birth", blank=True, null=True)
+    gender = models.CharField(max_length=20, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], blank=True)
+    address = models.TextField(verbose_name="Residential Address", blank=True)
     area = models.CharField(max_length=255, verbose_name="Area / Ward")
+    occupation = models.CharField(max_length=255, verbose_name="Occupation / Profession", blank=True)
+    interests = models.CharField(max_length=500, verbose_name="Areas of Interest", blank=True)
+    photo_data = models.TextField(verbose_name="Profile Photo (Base64)", blank=True, null=True)
+    photo_name = models.CharField(max_length=255, verbose_name="Photo Filename", blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Application Status")
+    admin_notes = models.TextField(verbose_name="Admin Notes", blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Volunteer Request"
-        verbose_name_plural = "Volunteer Requests"
+        verbose_name = "Membership Application"
+        verbose_name_plural = "Membership Applications"
         ordering = ['-submitted_at']
 
     def __str__(self):
