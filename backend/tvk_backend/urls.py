@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.http import JsonResponse
 
 def health_check(request):
-    return JsonResponse({'status': 'ok', 'message': 'TVK Tirupur South API is running'})
+    return JsonResponse({'status': 'ok', 'message': 'devopschanakya API is running'})
 
 urlpatterns = [
     path('', health_check, name='health-check'),
