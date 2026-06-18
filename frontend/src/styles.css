@@ -3559,3 +3559,66 @@ body.ta .foot-builtby-label {
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Custom Additions */
+.track-petition-btn-inline {
+  background: transparent;
+  color: #ffd84a;
+  border: 2px solid #ffd84a;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.track-petition-btn-inline:hover {
+  background: #ffd84a;
+  color: #3f0608;
+  box-shadow: 0 4px 15px rgba(255, 216, 74, 0.3);
+  transform: translateY(-2px);
+}
+
+.photo-upload-label {
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.photo-upload-label:hover {
+  border-color: #ffd84a;
+  color: #ffd84a;
+  background: rgba(255, 216, 74, 0.05);
+}
+
+.photo-upload-label svg {
+  stroke: currentColor;
+}
+
+.chatbot-input:disabled {
+  background: #eae9e0 !important;
+  color: #8c897d !important;
+  cursor: not-allowed !important;
+  border-color: rgba(90, 12, 18, 0.08) !important;
+}
+
+.chatbot-send:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  background: rgba(90, 12, 18, 0.15) !important;
+  color: #8c897d !important;
+}
+
+

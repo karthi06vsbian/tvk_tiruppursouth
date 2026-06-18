@@ -64,18 +64,22 @@ class JoinRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Petition)
 class PetitionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'subject', 'status', 'is_read', 'submitted_at')
-    search_fields = ('name', 'phone', 'subject', 'summary')
-    list_filter = ('status', 'is_read', 'submitted_at')
+    list_display = ('name', 'phone', 'area', 'status', 'is_read', 'submitted_at')
+    search_fields = ('name', 'phone', 'subject', 'summary', 'email', 'area')
+    list_filter = ('status', 'is_read', 'submitted_at', 'area')
     list_editable = ('status', 'is_read')
-    readonly_fields = ('submitted_at',)
+    readonly_fields = ('submitted_at', 'photo_data')
     
     fieldsets = (
         ('Petitioner Information', {
-            'fields': ('name', 'phone')
+            'fields': ('name', 'phone', 'email', 'area')
         }),
         ('Petition Details', {
             'fields': ('subject', 'summary')
+        }),
+        ('Petition Photo', {
+            'fields': ('photo_data', 'photo_name'),
+            'classes': ('collapse',)
         }),
         ('Admin', {
             'fields': ('status', 'is_read', 'submitted_at')

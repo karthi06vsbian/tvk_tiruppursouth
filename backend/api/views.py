@@ -3,6 +3,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import News, Event, JoinRequest, Petition
 
+def clean_phone_number(phone_str):
+    if not phone_str:
+        return ""
+    digits = "".join([c for c in phone_str if c.isdigit()])
+    return digits[-10:] if len(digits) >= 10 else digits
+
+
 def news_list_api(request):
     lang = request.GET.get('lang', 'en')
     news_items = News.objects.all()
@@ -103,11 +110,27 @@ def petition_submit_api(request):
             phone = data.get('phone')
             subject = data.get('subject')
             summary = data.get('summary')
+            
+            # Expanded fields
+            email = data.get('email', '')
+            area = data.get('area', '')
+            photo_data = data.get('photo_data', '')
+            photo_name = data.get('photo_name', '')
 
             if not name or not phone or not subject or not summary:
                 return JsonResponse({'status': 'error', 'message': 'All fields are required'}, status=400)
 
-            petition = Petition.objects.create(name=name, phone=phone, subject=subject, summary=summary)
+            cleaned_phone = clean_phone_number(phone)
+            petition = Petition.objects.create(
+                name=name,
+                phone=cleaned_phone,
+                email=email,
+                area=area,
+                subject=subject,
+                summary=summary,
+                photo_data=photo_data,
+                photo_name=photo_name
+            )
             return JsonResponse({'status': 'success', 'message': 'Petition submitted successfully', 'id': petition.id})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
@@ -122,6 +145,10 @@ def petition_list_api(request):
             'id': p.id,
             'name': p.name,
             'phone': p.phone,
+            'email': p.email,
+            'area': p.area,
+            'photo_data': p.photo_data,
+            'photo_name': p.photo_name,
             'subject': p.subject,
             'summary': p.summary,
             'status': p.status,
@@ -166,13 +193,18 @@ def membership_detail_api(request, member_id):
     if request.method == 'GET':
         try:
             member = JoinRequest.objects.get(id=member_id)
-            petitions_qs = Petition.objects.filter(phone=member.phone)
+            cleaned_phone = clean_phone_number(member.phone)
+            petitions_qs = Petition.objects.filter(phone=cleaned_phone)
             petitions_data = []
             for p in petitions_qs:
                 petitions_data.append({
                     'id': p.id,
                     'name': p.name,
                     'phone': p.phone,
+                    'email': p.email,
+                    'area': p.area,
+                    'photo_data': p.photo_data,
+                    'photo_name': p.photo_name,
                     'subject': p.subject,
                     'summary': p.summary,
                     'status': p.status,
@@ -250,13 +282,18 @@ def petition_track_api(request):
             return JsonResponse({'status': 'error', 'message': 'Phone number parameter is required'}, status=400)
         
         try:
-            petitions = Petition.objects.filter(phone=phone)
+            cleaned_phone = clean_phone_number(phone)
+            petitions = Petition.objects.filter(phone=cleaned_phone)
             data = []
             for p in petitions:
                 data.append({
                     'id': p.id,
                     'name': p.name,
                     'phone': p.phone,
+                    'email': p.email,
+                    'area': p.area,
+                    'photo_data': p.photo_data,
+                    'photo_name': p.photo_name,
                     'subject': p.subject,
                     'summary': p.summary,
                     'status': p.status,

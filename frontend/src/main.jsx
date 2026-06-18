@@ -20,7 +20,8 @@ import {
   MessageCircle,
   Send,
   Camera,
-  Inbox
+  Inbox,
+  Search
 } from "lucide-react";
 import "./styles.css";
 
@@ -380,7 +381,6 @@ function Hero({ lang }) {
         <div className="hero-visual">
           <video
             src={`${A}hero/TVK_FINAL_ULTRA.webm`}
-            poster={`${A}branding/hero-vj-sampath.jpg`}
             autoPlay
             muted
             loop
@@ -1046,10 +1046,6 @@ function Join({ lang }) {
       whyJoin: "Why Join TVK?",
       benefit1Title: "Be Part of a Movement",
       benefit1Desc: "Join millions working to transform Tamil Nadu's political landscape",
-      benefit2Title: "Contribute Your Skills",
-      benefit2Desc: "Apply your expertise in grassroot social and political initiatives",
-      benefit3Title: "Access Direct Resources",
-      benefit3Desc: "Get training, event updates, and direct channel to local leaders",
       benefit4Title: "Shape Governance",
       benefit4Desc: "Help draft local manifestos and drive policy development",
       needHelp: "Need Help?",
@@ -1324,11 +1320,16 @@ function Join({ lang }) {
   );
 }
 
-function PetitionSection({ lang }) {
+function PetitionSection({ lang, setShowTrackModal }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [area, setArea] = useState("Tiruppur South");
   const [subject, setSubject] = useState("");
   const [summary, setSummary] = useState("");
+  const [photoData, setPhotoData] = useState("");
+  const [photoName, setPhotoName] = useState("");
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
 
   const labels = {
@@ -1337,12 +1338,16 @@ function PetitionSection({ lang }) {
       title: "Submit Your Petition",
       lead: "Have a concern or request? Submit your petition directly to the party leadership. We listen, we act.",
       name: "Your Full Name",
-      phone: "Phone Number",
+      phone: "Phone Number (10 digits)",
+      email: "Email Address (Optional)",
+      area: "Ward / Area",
+      photo: "Upload Photo / Image (Optional)",
+      photo_hint: "Click to upload an image of the issue",
       subject: "Subject",
       summary: "Describe your petition in detail...",
       submit: "Submit Petition",
       submitting: "Submitting...",
-      success: "\u2705 Petition Submitted Successfully!",
+      success: "✅ Petition Submitted Successfully!",
       error: "Something went wrong. Please try again.",
       another: "Submit Another Petition"
     },
@@ -1352,27 +1357,75 @@ function PetitionSection({ lang }) {
       lead: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u0b8f\u0ba4\u0bc7\u0ba9\u0bc1\u0bae\u0bcd \u0b95\u0bb5\u0bb2\u0bc8 \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 \u0b95\u0bcb\u0bb0\u0bbf\u0b95\u0bcd\u0b95\u0bc8 \u0b89\u0bb3\u0bcd\u0bb3\u0ba4\u0bbe? \u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1\u0bb5\u0bc8 \u0ba8\u0bc7\u0bb0\u0b9f\u0bbf\u0baf\u0bbe\u0b95 \u0b95\u0b9f\u0bcd\u0b9a\u0bbf \u0ba4\u0bb2\u0bc8\u0bae\u0bc8\u0b95\u0bcd\u0b95\u0bc1 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
       name: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0bc1\u0bb4\u0bc1\u0baa\u0bcd \u0baa\u0bc6\u0baf\u0bb0\u0bcd",
       phone: "\u0ba4\u0bca\u0bb2\u0bc8\u0baa\u0bc7\u0b9a\u0bbf \u0b8e\u0ba3\u0bcd",
+      email: "\u0bae\u0bbf\u0ba9\u0bcd\u0ba9\u0b9e\u0bcd\u0b9a\u0bb2\u0bcd \u0bae\u0bc1\u0b95\u0bb5\u0bb5\u0bb0\u0bbf (\u0bb5\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bbf\u0bb1\u0bcd\u0b95\u0bc1\u0bb0\u0bbf\u0baf\u0ba4\u0bc1)",
+      area: "\u0bb5\u0bbe\u0bb0\u0bcd\u0b9f\u0bc1 / \u0baa\u0b95\u0bc1\u0ba4\u0bbf",
+      photo: "\u0baa\u0bc1\u0b95\u0bc8\u0baa\u0bcd\u0baa\u0b9f\u0ba4\u0bcd\u0ba4\u0bc8\u0baa\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bc7\u0bb1\u0bcd\u0bb1\u0bb5\u0bc1\u0bae\u0bcd (\u0bb5\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bbf\u0bb1\u0bcd\u0b95\u0bc1\u0bb0\u0bbf\u0baf\u0ba4\u0bc1)",
+      photo_hint: "\u0baa\u0bbf\u0bb0\u0b9a\u0bcd\u0b9a\u0ba9\u0bc8\u0baf\u0bbf\u0ba9\u0bcd \u0baa\u0b9f\u0ba4\u0bcd\u0ba4\u0bc8\u0baa\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bc7\u0bb1\u0bcd\u0bb1\u0bbf\u0b9f \u0b95\u0bcd\u0bb2\u0bbf\u0b95\u0bcd \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0bb5\u0bc1\u0bae\u0bcd",
       subject: "\u0ba4\u0bb2\u0bc8\u0baa\u0bcd\u0baa\u0bc1",
       summary: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1\u0bb5\u0bc8 \u0bb5\u0bbf\u0bb0\u0bbf\u0bb5\u0bbe\u0b95 \u0b8e\u0bb4\u0bc1\u0ba4\u0bb5\u0bc1\u0bae\u0bcd...",
       submit: "\u0bae\u0ba9\u0bc1 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95",
       submitting: "\u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1...",
-      success: "\u2705 \u0bae\u0ba9\u0bc1 \u0bb5\u0bc6\u0bb1\u0bcd\u0bb1\u0bbf\u0b95\u0bb0\u0bae\u0bbe\u0b95 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1!",
+      success: "✅ \u0bae\u0ba9\u0bc1 \u0bb5\u0bc6\u0bb1\u0bcd\u0bb1\u0bbf\u0b95\u0bb0\u0bae\u0bbe\u0b95 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1!",
       error: "\u0baa\u0bbf\u0bb4\u0bc8 \u0b8f\u0bb1\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1. \u0bae\u0bc0\u0ba3\u0bcd\u0b9f\u0bc1\u0bae\u0bcd \u0bae\u0bc1\u0baf\u0bb1\u0bcd\u0b9a\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
       another: "\u0bae\u0bb1\u0bcd\u0bb1\u0bca\u0bb0\u0bc1 \u0bae\u0ba9\u0bc1 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95"
     }
   };
   const t = labels[lang];
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPhotoData(event.target.result);
+        setPhotoName(file.name);
+        setPhotoPreview(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoData("");
+    setPhotoName("");
+    setPhotoPreview(null);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      alert(lang === 'en' ? 'Please enter a valid 10-digit phone number.' : 'தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.');
+      return;
+    }
     setStatus('submitting');
     fetch("/api/petitions/submit/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, subject, summary })
+      body: JSON.stringify({ 
+        name, 
+        phone: cleanPhone, 
+        email, 
+        area, 
+        subject, 
+        summary,
+        photo_data: photoData,
+        photo_name: photoName
+      })
     })
       .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
-      .then(() => { setStatus('success'); setName(''); setPhone(''); setSubject(''); setSummary(''); })
+      .then(() => { 
+        setStatus('success'); 
+        setName(''); 
+        setPhone(''); 
+        setEmail(''); 
+        setArea('Tiruppur South'); 
+        setSubject(''); 
+        setSummary(''); 
+        setPhotoData(''); 
+        setPhotoName(''); 
+        setPhotoPreview(null); 
+      })
       .catch((err) => { console.error(err); setStatus('error'); });
   };
 
@@ -1388,45 +1441,122 @@ function PetitionSection({ lang }) {
           <div className="petition-features">
             <div className="petition-feature">
               <ShieldCheck size={22} />
-              <span>{lang === 'en' ? 'Confidential & Secure' : '\u0bb0\u0b95\u0b9a\u0bbf\u0baf\u0bae\u0bcd & \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bbe\u0ba9\u0ba4\u0bc1'}</span>
+              <span>{lang === 'en' ? 'Confidential & Secure' : 'ரகசியம் & பாதுகாப்பானது'}</span>
             </div>
             <div className="petition-feature">
               <Users size={22} />
-              <span>{lang === 'en' ? 'Reviewed by Leadership' : '\u0ba4\u0bb2\u0bc8\u0bae\u0bc8\u0baf\u0bbe\u0bb2\u0bcd \u0baa\u0bb0\u0bbf\u0b9a\u0bc0\u0bb2\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0bae\u0bcd'}</span>
+              <span>{lang === 'en' ? 'Reviewed by Leadership' : 'தலைமையால் பரிசீலிக்கப்படும்'}</span>
             </div>
             <div className="petition-feature">
               <Mail size={22} />
-              <span>{lang === 'en' ? 'Get Response & Updates' : '\u0baa\u0ba4\u0bbf\u0bb2\u0bcd & \u0ba4\u0b95\u0bb5\u0bb2\u0bcd\u0b95\u0bb3\u0bcd \u0baa\u0bc6\u0bb1\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd'}</span>
+              <span>{lang === 'en' ? 'Get Response & Updates' : 'பதில் & தகவல்கள் பெறுங்கள்'}</span>
             </div>
+          </div>
+          <div className="petition-track-box" style={{ marginTop: '32px' }}>
+            <button 
+              type="button" 
+              onClick={() => setShowTrackModal(true)}
+              className="track-petition-btn-inline"
+            >
+              <Search size={18} />
+              {lang === 'en' ? 'Track Submitted Petition' : 'மனுவைக் கண்காணிக்க'}
+            </button>
           </div>
         </div>
         <div className="petition-form-wrapper">
           {status === 'success' ? (
             <div className="petition-success">
-              <div className="petition-success-icon">\u2705</div>
+              <div className="petition-success-icon">✅</div>
               <h3>{t.success}</h3>
-              <p>{lang === 'en' ? 'Your petition has been received. Our team will review it shortly.' : '\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1 \u0baa\u0bc6\u0bb1\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1. \u0b8e\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0b95\u0bc1\u0bb4\u0bc1 \u0bb5\u0bbf\u0bb0\u0bc8\u0bb5\u0bbf\u0bb2\u0bcd \u0baa\u0bb0\u0bbf\u0b9a\u0bc0\u0bb2\u0bbf\u0b95\u0bcd\u0b95\u0bc1\u0bae\u0bcd.'}</p>
+              <p>{lang === 'en' ? 'Your petition has been received. Our team will review it shortly.' : 'உங்கள் மனு பெறப்பட்டது. எங்கள் குழு விரைவில் பரிசீலிக்கும்.'}</p>
               <button className="petition-reset-btn" onClick={resetForm}>{t.another}</button>
             </div>
           ) : (
             <form className="petition-form" onSubmit={handleSubmit}>
               <div className="petition-form-row">
                 <div className="petition-field">
-                  <label>{t.name}</label>
+                  <label>{t.name} *</label>
                   <input required value={name} onChange={(e) => setName(e.target.value)} placeholder={t.name} />
                 </div>
                 <div className="petition-field">
-                  <label>{t.phone}</label>
-                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t.phone} />
+                  <label>{t.phone} *</label>
+                  <input 
+                    required 
+                    type="tel" 
+                    pattern="[0-9]{10}"
+                    maxLength="10"
+                    value={phone} 
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} 
+                    placeholder="e.g. 9876543210" 
+                  />
+                </div>
+              </div>
+              <div className="petition-form-row">
+                <div className="petition-field">
+                  <label>{t.email}</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. email@example.com" />
+                </div>
+                <div className="petition-field">
+                  <label>{t.area} *</label>
+                  <select required value={area} onChange={(e) => setArea(e.target.value)} style={{ padding: '10px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '0.95rem', width: '100%', boxSizing: 'border-box', background: '#fff', color: '#1e293b' }}>
+                    <option value="Tiruppur South">Tiruppur South</option>
+                    <option value="Tiruppur North">Tiruppur North</option>
+                    <option value="Tiruppur West">Tiruppur West</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
               </div>
               <div className="petition-field">
-                <label>{t.subject}</label>
+                <label>{t.subject} *</label>
                 <input required value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={t.subject} />
               </div>
               <div className="petition-field">
-                <label>{t.summary}</label>
-                <textarea required rows={5} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder={t.summary} />
+                <label>{t.summary} *</label>
+                <textarea required rows={4} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder={t.summary} />
+              </div>
+              <div className="petition-field">
+                <label>{t.photo}</label>
+                <div className="photo-upload-container">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="petition-photo-upload-input"
+                    style={{ display: 'none' }}
+                    onChange={handlePhotoChange}
+                  />
+                  <label htmlFor="petition-photo-upload-input" className="photo-upload-label">
+                    <Camera size={24} />
+                    <span style={{ display: 'block', marginTop: '8px', color: '#666' }}>{t.photo_hint}</span>
+                  </label>
+                  {photoPreview && (
+                    <div className="photo-preview-wrapper" style={{ position: 'relative', marginTop: '10px', display: 'inline-block', maxWidth: '200px' }}>
+                      <img src={photoPreview} alt="Preview" style={{ width: '100%', borderRadius: '6px', border: '1px solid #ddd' }} />
+                      <button
+                        type="button"
+                        className="remove-photo-btn"
+                        onClick={handleRemovePhoto}
+                        style={{
+                          position: 'absolute',
+                          top: '-8px',
+                          right: '-8px',
+                          background: '#E53E3E',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '24px',
+                          height: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <button className="petition-submit-btn" type="submit" disabled={status === 'submitting'}>
                 {status === 'submitting' ? t.submitting : t.submit}
@@ -1526,13 +1656,17 @@ const chatCopy = {
     nav_done: "Scrolling to the section now!",
     pet_name: "Please enter your full name:",
     pet_phone: "Enter your phone number:",
+    pet_email: "Enter your email address (optional, or select 'Skip'):",
+    pet_area: "Please select your Ward / Area:",
     pet_subject: "What is the subject of your petition?",
     pet_summary: "Please provide a summary of your petition:",
+    pet_photo: "Would you like to attach a photo of the issue? You can upload a file or select 'Skip'.",
     pet_confirm: "Thank you! Your petition has been submitted successfully. \u2705",
     pet_error: "There was an error submitting. Please try again.",
     pet_submitting: "Submitting your petition...",
     back_menu: "\u2b05\ufe0f Back to menu",
     input_placeholder: "Type your message...",
+    input_locked_placeholder: "Please select an option above...",
     title: "Tirumalai",
     subtitle: "Online"
   },
@@ -1553,13 +1687,17 @@ const chatCopy = {
     nav_done: "\u0baa\u0b95\u0bc1\u0ba4\u0bbf\u0b95\u0bcd\u0b95\u0bc1 \u0b9a\u0bc6\u0bb2\u0bcd\u0b95\u0bbf\u0bb1\u0bc7\u0bbe\u0bae\u0bcd!",
     pet_name: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0bc1\u0bb4\u0bc1\u0baa\u0bcd \u0baa\u0bc6\u0baf\u0bb0\u0bc8 \u0b89\u0bb3\u0bcd\u0bb3\u0bbf\u0b9f\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd:",
     pet_phone: "\u0ba4\u0bca\u0bb2\u0bc8\u0baa\u0bc7\u0b9a\u0bbf \u0b8e\u0ba3\u0bcd\u0ba3\u0bc8 \u0b89\u0bb3\u0bcd\u0bb3\u0bbf\u0b9f\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd:",
+    pet_email: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0bbf\u0ba9\u0bcd\u0ba9\u0b9e\u0bcd\u0b9a\u0bb2\u0bcd \u0bae\u0bc1\u0b95\u0bb5\u0bb5\u0bb0\u0bbf (\u0bb5\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bbf\u0bb1\u0bcd\u0b95\u0bc1\u0bb0\u0bbf\u0baf\u0ba4\u0bc1):",
+    pet_area: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bb5\u0bb0\u0bcd\u0b9f\u0bc1 / \u0baa\u0b95\u0bc1\u0ba4\u0bbf\u0baf\u0bc8\u0ba4\u0bcd \u0ba4\u0bc7\u0bb0\u0bcd\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0bb5\u0bc1\u0bae\u0bcd:",
     pet_subject: "\u0bae\u0ba9\u0bc1\u0bb5\u0bbf\u0ba9\u0bcd \u0ba4\u0bb2\u0bc8\u0baa\u0bcd\u0baa\u0bc1 \u0b8e\u0ba9\u0bcd\u0ba9?",
     pet_summary: "\u0bae\u0ba9\u0bc1\u0bb5\u0bbf\u0ba9\u0bcd \u0b9a\u0bc1\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0ba4\u0bcd\u0ba4\u0bc8 \u0b95\u0bc1\u0bb1\u0bbf\u0baa\u0bcd\u0baa\u0bbf\u0b9f\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd:",
+    pet_photo: "\u0baa\u0bbf\u0bb0\u0b9a\u0bcd\u0b9a\u0ba9\u0bc8\u0baf\u0bbf\u0ba9\u0bcd \u0baa\u0bc1\u0b95\u0bc8\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bc8 \u0b87\u0ba3\u0bc8\u0b95\u0bcd\u0b95 \u0bb5\u0bbf\u0bb0\u0bc1\u0bae\u0bcd\u0baa\u0bc1\u0b95\u0bbf\u0bb1\u0bc0\u0bb0\u0bcd\u0b95\u0bb3\u0bcd? \u0b95\u0bcb\u0baa\u0bcd\u0baa\u0bc8\u0baa\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bc7\u0bb1\u0bcd\u0bb1\u0bb5\u0bc1\u0bae\u0bcd \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 'Skip' \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0bb5\u0bc1\u0bae\u0bcd.",
     pet_confirm: "\u0ba8\u0ba9\u0bcd\u0bb1\u0bbf! \u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1 \u0bb5\u0bc6\u0bb1\u0bcd\u0bb1\u0bbf\u0b95\u0bb0\u0bae\u0bbe\u0b95 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1. \u2705",
     pet_error: "\u0baa\u0bbf\u0bb4\u0bc8 \u0b8f\u0bb1\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1. \u0bae\u0bc0\u0ba3\u0bcd\u0b9f\u0bc1\u0bae\u0bcd \u0bae\u0bc1\u0baf\u0bb1\u0bcd\u0b9a\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
     pet_submitting: "\u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1...",
     back_menu: "\u2b05\ufe0f \u0bae\u0bc6\u0ba9\u0bc1\u0bb5\u0bbf\u0bb1\u0bcd\u0b95\u0bc1 \u0ba4\u0bbf\u0bb0\u0bc1\u0bae\u0bcd\u0baa",
     input_placeholder: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0b9a\u0bc6\u0baf\u0bcd\u0ba4\u0bbf\u0baf\u0bc8 \u0b89\u0bb3\u0bcd\u0bb3\u0bbf\u0b9f\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd...",
+    input_locked_placeholder: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bb5\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bc8 \u0bae\u0bc7\u0bb2\u0bc7 \u0ba4\u0bc7\u0bb0\u0bcd\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0bb5\u0bc1\u0bae\u0bcd...",
     title: "\u0ba4\u0bbf\u0bb0\u0bc1\u0bae\u0bb2\u0bc8",
     subtitle: "\u0b86\u0ba9\u0bcd\u0bb2\u0bc8\u0ba9\u0bcd"
   }
@@ -1583,7 +1721,7 @@ function ChatBot() {
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("lang_select");
   const [petStep, setPetStep] = useState(0);
-  const [petData, setPetData] = useState({ name: "", phone: "", subject: "", summary: "" });
+  const [petData, setPetData] = useState({ name: "", phone: "", email: "", area: "Tiruppur South", subject: "", summary: "", photo_data: "", photo_name: "" });
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -1616,9 +1754,101 @@ function ChatBot() {
     ]});
   };
 
+  const handlePetitionInput = (value) => {
+    const steps = ["name", "phone", "email", "area", "subject", "summary", "photo"];
+    const currentField = steps[petStep - 1];
+
+    let userMsgText = value;
+    if (currentField === "photo") {
+      userMsgText = value ? `\ud83d\udcf7 ${value}` : (chatLang === "ta" ? "\u0baa\u0bc1\u0b95\u0bc8\u0baa\u0bcd\u0baa\u0b9f\u0bae\u0bcd \u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1" : "Skipped Photo");
+    } else if (currentField === "email" && !value) {
+      userMsgText = chatLang === "ta" ? "\u0bae\u0bbf\u0ba9\u0bcd\u0ba9\u0b9e\u0bcd\u0b9a\u0bb2\u0bcd \u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1" : "Skipped Email";
+    }
+    addMsg("user", userMsgText);
+
+    let cleanedValue = value;
+    if (currentField === "phone") {
+      cleanedValue = value.replace(/\D/g, '');
+    }
+
+    const newData = { ...petData, [currentField === "photo" ? "photo_name" : currentField]: cleanedValue };
+    setPetData(newData);
+
+    if (petStep < 7) {
+      const nextStep = petStep + 1;
+      setPetStep(nextStep);
+
+      if (nextStep === 2) {
+        addMsg("bot", t.pet_phone);
+      } else if (nextStep === 3) {
+        addMsg("bot", t.pet_email, { buttons: [{ label: chatLang === 'ta' ? "\u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd (Skip)" : "Skip", action: "skip_email" }] });
+      } else if (nextStep === 4) {
+        addMsg("bot", t.pet_area, {
+          buttons: [
+            { label: "Tiruppur South", action: "area_Tiruppur South" },
+            { label: "Tiruppur North", action: "area_Tiruppur North" },
+            { label: "Tiruppur West", action: "area_Tiruppur West" },
+            { label: "Other", action: "area_Other" }
+          ]
+        });
+      } else if (nextStep === 5) {
+        addMsg("bot", t.pet_subject);
+      } else if (nextStep === 6) {
+        addMsg("bot", t.pet_summary);
+      } else if (nextStep === 7) {
+        addMsg("bot", t.pet_photo, {
+          buttons: [
+            { label: chatLang === 'ta' ? "\u0baa\u0bc1\u0b95\u0bc8\u0baa\u0bcd\u0baa\u0b9f\u0bae\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bc7\u0bb1\u0bcd\u0bb1\u0bb5\u0bc1\u0bae\u0bcd" : "Upload Photo", action: "upload_photo" },
+            { label: chatLang === 'ta' ? "\u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd (Skip)" : "Skip", action: "skip_photo" }
+          ]
+        });
+      }
+    } else {
+      addMsg("bot", t.pet_submitting);
+
+      fetch("/api/petitions/submit/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newData.name,
+          phone: newData.phone,
+          email: newData.email,
+          area: newData.area,
+          subject: newData.subject,
+          summary: newData.summary,
+          photo_data: newData.photo_data || "",
+          photo_name: newData.photo_name || ""
+        })
+      })
+        .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
+        .then(() => {
+          addMsg("bot", t.pet_confirm, { buttons: [{ label: t.back_menu, action: "back_menu" }] });
+          setMode("menu");
+          setPetStep(0);
+          setPetData({ name: "", phone: "", email: "", area: "Tiruppur South", subject: "", summary: "", photo_data: "", photo_name: "" });
+        })
+        .catch(() => {
+          addMsg("bot", t.pet_error, { buttons: [{ label: t.back_menu, action: "back_menu" }] });
+          setMode("menu");
+          setPetStep(0);
+          setPetData({ name: "", phone: "", email: "", area: "Tiruppur South", subject: "", summary: "", photo_data: "", photo_name: "" });
+        });
+    }
+  };
+
+  const handleChatPhotoUpload = (base64Data, filename) => {
+    setPetData(prev => ({
+      ...prev,
+      photo_data: base64Data,
+      photo_name: filename
+    }));
+    handlePetitionInput(filename);
+  };
+
   const handleAction = (action) => {
-    if (action === "set_lang_en") { setChatLang("en"); setMode("menu"); addMsg("user", "\ud83c\uddec\ud83c\udde7 English"); showMainMenu("en"); return; }
-    if (action === "set_lang_ta") { setChatLang("ta"); setMode("menu"); addMsg("user", "\ud83c\uddee\ud83c\uddf3 \u0ba4\u0bae\u0bbf\u0bb4\u0bcd"); showMainMenu("ta"); return; }
+    if (action === "set_lang_en") { setChatLang("en"); setMode("menu"); addMsg("user", "🇬🇧 English"); showMainMenu("en"); return; }
+    if (action === "set_lang_ta") { setChatLang("ta"); setMode("menu"); addMsg("user", "🇮🇳 தமிழ்"); showMainMenu("ta"); return; }
+    
     if (action === "explore") {
       setMode("explore"); addMsg("user", t.opt_explore);
       const sectionKeys = ["sec_home", "sec_party", "sec_features", "sec_journey", "sec_news", "sec_events", "sec_join", "sec_contact"];
@@ -1628,6 +1858,13 @@ function ChatBot() {
     } else if (action === "back_menu") {
       setMode("menu"); setPetStep(0);
       addMsg("bot", t.intro, { buttons: [{ label: t.opt_explore, action: "explore" }, { label: t.opt_petition, action: "petition" }] });
+    } else if (action === "skip_email") {
+      handlePetitionInput("");
+    } else if (action === "skip_photo") {
+      handlePetitionInput("");
+    } else if (action.startsWith("area_")) {
+      const selectedArea = action.replace("area_", "");
+      handlePetitionInput(selectedArea);
     } else if (action.startsWith("nav_")) {
       const key = action.replace("nav_", "");
       const sectionId = sectionMap[key];
@@ -1637,23 +1874,6 @@ function ChatBot() {
         const el = document.getElementById(sectionId);
         if (el) el.scrollIntoView({ behavior: "smooth" });
       }
-    }
-  };
-
-  const handlePetitionInput = (value) => {
-    addMsg("user", value);
-    const steps = ["name", "phone", "subject", "summary"];
-    const prompts = [t.pet_phone, t.pet_subject, t.pet_summary];
-    const field = steps[petStep - 1];
-    const newData = { ...petData, [field]: value };
-    setPetData(newData);
-    if (petStep < 4) { setPetStep(petStep + 1); addMsg("bot", prompts[petStep - 1]); }
-    else {
-      addMsg("bot", t.pet_submitting);
-      fetch("/api/petitions/submit/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newData) })
-        .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
-        .then(() => { addMsg("bot", t.pet_confirm, { buttons: [{ label: t.back_menu, action: "back_menu" }] }); setMode("menu"); setPetStep(0); setPetData({ name: "", phone: "", subject: "", summary: "" }); })
-        .catch(() => { addMsg("bot", t.pet_error, { buttons: [{ label: t.back_menu, action: "back_menu" }] }); setMode("menu"); setPetStep(0); setPetData({ name: "", phone: "", subject: "", summary: "" }); });
     }
   };
 
@@ -1667,6 +1887,17 @@ function ChatBot() {
 
   const displayTitle = chatLang ? chatCopy[chatLang].title : "Tirumalai";
   const displaySub = chatLang ? chatCopy[chatLang].subtitle : "Online";
+
+  const isInputNeeded = mode === "petition" && (petStep === 1 || petStep === 2 || petStep === 3 || petStep === 5 || petStep === 6);
+
+  let currentPlaceholder = "";
+  if (!chatLang) {
+    currentPlaceholder = "Select language / மொழியைத் தேர்ந்தெடுக்கவும்...";
+  } else if (isInputNeeded) {
+    currentPlaceholder = t.input_placeholder;
+  } else {
+    currentPlaceholder = t.input_locked_placeholder;
+  }
 
   return (
     <>
@@ -1697,20 +1928,74 @@ function ChatBot() {
             {messages.map((msg, i) => (
               <div key={i} className={`chatbot-msg chatbot-msg-${msg.from}`}>
                 <div className="chatbot-bubble">{msg.text}</div>
-                {msg.buttons && (<div className="chatbot-buttons">{msg.buttons.map((btn, j) => (<button key={j} className="chatbot-option-btn" onClick={() => handleAction(btn.action)}>{btn.label}</button>))}</div>)}
+                {msg.buttons && (
+                  <div className="chatbot-buttons">
+                    {msg.buttons.map((btn, j) => {
+                      if (btn.action === "upload_photo") {
+                        return (
+                          <div key={j} style={{ position: 'relative', display: 'inline-block' }}>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                opacity: 0,
+                                cursor: 'pointer',
+                                width: '100%',
+                                height: '100%',
+                                zIndex: 10
+                              }}
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    handleChatPhotoUpload(event.target.result, file.name);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <button className="chatbot-option-btn" type="button" style={{ pointerEvents: 'none' }}>
+                              📸 {btn.label}
+                            </button>
+                          </div>
+                        );
+                      }
+                      return (
+                        <button key={j} className="chatbot-option-btn" onClick={() => handleAction(btn.action)}>
+                          {btn.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))}
             <div ref={chatEndRef} />
           </div>
           <div className="chatbot-input-bar">
-            <input ref={inputRef} type="text" className="chatbot-input" placeholder={chatLang ? t.input_placeholder : "Type your message..."} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} />
-            <button className="chatbot-send" onClick={handleSend} aria-label="Send message"><Send size={18} /></button>
+            <input 
+              ref={inputRef} 
+              type="text" 
+              className="chatbot-input" 
+              placeholder={currentPlaceholder} 
+              value={input} 
+              onChange={(e) => setInput(e.target.value)} 
+              onKeyDown={handleKeyDown} 
+              disabled={!isInputNeeded}
+            />
+            <button className="chatbot-send" onClick={handleSend} disabled={!isInputNeeded} aria-label="Send message">
+              <Send size={18} />
+            </button>
           </div>
         </div>
       )}
     </>
   );
 }
+
 
 function TrackPetitionModal({ lang, isOpen, onClose }) {
   const [phone, setPhone] = useState("");
@@ -1767,7 +2052,7 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
             placeholder={lang === 'en' ? 'e.g. 9876543210' : 'எ.கா. 9876543210'}
             required
             pattern="[0-9]{10}"
@@ -1779,7 +2064,9 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
               fontSize: '1rem',
               width: '100%',
               boxSizing: 'border-box',
-              marginBottom: '12px'
+              marginBottom: '12px',
+              color: '#1e293b',
+              backgroundColor: '#ffffff'
             }}
           />
           <button type="submit" className="primary-btn track-search-btn" disabled={loading} style={{ width: '100%' }}>
@@ -1796,9 +2083,9 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
                 {petitions.map(p => {
                   const badge = statusBadges[p.status] || { en: p.status, ta: p.status, color: '#4A5568', bg: '#EDF2F7' };
                   return (
-                    <div key={p.id} className="track-petition-item" style={{ border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px' }}>
+                    <div key={p.id} className="track-petition-item" style={{ border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px', backgroundColor: '#ffffff' }}>
                       <div className="track-petition-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>{p.subject}</h4>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: '#1e293b' }}>{p.subject}</h4>
                         <span 
                           className="status-badge"
                           style={{
@@ -2216,6 +2503,14 @@ function AdminPanel({ lang }) {
                 <span className="p-val">{selectedPetition.phone}</span>
               </div>
               <div className="p-detail-item">
+                <span className="p-label">Email / மின்னஞ்சல்:</span>
+                <span className="p-val">{selectedPetition.email || 'N/A'}</span>
+              </div>
+              <div className="p-detail-item">
+                <span className="p-label">Area / பகுதி:</span>
+                <span className="p-val">{selectedPetition.area || 'N/A'}</span>
+              </div>
+              <div className="p-detail-item">
                 <span className="p-label">Subject / தலைப்பு:</span>
                 <span className="p-val">{selectedPetition.subject}</span>
               </div>
@@ -2226,6 +2521,16 @@ function AdminPanel({ lang }) {
               <div className="p-detail-item">
                 <span className="p-label">Submitted / சமர்ப்பித்தது:</span>
                 <span className="p-val">{new Date(selectedPetition.submitted_at).toLocaleString()}</span>
+              </div>
+              <div className="p-detail-item" style={{ display: 'block' }}>
+                <span className="p-label" style={{ display: 'block', marginBottom: '6px' }}>Attached Photo / இணைக்கப்பட்ட படம்:</span>
+                {selectedPetition.photo_data ? (
+                  <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-block' }}>
+                    <img src={selectedPetition.photo_data} alt="Petition Attachment" style={{ maxWidth: '100%', maxHeight: '250px', borderRadius: '6px', display: 'block' }} />
+                  </div>
+                ) : (
+                  <span className="p-val" style={{ color: '#64748b', fontStyle: 'italic' }}>No photo uploaded</span>
+                )}
               </div>
 
               <form onSubmit={handleUpdatePetition} className="admin-update-form">
@@ -2283,7 +2588,7 @@ function App() {
         <NewsSection lang={lang} />
         <EventsSection lang={lang} />
         <Join lang={lang} />
-        <PetitionSection lang={lang} />
+        <PetitionSection lang={lang} setShowTrackModal={setShowTrackModal} />
       </main>
       <Footer lang={lang} />
       <ChatBot />
