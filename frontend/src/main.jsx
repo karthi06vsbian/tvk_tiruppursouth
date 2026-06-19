@@ -1167,18 +1167,52 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
         </button>
 
         {status === 'success' ? (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
-            <h3 className="track-modal-title">
-              {isEn ? "Petition Submitted Successfully!" : "மனு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!"}
+          <div className="petition-submitted-overlay">
+            {/* Animated Mailbox Scene */}
+            <div className="mailbox-scene">
+              {/* Hand inserting letter */}
+              <div className="mailbox-hand">✋</div>
+              {/* Letter / envelope */}
+              <div className="mailbox-letter" />
+              {/* Mailbox dome */}
+              <div className="mailbox-dome">
+                {/* Slot on dome */}
+                <div className="mailbox-slot" />
+              </div>
+              {/* Mailbox body */}
+              <div className="mailbox-body" />
+              {/* TVK Flag on pole */}
+              <div className="mailbox-flag">
+                <img className="mailbox-flag-img" src="/assets/branding/flag.png" alt="TVK Flag" />
+              </div>
+              {/* Sparkle particles */}
+              <div className="mailbox-particles">
+                <div className="mailbox-particle" />
+                <div className="mailbox-particle" />
+                <div className="mailbox-particle" />
+                <div className="mailbox-particle" />
+                <div className="mailbox-particle" />
+                <div className="mailbox-particle" />
+              </div>
+            </div>
+
+            {/* Animated checkmark */}
+            <div className="petition-checkmark">✓</div>
+
+            {/* Success text */}
+            <h3 className="petition-submitted-title">
+              {isEn ? "Petition Submitted!" : "மனு சமர்ப்பிக்கப்பட்டது!"}
             </h3>
-            <p style={{ color: '#4a5568', marginBottom: '24px', lineHeight: '1.6' }}>
-              {isEn 
-                ? "Thank you. Your petition has been recorded. You can track its status using your phone number." 
-                : "நன்றி. உங்கள் மனு பதிவு செய்யப்பட்டுள்ளது. உங்கள் தொலைபேசி எண்ணைப் பயன்படுத்தி அதன் நிலையை நீங்கள் கண்காணிக்கலாம்."}
+            <p className="petition-submitted-sub">
+              {isEn
+                ? "Thank you! Your petition has been recorded. You can track its status using your phone number."
+                : "நன்றி! உங்கள் மனு பதிவு செய்யப்பட்டுள்ளது. உங்கள் தொலைபேசி எண்ணைப் பயன்படுத்தி அதன் நிலையை நீங்கள் கண்காணிக்கலாம்."}
             </p>
-            <button className="primary-btn" onClick={() => { setStatus(null); onClose(); }} style={{ width: '100%' }}>
-              {isEn ? "Close" : "மூடவும்"}
+            <button
+              className="petition-submitted-close"
+              onClick={() => { setStatus(null); onClose(); }}
+            >
+              {isEn ? "✓ Done" : "✓ முடிந்தது"}
             </button>
           </div>
         ) : (
