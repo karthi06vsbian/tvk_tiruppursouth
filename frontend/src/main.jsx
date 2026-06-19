@@ -27,6 +27,37 @@ import "./styles.css";
 
 const A = "/assets/";
 
+const resolveAssetPath = (path) => {
+  if (!path) return '';
+  if (path.startsWith('data:')) return path; // Base64 image
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  
+  // Clean leading and trailing whitespace, and leading slash
+  let cleanPath = path.trim();
+  cleanPath = cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath;
+  
+  // Check if we are served by Django (which uses /static/ URLs for assets)
+  const isDjangoServed = Array.from(document.scripts).some(s => s.src.includes('/static/')) || 
+                         Array.from(document.styleSheets).some(s => s.href && s.href.includes('/static/'));
+                         
+  if (isDjangoServed) {
+    if (!cleanPath.startsWith('static/')) {
+      return `/static/${cleanPath}`;
+    }
+  } else {
+    // If we are served as a static site (not by Django), we need to request from /assets/...
+    // So if the path starts with "static/", we strip it
+    if (cleanPath.startsWith('static/')) {
+      cleanPath = cleanPath.substring(7); // strip "static/"
+      if (cleanPath.startsWith('/')) {
+        cleanPath = cleanPath.substring(1);
+      }
+    }
+  }
+  return `/${cleanPath}`;
+};
+
+
 const copy = {
   en: {
     home: "Home",
@@ -857,7 +888,7 @@ function NewsSection({ lang }) {
       <div className="update-grid">
         {news.map((item, index) => (
           <article className="update-card" key={index}>
-            <img src={item.img} alt={item.title} />
+            <img src={resolveAssetPath(item.img)} alt={item.title} />
             <div>
               <span>{item.tag}</span>
               <h3>{item.title}</h3>
@@ -898,16 +929,16 @@ function EventsSection({ lang }) {
       <div className="events-grid">
         {events.map((ev, i) => (
           <button key={i} type="button" className="e" style={{ gridColumn: `span ${ev.span?.col || 2}`, gridRow: `span ${ev.span?.row || 1}`, background: '#000', overflow: 'hidden' }} onClick={() => setLightbox(ev)}>
-            <img src={ev.src} alt={ev.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={resolveAssetPath(ev.src)} alt={ev.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             <span className="cap">{ev.caption}</span>
           </button>
         ))}
       </div>
       {lightbox && (
         <div className="lightbox" role="dialog" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => setLightbox(null)}>
-          <button type="button" style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 0, color: '#ffd84a', fontSize: '40px', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); setLightbox(null); }}>\u00d7</button>
+          <button type="button" style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 0, color: '#ffd84a', fontSize: '40px', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); setLightbox(null); }}>&times;</button>
           <div style={{ maxWidth: '90%', maxHeight: '90%', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
-            <img src={lightbox.src} alt={lightbox.caption} style={{ maxWidth: '100%', maxHeight: '80vh', border: '3px solid #ffd84a', borderRadius: '8px' }} />
+            <img src={resolveAssetPath(lightbox.src)} alt={lightbox.caption} style={{ maxWidth: '100%', maxHeight: '80vh', border: '3px solid #ffd84a', borderRadius: '8px' }} />
             <div style={{ color: '#fff', marginTop: '10px', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>{lightbox.caption}</div>
           </div>
         </div>
@@ -3999,7 +4030,7 @@ function ITWingPanel({ lang }) {
                     {news.map(item => (
                       <tr key={item.id}>
                         <td>
-                          <img src={item.img} alt={item.title_en || item.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ffd84a' }} />
+                          <img src={resolveAssetPath(item.img)} alt={item.title_en || item.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ffd84a' }} />
                         </td>
                         <td><b>{item.title_en || item.title}</b></td>
                         <td><b>{item.title_ta || item.title}</b></td>
@@ -4044,7 +4075,7 @@ function ITWingPanel({ lang }) {
                     {events.map(ev => (
                       <tr key={ev.id}>
                         <td>
-                          <img src={ev.src} alt={ev.caption_en || ev.caption} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ffd84a' }} />
+                          <img src={resolveAssetPath(ev.src)} alt={ev.caption_en || ev.caption} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ffd84a' }} />
                         </td>
                         <td><b>{ev.caption_en || ev.caption}</b></td>
                         <td><b>{ev.caption_ta || ev.caption}</b></td>
@@ -4119,7 +4150,7 @@ function ITWingPanel({ lang }) {
                 {newsImg && (
                   <div style={{ marginTop: '10px' }}>
                     <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>Preview:</span>
-                    <img src={newsImg} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', border: '1px solid #ffd84a', borderRadius: '6px' }} />
+                    <img src={resolveAssetPath(newsImg)} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', border: '1px solid #ffd84a', borderRadius: '6px' }} />
                   </div>
                 )}
               </div>
@@ -4184,7 +4215,7 @@ function ITWingPanel({ lang }) {
                 {eventSrc && (
                   <div style={{ marginTop: '10px' }}>
                     <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>Preview:</span>
-                    <img src={eventSrc} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', border: '1px solid #ffd84a', borderRadius: '6px' }} />
+                    <img src={resolveAssetPath(eventSrc)} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', border: '1px solid #ffd84a', borderRadius: '6px' }} />
                   </div>
                 )}
               </div>

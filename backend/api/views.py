@@ -16,7 +16,14 @@ def news_list_api(request):
     data = []
     for item in news_items:
         data.append({
+            'id': item.id,
             'img': item.img,
+            'title_en': item.title_en,
+            'title_ta': item.title_ta,
+            'text_en': item.text_en,
+            'text_ta': item.text_ta,
+            'tag_en': item.tag_en,
+            'tag_ta': item.tag_ta,
             'tag': item.tag_ta if lang == 'ta' else item.tag_en,
             'title': item.title_ta if lang == 'ta' else item.title_en,
             'text': item.text_ta if lang == 'ta' else item.text_en,
@@ -30,14 +37,20 @@ def events_list_api(request):
     data = []
     for item in event_items:
         data.append({
+            'id': item.id,
             'src': item.src,
+            'caption_en': item.caption_en,
+            'caption_ta': item.caption_ta,
             'caption': item.caption_ta if lang == 'ta' else item.caption_en,
             'span': {
                 'col': item.col_span,
                 'row': item.row_span
-            }
+            },
+            'col_span': item.col_span,
+            'row_span': item.row_span
         })
     return JsonResponse(data, safe=False)
+
 
 @csrf_exempt
 def join_submit_api(request):
