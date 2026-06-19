@@ -300,7 +300,7 @@ const defaultEvents = [
   { src: `${A}rallies/vijay-coimbatore-bang.webp`, caption: "Avinashi Road Roadshow", span: { col: 4, row: 1 } }
 ];
 
-function Header({ lang, setLang, setShowTrackModal }) {
+function Header({ lang, setLang, setShowTrackModal, setShowJoinModal, setShowContactModal }) {
   const [open, setOpen] = useState(false);
   const t = copy[lang];
 
@@ -322,15 +322,22 @@ function Header({ lang, setLang, setShowTrackModal }) {
         <a href="#party">{t.party}</a>
         <a href="#news">{t.news}</a>
         <a href="#events">{t.events}</a>
-        <a href="#contact">{t.contact}</a>
+        <a href="#contact" onClick={(e) => { e.preventDefault(); setShowContactModal(true); }}>{t.contact}</a>
         <button 
           type="button" 
           onClick={() => setShowTrackModal(true)} 
           className="nav-track-btn"
         >
-          {lang === 'en' ? 'Track Petition' : 'மனுவை தேட'}
+          {lang === 'en' ? 'Track Petition' : 'மனுவைத் தேட'}
         </button>
-        <a href="#join" style={{ background: '#ffd84a', color: '#3f0608', padding: '8px 16px', borderRadius: '20px', marginLeft: '10px' }}>{t.join}</a>
+        <a 
+          href="https://tvk.world/register" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ background: '#ffd84a', color: '#3f0608', padding: '8px 16px', borderRadius: '20px', marginLeft: '10px', fontWeight: 'bold' }}
+        >
+          {t.join}
+        </a>
       </nav>
       
       <div className="lang-switcher-pill" style={{ marginLeft: '15px' }}>
@@ -356,7 +363,7 @@ function Header({ lang, setLang, setShowTrackModal }) {
             <a href="#party" onClick={() => setOpen(false)}>{t.party}</a>
             <a href="#news" onClick={() => setOpen(false)}>{t.news}</a>
             <a href="#events" onClick={() => setOpen(false)}>{t.events}</a>
-            <a href="#contact" onClick={() => setOpen(false)}>{t.contact}</a>
+            <a href="#contact" onClick={(e) => { e.preventDefault(); setOpen(false); setShowContactModal(true); }}>{t.contact}</a>
             <a 
               href="#track-petition" 
               onClick={(e) => { e.preventDefault(); setOpen(false); setShowTrackModal(true); }}
@@ -364,7 +371,15 @@ function Header({ lang, setLang, setShowTrackModal }) {
             >
               {lang === 'en' ? 'Track Petition' : 'மனுவைக் கண்காணிக்க'}
             </a>
-            <a href="#join" onClick={() => setOpen(false)} style={{ color: '#ffd84a', fontWeight: 'bold' }}>{t.join}</a>
+            <a 
+              href="https://tvk.world/register" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)} 
+              style={{ color: '#ffd84a', fontWeight: 'bold' }}
+            >
+              {t.join}
+            </a>
           </div>
         </div>
       )}
@@ -372,7 +387,7 @@ function Header({ lang, setLang, setShowTrackModal }) {
   );
 }
 
-function Hero({ lang }) {
+function Hero({ lang, setShowJoinModal, setShowPetitionModal, setShowContactModal }) {
   const t = copy[lang];
   return (
     <section id="home" className="hero">
@@ -394,11 +409,11 @@ function Hero({ lang }) {
         <h1>{t.heroTitle}</h1>
         <p className="hero-lead">{t.heroLead}</p>
         <div className="hero-actions">
-          <a className="primary-btn" href="#join">
+          <a className="primary-btn" href="#join" onClick={(e) => { e.preventDefault(); setShowJoinModal(true); }}>
             {t.heroCta}
             <ChevronRight size={18} />
           </a>
-          <a className="ghost-btn" href="#contact">
+          <a className="ghost-btn" href="#contact" onClick={(e) => { e.preventDefault(); setShowContactModal(true); }}>
             {t.contactCta}
             <ArrowUpRight size={17} />
           </a>
@@ -901,7 +916,505 @@ function EventsSection({ lang }) {
   );
 }
 
-function Join({ lang }) {
+function Footer({ lang, setShowJoinModal }) {
+  const t = copy[lang];
+
+  const scrollToTop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  return (
+    <footer className="tvk-foot" id="contact">
+      <div className="foot-hero">
+        <div className="foot-bg-layer foot-crowd" aria-hidden="true"></div>
+        <div className="foot-bg-layer foot-flag" aria-hidden="true"></div>
+        <div className="foot-cutout-container">
+          <img className="foot-flag-flowing" src="/assets/branding/flag-flowing.png" alt="" aria-hidden="true" />
+          <img className="foot-thalaivar" src="/assets/branding/thalaivar-cutout.png" alt="CM Vijay" />
+        </div>
+        <div className="foot-cta">
+          <span className="pre">{t.foot_pre}</span>
+          <h3>{t.foot_h}</h3>
+          <p>{t.foot_p}</p>
+          <div className="foot-cta-row">
+            <a className="btn-gold" href="#join" onClick={(e) => { e.preventDefault(); setShowJoinModal(true); }}>
+              {lang === "en" ? "Join TVK" : "தவெகவில் சேர"}
+              <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+          <div className="foot-socials-group">
+            <div className="foot-socials-inline">
+              <a className="ic" href="#" aria-label="X (Twitter)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+              <a className="ic" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".7" fill="currentColor"/></svg></a>
+              <a className="ic" href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 22v-8H7v-3.5h2.5V8c0-2.5 1.5-4 3.8-4 1.1 0 2 .2 2.2.2v2.6h-1.5c-1.2 0-1.5.6-1.5 1.4v2.3H16l-.5 3.5h-2.5V22"/></svg></a>
+              <a className="ic" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="foot-wordmark-container">
+        <div className="foot-bg-crowd-gold" aria-hidden="true"></div>
+        <div className="foot-wordmark">
+          <div className="foot-wordmark-brand">
+            <div className="en">{lang === "en" ? "Tamilaga Vettri Kazhagam" : "தமிழக வெற்றிக் கழகம்"}</div>
+            <div className="ta">{lang === "en" ? "Tiruppur South" : "திருப்பூர் தெற்கு"}</div>
+            <div className="domain num">tvktiruppursouth.com</div>
+          </div>
+          <div className="foot-wordmark-copy">{t.copyright}</div>
+        </div>
+        
+        <div className="foot-meta foot-meta-compact" style={{ flex: '1 1 250px', maxWidth: '350px' }}>
+          <div className="foot-meta-cell"><b>{t.office_label}</b>{t.office}</div>
+          <div className="foot-meta-cell"><b>{t.media_label}</b>{t.media_val}</div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '30px', background: '#120203' }}>
+        <div className="foot-builtby" style={{ margin: 0 }}>
+          <a href="#admin" className="foot-builtby-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+            <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "வடிவமைப்பு & பராமரிப்பு"}</span>
+            <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
+          </a>
+        </div>
+      </div>
+      <button className="scroll-to-top-btn" onClick={scrollToTop} aria-label="Scroll to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+      </button>
+    </footer>
+  );
+}
+
+/* ─── New Custom Components: Banner and Modals ─── */
+function QuickActions({ lang, setShowPetitionModal, setShowJoinModal, setShowContactModal }) {
+  const isEn = lang === 'en';
+  return (
+    <section className="quick-actions-banner">
+      <div className="quick-action-card">
+        <h4>{isEn ? "Petition Box" : "மனு பெட்டி"}</h4>
+        <p>
+          {isEn
+            ? "Submit your grievances, local issues, or personal petitions directly to the party leadership."
+            : "உங்கள் குறைகள், உள்ளூர் பிரச்சனைகள் அல்லது தனிப்பட்ட மனுக்களை நேரடியாக கட்சித் தலைமையிடம் சமர்ப்பிக்கவும்."}
+        </p>
+        <button className="quick-action-btn primary" onClick={() => setShowPetitionModal(true)}>
+          <Inbox size={20} />
+          {isEn ? "Open Petition Form" : "மனுப் படிவத்தைத் திறக்கவும்"}
+        </button>
+      </div>
+
+      <div className="quick-action-card">
+        <h4>{isEn ? "Contact Us" : "தொடர்பu கொள்ள"}</h4>
+        <p>
+          {isEn
+            ? "Have questions or need support? Reach out to our Tiruppur South district office."
+            : "கேள்விகள் உள்ளதா அல்லது ஆதரவு தேவையா? எங்களது திருப்பூர் தெற்கு மாவட்ட அலுவலகத்தைத் தொடர்பு கொள்ளவும்."}
+        </p>
+        <button className="quick-action-btn secondary" onClick={() => setShowContactModal(true)}>
+          <Mail size={20} />
+          {isEn ? "Send Message" : "செய்தி அனுப்பவும்"}
+        </button>
+      </div>
+
+      <div className="quick-action-card">
+        <h4>{isEn ? "Work Together" : "இணைந்து செயல்படுவோம்"}</h4>
+        <p>
+          {isEn
+            ? "Become a primary member of Tamilaga Vettri Kazhagam and contribute to grassroots change."
+            : "தமிழக வெற்றிக் கழகத்தின் முதன்மை உறுப்பினராகி, அடிமட்ட அளவிலான மாற்றத்திற்கு பங்களிக்கவும்."}
+        </p>
+        <button className="quick-action-btn primary" onClick={() => setShowJoinModal(true)}>
+          <Handshake size={20} />
+          {isEn ? "Work Together" : "இணைந்து செயல்படுக"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function SubmitPetitionModal({ lang, isOpen, onClose }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [area, setArea] = useState("Udumalpet");
+  const [problemType, setProblemType] = useState("Water");
+  const [subject, setSubject] = useState("");
+  const [summary, setSummary] = useState("");
+  const [photoData, setPhotoData] = useState("");
+  const [photoName, setPhotoName] = useState("");
+  const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
+  const fileInputRef = useRef(null);
+
+  if (!isOpen) return null;
+
+  const isEn = lang === 'en';
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(isEn ? "File size must be less than 5MB." : "கோப்பின் அளவு 5MB க்கும் குறைவாக இருக்க வேண்டும்.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPhotoData(event.target.result);
+        setPhotoName(file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setPhotoData("");
+    setPhotoName("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      alert(isEn ? "Please enter a valid 10-digit phone number." : "தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.");
+      return;
+    }
+
+    if (!photoData) {
+      alert(isEn ? "Please upload a required photo or PDF document." : "தயவுசெய்து தேவையான புகைப்படம் அல்லது PDF ஆவணத்தை பதிவேற்றவும்.");
+      return;
+    }
+
+    setStatus('submitting');
+    fetch("/api/petitions/submit/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        phone: cleanPhone,
+        email,
+        area,
+        problem_type: problemType,
+        subject,
+        summary: summary || subject,
+        photo_data: photoData,
+        photo_name: photoName
+      })
+    })
+      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
+      .then(() => {
+        setStatus('success');
+        setName('');
+        setPhone('');
+        setEmail('');
+        setArea('Udumalpet');
+        setProblemType('Water');
+        setSubject('');
+        setSummary('');
+        setPhotoData('');
+        setPhotoName('');
+      })
+      .catch((err) => {
+        console.error(err);
+        setStatus('error');
+      });
+  };
+
+  return (
+    <div className="track-modal-overlay" onClick={onClose}>
+      <div className="petition-modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="track-modal-close" onClick={onClose} aria-label="Close petition modal">
+          <X size={24} />
+        </button>
+
+        {status === 'success' ? (
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
+            <h3 className="track-modal-title">
+              {isEn ? "Petition Submitted Successfully!" : "மனு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!"}
+            </h3>
+            <p style={{ color: '#4a5568', marginBottom: '24px', lineHeight: '1.6' }}>
+              {isEn 
+                ? "Thank you. Your petition has been recorded. You can track its status using your phone number." 
+                : "நன்றி. உங்கள் மனு பதிவு செய்யப்பட்டுள்ளது. உங்கள் தொலைபேசி எண்ணைப் பயன்படுத்தி அதன் நிலையை நீங்கள் கண்காணிக்கலாம்."}
+            </p>
+            <button className="primary-btn" onClick={() => { setStatus(null); onClose(); }} style={{ width: '100%' }}>
+              {isEn ? "Close" : "மூடவும்"}
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 className="track-modal-title" style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '6px' }}>
+              {isEn ? "Submit Your Petition" : "உங்கள் மனுவைச் சமர்ப்பிக்கவும்"}
+            </h3>
+            <p className="track-modal-subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
+              {isEn 
+                ? "Submit local or personal grievances directly to the party." 
+                : "உள்ளூர் அல்லது தனிப்பட்ட குறைகளை நேரடியாக கட்சியிடம் சமர்ப்பிக்கவும்."}
+            </p>
+
+            <form onSubmit={handleSubmit}>
+              <div className="modal-form-group">
+                <label>{isEn ? "Your Full Name *" : "உங்கள் முழு பெயர் *"}</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={isEn ? "Enter name" : "பெயரை உள்ளிடவும்"}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="modal-form-group">
+                  <label>{isEn ? "Phone Number *" : "தொலைபேசி எண் *"}</label>
+                  <input
+                    type="tel"
+                    required
+                    pattern="[0-9]{10}"
+                    maxLength="10"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    placeholder={isEn ? "10-digit number" : "10-இலக்க எண்"}
+                  />
+                </div>
+                <div className="modal-form-group">
+                  <label>{isEn ? "Email Address" : "மின்னஞ்சல் முகவரி"}</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={isEn ? "Optional" : "விருப்பத்திற்குரியது"}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="modal-form-group">
+                  <label>{isEn ? "Area / Ward *" : "பகுதி / வார்டு *"}</label>
+                  <select value={area} onChange={(e) => setArea(e.target.value)}>
+                    <option value="Udumalpet">Udumalpet (உடுமலைப்பேட்டை)</option>
+                    <option value="Madathukkulam">Madathukkulam (மடத்துக்குளம்)</option>
+                  </select>
+                </div>
+                <div className="modal-form-group">
+                  <label>{isEn ? "Type of Problem *" : "பிரச்சனை வகை *"}</label>
+                  <select value={problemType} onChange={(e) => setProblemType(e.target.value)}>
+                    <option value="Water">Water (குடிநீர்)</option>
+                    <option value="Road">Road (சாலை)</option>
+                    <option value="Electricity">Electricity (மின்சாரம்)</option>
+                    <option value="Garbage">Garbage (கழிவுநீர் / குப்பை)</option>
+                    <option value="Personal">Personal (தனிப்பட்ட)</option>
+                    <option value="Others">Others (இதர)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-form-group">
+                <label>{isEn ? "Subject / Issue Title *" : "தலைப்பு / பிரச்சனை *"}</label>
+                <input
+                  type="text"
+                  required
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder={isEn ? "Brief title of the issue" : "பிரச்சனையின் சுருக்கமான தலைப்பு"}
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>{isEn ? "Summary / Details" : "மனுவின் விவரம்"}</label>
+                <textarea
+                  value={summary}
+                  onChange={(e) => setSummary(e.target.value)}
+                  placeholder={isEn ? "Explain the problem in detail (optional)..." : "பிரச்சனையை விரிவாக விளக்கவும் (விருப்பத்திற்குரியது)..."}
+                  rows={3}
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>{isEn ? "Upload Photo or PDF *" : "படம் அல்லது PDF பதிவேற்றவும் *"}</label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                {!photoData ? (
+                  <div className="modal-file-drop" onClick={() => fileInputRef.current?.click()}>
+                    <span className="modal-file-drop-icon">📁</span>
+                    <span className="modal-file-drop-text">{isEn ? "Click to Upload Image or PDF (Max 5MB)" : "படம் அல்லது PDF பதிவேற்ற கிளிக் செய்யவும்"}</span>
+                    <span className="modal-file-drop-subtext">{isEn ? "Supported: JPG, PNG, PDF" : "ஆதரவு: JPG, PNG, PDF"}</span>
+                  </div>
+                ) : (
+                  <div className="modal-file-preview">
+                    <span>📄 {photoName}</span>
+                    <button type="button" onClick={handleRemoveFile}>✕</button>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="primary-btn"
+                style={{ width: '100%', marginTop: '8px' }}
+                disabled={status === 'submitting'}
+              >
+                {status === 'submitting' 
+                  ? (isEn ? "Submitting..." : "சமர்ப்பிக்கப்படுகிறது...") 
+                  : (isEn ? "Submit Petition" : "மனுவைச் சமர்ப்பிக்கவும்")}
+              </button>
+              {status === 'error' && (
+                <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginTop: '10px', textAlign: 'center' }}>
+                  {isEn ? "❌ Something went wrong. Please try again." : "❌ பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்."}
+                </div>
+              )}
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ContactModal({ lang, isOpen, onClose }) {
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [topic, setTopic] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
+
+  if (!isOpen) return null;
+
+  const isEn = lang === 'en';
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      alert(isEn ? 'Please enter a valid 10-digit phone number.' : 'தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.');
+      return;
+    }
+    setStatus('submitting');
+    fetch("/api/contact/submit/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, phone: cleanPhone, topic, message })
+    })
+      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
+      .then(() => {
+        setStatus('success');
+        setEmail('');
+        setPhone('');
+        setTopic('');
+        setMessage('');
+      })
+      .catch((err) => {
+        console.error(err);
+        setStatus('error');
+      });
+  };
+
+  return (
+    <div className="track-modal-overlay" onClick={onClose}>
+      <div className="track-modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="track-modal-close" onClick={onClose} aria-label="Close contact modal">
+          <X size={24} />
+        </button>
+
+        {status === 'success' ? (
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
+            <h3 className="track-modal-title">
+              {isEn ? "Message Sent Successfully!" : "செய்தி வெற்றிகரமாக அனுப்பப்பட்டது!"}
+            </h3>
+            <p style={{ color: '#4a5568', marginBottom: '24px', lineHeight: '1.6' }}>
+              {isEn 
+                ? "Thank you for reaching out. We will get back to you as soon as possible." 
+                : "தொடர்பு கொண்டமைக்கு நன்றி. கூடிய விரைவில் உங்களைத் தொடர்பு கொள்வோம்."}
+            </p>
+            <button className="primary-btn" onClick={() => { setStatus(null); onClose(); }} style={{ width: '100%' }}>
+              {isEn ? "Close" : "மூடவும்"}
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 className="track-modal-title" style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '6px' }}>
+              {isEn ? "Contact Us" : "எங்களைத் தொடர்பு கொள்ள"}
+            </h3>
+            <p className="track-modal-subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
+              {isEn 
+                ? "Send us a message and we will respond shortly." 
+                : "எங்களுக்கு ஒரு செய்தியை அனுப்புங்கள், நாங்கள் விரைவில் பதிலளிப்போம்."}
+            </p>
+
+            <form onSubmit={handleSubmit}>
+              <div className="modal-form-group">
+                <label>{isEn ? "Email ID *" : "மின்னஞ்சல் முகவரி *"}</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={isEn ? "name@example.com" : "மின்னஞ்சல் முகவரியை உள்ளிடவும்"}
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>{isEn ? "Phone Number *" : "தொலைபேசி எண் *"}</label>
+                <input
+                  type="tel"
+                  required
+                  pattern="[0-9]{10}"
+                  maxLength="10"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  placeholder={isEn ? "e.g. 9876543210" : "எ.கா. 9876543210"}
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>{isEn ? "Topic / Subject *" : "தொடர்புக்கான தலைப்பு *"}</label>
+                <input
+                  type="text"
+                  required
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder={isEn ? "e.g. Question, Feedback" : "எ.கா. கேள்வி, கருத்து"}
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>{isEn ? "Message" : "செய்தி"}</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={isEn ? "Enter your message (optional)..." : "செய்தியை உள்ளிடவும் (விருப்பத்திற்குரியது)..."}
+                  rows={4}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="primary-btn"
+                style={{ width: '100%', marginTop: '8px' }}
+                disabled={status === 'submitting'}
+              >
+                {status === 'submitting' 
+                  ? (isEn ? "Sending..." : "அனுப்பப்படுகிறது...") 
+                  : (isEn ? "Send Message" : "செய்தி அனுப்பவும்")}
+              </button>
+              {status === 'error' && (
+                <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginTop: '10px', textAlign: 'center' }}>
+                  {isEn ? "❌ Failed to send message. Please try again." : "❌ செய்தி அனுப்புவதில் தோல்வி. மீண்டும் முயலவும்."}
+                </div>
+              )}
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+function JoinMembershipModal({ lang, isOpen, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -920,6 +1433,8 @@ function Join({ lang }) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -1006,6 +1521,7 @@ function Join({ lang }) {
       console.error('Error:', err);
       setError(lang === 'en' ? 'Failed to submit application. Please try again.' : 'விண்ணப்பத்தை சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.');
     } finally {
+      content = content; // placeholder
       setLoading(false);
     }
   };
@@ -1047,104 +1563,107 @@ function Join({ lang }) {
       benefit1Title: "Be Part of a Movement",
       benefit1Desc: "Join millions working to transform Tamil Nadu's political landscape",
       benefit2Title: "Contribute Your Talents",
-      benefit2Desc: "Use your skills and expertise to drive grassroots social and political change",
-      benefit3Title: "Access Direct Resources",
-      benefit3Desc: "Get access to member training, exclusive announcements, and direct contact with local leaders",
-      benefit4Title: "Shape Governance",
-      benefit4Desc: "Help draft local manifestos and drive policy development",
-      needHelp: "Need Help?",
-      helpDesc: "Have questions about the membership process?",
-      callUs: "Call our helpline",
-      helpHours: "Available 9 AM - 6 PM, Every day"
+      benefit2Desc: "Use your skills and expertise to drive grassroots social and political change"
     },
     ta: {
-      eyebrow: "உறுப்பினர் சேர்க்கை",
-      title: "இன்றே தவெக-வில் இணையுங்கள்",
-      lead: "தமிழகத்தின் சிறந்த எதிர்காலத்திற்கான மக்கள் கட்சியான தமிழக வெற்றிக் கழகத்தின் அடிப்படை உறுப்பினராகுங்கள்.",
-      formTitle: "உறுப்பினர் விண்ணப்பப் படிவம்",
+      eyebrow: "உறுப்பினர்",
+      title: "இன்றே தவெகவில் இணையுங்கள்",
+      lead: "சிறந்த தமிழ்நாட்டிற்கான மக்கள் கட்சி - தமிழக வெற்றிக் கழகத்தில் முதன்மை உறுப்பினராகுங்கள்.",
+      formTitle: "உறுப்பினர் சேர்க்கை படிவம்",
       name: "முழு பெயர் *",
-      namePlaceholder: "உங்கள் முழு பெயரை உள்ளிடவும்",
+      namePlaceholder: "முழு பெயரை உள்ளிடவும்",
       phone: "தொலைபேசி எண் *",
-      phonePlaceholder: "10 இலக்க கைபேசி எண்",
+      phonePlaceholder: "10-இலக்க தொலைபேசி எண்",
       email: "மின்னஞ்சல் முகவரி",
-      emailPlaceholder: "your.email@example.com",
+      emailPlaceholder: "example@email.com",
       dob: "பிறந்த தேதி *",
       gender: "பாலினம் *",
       genderMale: "ஆண்",
       genderFemale: "பெண்",
       genderOther: "இதர",
-      address: "வீட்டு முகவரி *",
-      addressPlaceholder: "உங்கள் முழு வீட்டு முகவரியை உள்ளிடவும்",
+      address: "வசிப்பிட முகவரி *",
+      addressPlaceholder: "முழு வசிப்பிட முகவரியை உள்ளிடவும்",
       area: "வார்டு / பகுதி *",
       occupation: "தொழில் / வேலை",
-      occupationPlaceholder: "எ.கா. மாணவர், வணிகம், விவசாயி",
-      interests: "ஆர்வமுள்ள துறைகள் (பொருந்தும் அனைத்தையும் தேர்ந்தெடுக்கவும்) *",
-      photo: "சுயவிவரப் புகைப்படம்",
-      photoPlaceholder: "புகைப்படத்தை பதிவேற்ற கிளிக் செய்யவும்",
-      photoHint: "JPG, PNG 5 எம்பி வரை",
+      occupationPlaceholder: "மாணவர், வணிகம், விவசாயி போன்றவை",
+      interests: "ஆர்வமுள்ள பகுதிகள் (பொருந்தும் அனைத்தையும் தேர்ந்தெடுக்கவும்) *",
+      photo: "சுயவிவரப் படம்",
+      photoPlaceholder: "புகைப்படத்தைப் பதிவேற்ற கிளிக் செய்யவும்",
+      photoHint: "5 MB வரையிலான JPG, PNG",
       photoRemove: "புகைப்படத்தை நீக்கு",
-      terms: "நான் தவெக உறுப்பினர் விதிமுறைகள் மற்றும் நிபந்தனைகளை ஒப்புக்கொள்கிறேன்",
+      terms: "தவெக உறுப்பினர் விதிமுறைகள் மற்றும் நிபந்தனைகளுக்கு நான் உடன்படுகிறேன்",
       submit: "விண்ணப்பத்தை சமர்ப்பிக்கவும்",
       submitting: "சமர்ப்பிக்கப்படுகிறது...",
       successTitle: "✓ விண்ணப்பம் சமர்ப்பிக்கப்பட்டது!",
-      successMessage1: "உங்கள் உறுப்பினர் விண்ணப்பம் பெறப்பட்டது.",
-      successMessage2: "அடுத்த கட்ட நடவடிக்கைகள் குறித்து விரைவில் உங்களைத் தொடர்புகொள்வோம்.",
-      whyJoin: "ஏன் தவெக-வில் இணைய வேண்டும்?",
-      benefit1Title: "ஒரு இயக்கத்தின் அங்கமாக இருங்கள்",
-      benefit1Desc: "தமிழகத்தின் அரசியல் சூழலை மாற்ற உழைக்கும் லட்சக்கணக்கானோருடன் இணையுங்கள்",
+      successMessage1: "உங்கள் உறுப்பினர் சேர்க்கை விண்ணப்பம் பெறப்பட்டது.",
+      successMessage2: "அடுத்த கட்ட நடவடிக்கைகளுடன் விரைவில் உங்களைத் தொடர்பு கொள்வோம்.",
+      whyJoin: "ஏன் தவெகவில் இணைய வேண்டும்?",
+      benefit1Title: "ஒரு இயக்கத்தின் பகுதியாக இருங்கள்",
+      benefit1Desc: "தமிழ்நாட்டின் அரசியல் சூழலை மாற்ற உழைக்கும் லட்சக்கணக்கானோருடன் இணையுங்கள்",
       benefit2Title: "உங்கள் திறமைகளை பங்களிக்கவும்",
-      benefit2Desc: "அடிமட்ட சமூக மற்றும் அரசியல் முயற்சிகளில் உங்கள் நிபுணத்துவத்தைப் பயன்படுத்துங்கள்",
-      benefit3Title: "நேரடி ஆதாரங்களை அணுகவும்",
-      benefit3Desc: "பயிற்சி, நிகழ்வு அறிவிப்புகள் மற்றும் உள்ளூர் தலைவர்களுடன் நேரடித் தொடர்பு பெறுங்கள்",
-      benefit4Title: "ஆட்சியை வடிவமைக்கவும்",
-      benefit4Desc: "உள்ளூர் தேர்தல் அறிக்கைகளைத் தயாரிக்கவும் கொள்கைகளை உருவாக்கவும் உதவுங்கள்",
-      needHelp: "உதவி தேவையா?",
-      helpDesc: "உறுப்பினர் சேர்க்கை குறித்து ஏதேனும் கேள்விகள் உள்ளதா?",
-      callUs: "எங்கள் உதவி எண்ணை அழைக்கவும்",
-      helpHours: "காலை 9 மணி முதல் மாலை 6 மணி வரை, அனைத்து நாட்களிலும்"
+      benefit2Desc: "சமூக மற்றும் அரசியல் மாற்றங்களை ஏற்படுத்த உங்கள் திறன்களைப் பயன்படுத்துங்கள்"
     }
   };
 
-  const t = labels[lang];
-
   const interestOptions = [
-    { id: 'social_dev', labelEn: 'Social Development', labelTa: 'சமூக மேம்பாடு' },
-    { id: 'community', labelEn: 'Community Service', labelTa: 'சமூக சேவை' },
-    { id: 'digital', labelEn: 'Digital & Technology', labelTa: 'டிஜிட்டல் & தொழில்நுட்பம்' },
-    { id: 'political', labelEn: 'Political Training', labelTa: 'அரசியல் பயிற்சி' },
-    { id: 'events', labelEn: 'Event Management', labelTa: 'நிகழ்வு மேலாண்மை' },
-    { id: 'other', labelEn: 'Other', labelTa: 'இதர' }
+    { id: "social_dev", labelEn: "Social Development", labelTa: "சமூக மேம்பாடு" },
+    { id: "community", labelEn: "Community Service", labelTa: "சமூக சேவை" },
+    { id: "digital", labelEn: "Digital & Technology", labelTa: "டிஜிட்டல் மற்றும் தொழில்நுட்பம்" },
+    { id: "political", labelEn: "Political Training", labelTa: "அரசியல் பயிற்சி" },
+    { id: "events", labelEn: "Event Management", labelTa: "நிகழ்வு மேலாண்மை" },
+    { id: "other", labelEn: "Other", labelTa: "இதர" }
   ];
 
+  const t = labels[lang];
+
   return (
-    <section id="join" className="join-section-container">
-      <div className="join-section-head">
-        <p className="eyebrow">{t.eyebrow}</p>
-        <h2>{t.title}</h2>
-        <p className="join-lead-text">{t.lead}</p>
-      </div>
+    <div className="track-modal-overlay" onClick={onClose}>
+      <div className="petition-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '680px' }}>
+        <button className="track-modal-close" onClick={onClose} aria-label="Close membership modal">
+          <X size={24} />
+        </button>
 
-      <div className="join-grid-layout">
-        {/* Form Column */}
-        <div className="join-form-column">
-          {!submitted ? (
-            <div className="join-form-card">
-              <h3 className="join-form-header">{t.formTitle}</h3>
-              {error && <div className="join-form-error">{error}</div>}
-              <form onSubmit={handleSubmit} className="membership-form">
-                <div className="form-group">
-                  <label>{t.name}</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder={t.namePlaceholder}
-                    required
-                  />
+        {submitted ? (
+          <div style={{ textAlign: 'center', padding: '30px 0' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
+            <h3 className="track-modal-title">{t.successTitle}</h3>
+            <p style={{ color: '#4a5568', marginBottom: '24px', lineHeight: '1.6' }}>
+              {t.successMessage1} {t.successMessage2}
+            </p>
+            <button className="primary-btn" onClick={() => { setSubmitted(false); onClose(); }} style={{ width: '100%' }}>
+              {lang === 'en' ? 'Close' : 'மூடவும்'}
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 className="track-modal-title" style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '6px' }}>
+              {t.formTitle}
+            </h3>
+            <p className="track-modal-subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
+              {t.lead}
+            </p>
+
+            <form onSubmit={handleSubmit}>
+              {error && (
+                <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginBottom: '12px', textAlign: 'center', fontWeight: 'bold' }}>
+                  {error}
                 </div>
+              )}
 
-                <div className="form-group">
+              <div className="modal-form-group">
+                <label>{t.name}</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder={t.namePlaceholder}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="modal-form-group">
                   <label>{t.phone}</label>
                   <input
                     type="tel"
@@ -1152,13 +1671,12 @@ function Join({ lang }) {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder={t.phonePlaceholder}
+                    required
                     pattern="[0-9]{10}"
                     maxLength="10"
-                    required
                   />
                 </div>
-
-                <div className="form-group">
+                <div className="modal-form-group">
                   <label>{t.email}</label>
                   <input
                     type="email"
@@ -1168,48 +1686,49 @@ function Join({ lang }) {
                     placeholder={t.emailPlaceholder}
                   />
                 </div>
+              </div>
 
-                <div className="form-group-row">
-                  <div className="form-group">
-                    <label>{t.dob}</label>
-                    <input
-                      type="date"
-                      name="dob"
-                      value={formData.dob}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>{t.gender}</label>
-                    <select
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">--</option>
-                      <option value="Male">{t.genderMale}</option>
-                      <option value="Female">{t.genderFemale}</option>
-                      <option value="Other">{t.genderOther}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>{t.address}</label>
-                  <textarea
-                    name="address"
-                    value={formData.address}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="modal-form-group">
+                  <label>{t.dob}</label>
+                  <input
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
                     onChange={handleChange}
-                    placeholder={t.addressPlaceholder}
-                    rows="3"
                     required
                   />
                 </div>
+                <div className="modal-form-group">
+                  <label>{t.gender}</label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">--</option>
+                    <option value="Male">{t.genderMale}</option>
+                    <option value="Female">{t.genderFemale}</option>
+                    <option value="Other">{t.genderOther}</option>
+                  </select>
+                </div>
+              </div>
 
-                <div className="form-group">
+              <div className="modal-form-group">
+                <label>{t.address}</label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder={t.addressPlaceholder}
+                  rows={2}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="modal-form-group">
                   <label>{t.area}</label>
                   <select
                     name="area"
@@ -1223,8 +1742,7 @@ function Join({ lang }) {
                     <option value="Other">Other</option>
                   </select>
                 </div>
-
-                <div className="form-group">
+                <div className="modal-form-group">
                   <label>{t.occupation}</label>
                   <input
                     type="text"
@@ -1234,497 +1752,66 @@ function Join({ lang }) {
                     placeholder={t.occupationPlaceholder}
                   />
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label>{t.interests}</label>
-                  <div className="interests-checkbox-grid">
-                    {interestOptions.map(opt => (
-                      <label key={opt.id} className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={formData.interests.includes(opt.id)}
-                          onChange={() => handleInterestChange(opt.id)}
-                        />
-                        <span>{lang === 'en' ? opt.labelEn : opt.labelTa}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>{t.photo}</label>
-                  <div className="photo-upload-container">
-                    <label className="photo-upload-trigger">
-                      <Camera size={20} />
-                      <span>{t.photoPlaceholder}</span>
-                      <small>{t.photoHint}</small>
+              <div className="modal-form-group">
+                <label>{t.interests}</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'rgba(90, 12, 18, 0.02)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(90, 12, 18, 0.08)' }}>
+                  {interestOptions.map(opt => (
+                    <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#360507', fontWeight: '600', cursor: 'pointer' }}>
                       <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoChange}
-                        style={{ display: 'none' }}
+                        type="checkbox"
+                        checked={formData.interests.includes(opt.id)}
+                        onChange={() => handleInterestChange(opt.id)}
+                        style={{ cursor: 'pointer' }}
                       />
+                      <span>{lang === 'en' ? opt.labelEn : opt.labelTa}</span>
                     </label>
-                    {photoPreview && (
-                      <div className="photo-preview-box">
-                        <img src={photoPreview} alt="Preview" />
-                        <button type="button" onClick={handleRemovePhoto} className="remove-photo-btn">
-                          {t.photoRemove}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="checkbox-label terms-checkbox">
-                  <input type="checkbox" required />
-                  <span>{t.terms}</span>
-                </div>
-
-                <button type="submit" className="primary-btn submit-membership-btn" disabled={loading}>
-                  <Handshake size={18} />
-                  {loading ? t.submitting : t.submit}
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="join-success-card">
-              <h3>{t.successTitle}</h3>
-              <p>{t.successMessage1}</p>
-              <p>{t.successMessage2}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Info Column */}
-        <div className="join-info-column">
-          <div className="benefits-card">
-            <h3>{t.whyJoin}</h3>
-            <div className="benefits-list">
-              {[
-                { title: t.benefit1Title, desc: t.benefit1Desc },
-                { title: t.benefit2Title, desc: t.benefit2Desc },
-                { title: t.benefit3Title, desc: t.benefit3Desc },
-                { title: t.benefit4Title, desc: t.benefit4Desc }
-              ].map((benefit, idx) => (
-                <div key={idx} className="benefit-item">
-                  <div className="benefit-number">{idx + 1}</div>
-                  <div className="benefit-content">
-                    <h4>{benefit.title}</h4>
-                    <p>{benefit.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function PetitionSection({ lang, setShowTrackModal }) {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [area, setArea] = useState("Tiruppur South");
-  const [subject, setSubject] = useState("");
-  const [summary, setSummary] = useState("");
-  const [photoData, setPhotoData] = useState("");
-  const [photoName, setPhotoName] = useState("");
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
-
-  const labels = {
-    en: {
-      eyebrow: "PETITION",
-      title: "Submit Your Petition",
-      lead: "Have a concern or request? Submit your petition directly to the party leadership. We listen, we act.",
-      name: "Your Full Name",
-      phone: "Phone Number (10 digits)",
-      email: "Email Address (Optional)",
-      area: "Ward / Area",
-      photo: "Upload Photo / Image (Optional)",
-      photo_hint: "Click to upload an image of the issue",
-      subject: "Subject",
-      summary: "Describe your petition in detail...",
-      submit: "Submit Petition",
-      submitting: "Submitting...",
-      success: "✅ Petition Submitted Successfully!",
-      error: "Something went wrong. Please try again.",
-      another: "Submit Another Petition"
-    },
-    ta: {
-      eyebrow: "\u0bae\u0ba9\u0bc1",
-      title: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1\u0bb5\u0bc8 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd",
-      lead: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u0b8f\u0ba4\u0bc7\u0ba9\u0bc1\u0bae\u0bcd \u0b95\u0bb5\u0bb2\u0bc8 \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 \u0b95\u0bcb\u0bb0\u0bbf\u0b95\u0bcd\u0b95\u0bc8 \u0b89\u0bb3\u0bcd\u0bb3\u0ba4\u0bbe? \u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1\u0bb5\u0bc8 \u0ba8\u0bc7\u0bb0\u0b9f\u0bbf\u0baf\u0bbe\u0b95 \u0b95\u0b9f\u0bcd\u0b9a\u0bbf \u0ba4\u0bb2\u0bc8\u0bae\u0bc8\u0b95\u0bcd\u0b95\u0bc1 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
-      name: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0bc1\u0bb4\u0bc1\u0baa\u0bcd \u0baa\u0bc6\u0baf\u0bb0\u0bcd",
-      phone: "\u0ba4\u0bca\u0bb2\u0bc8\u0baa\u0bc7\u0b9a\u0bbf \u0b8e\u0ba3\u0bcd",
-      email: "\u0bae\u0bbf\u0ba9\u0bcd\u0ba9\u0b9e\u0bcd\u0b9a\u0bb2\u0bcd \u0bae\u0bc1\u0b95\u0bb5\u0bb5\u0bb0\u0bbf (\u0bb5\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bbf\u0bb1\u0bcd\u0b95\u0bc1\u0bb0\u0bbf\u0baf\u0ba4\u0bc1)",
-      area: "\u0bb5\u0bbe\u0bb0\u0bcd\u0b9f\u0bc1 / \u0baa\u0b95\u0bc1\u0ba4\u0bbf",
-      photo: "\u0baa\u0bc1\u0b95\u0bc8\u0baa\u0bcd\u0baa\u0b9f\u0ba4\u0bcd\u0ba4\u0bc8\u0baa\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bc7\u0bb1\u0bcd\u0bb1\u0bb5\u0bc1\u0bae\u0bcd (\u0bb5\u0bbf\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bbf\u0bb1\u0bcd\u0b95\u0bc1\u0bb0\u0bbf\u0baf\u0ba4\u0bc1)",
-      photo_hint: "\u0baa\u0bbf\u0bb0\u0b9a\u0bcd\u0b9a\u0ba9\u0bc8\u0baf\u0bbf\u0ba9\u0bcd \u0baa\u0b9f\u0ba4\u0bcd\u0ba4\u0bc8\u0baa\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bc7\u0bb1\u0bcd\u0bb1\u0bbf\u0b9f \u0b95\u0bcd\u0bb2\u0bbf\u0b95\u0bcd \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0bb5\u0bc1\u0bae\u0bcd",
-      subject: "\u0ba4\u0bb2\u0bc8\u0baa\u0bcd\u0baa\u0bc1",
-      summary: "\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0ba9\u0bc1\u0bb5\u0bc8 \u0bb5\u0bbf\u0bb0\u0bbf\u0bb5\u0bbe\u0b95 \u0b8e\u0bb4\u0bc1\u0ba4\u0bb5\u0bc1\u0bae\u0bcd...",
-      submit: "\u0bae\u0ba9\u0bc1 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95",
-      submitting: "\u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1...",
-      success: "✅ \u0bae\u0ba9\u0bc1 \u0bb5\u0bc6\u0bb1\u0bcd\u0bb1\u0bbf\u0b95\u0bb0\u0bae\u0bbe\u0b95 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1!",
-      error: "\u0baa\u0bbf\u0bb4\u0bc8 \u0b8f\u0bb1\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1. \u0bae\u0bc0\u0ba3\u0bcd\u0b9f\u0bc1\u0bae\u0bcd \u0bae\u0bc1\u0baf\u0bb1\u0bcd\u0b9a\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
-      another: "\u0bae\u0bb1\u0bcd\u0bb1\u0bca\u0bb0\u0bc1 \u0bae\u0ba9\u0bc1 \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95"
-    }
-  };
-  const t = labels[lang];
-
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setPhotoData(event.target.result);
-        setPhotoName(file.name);
-        setPhotoPreview(event.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemovePhoto = () => {
-    setPhotoData("");
-    setPhotoName("");
-    setPhotoPreview(null);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-      alert(lang === 'en' ? 'Please enter a valid 10-digit phone number.' : 'தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.');
-      return;
-    }
-    setStatus('submitting');
-    fetch("/api/petitions/submit/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        name, 
-        phone: cleanPhone, 
-        email, 
-        area, 
-        subject, 
-        summary,
-        photo_data: photoData,
-        photo_name: photoName
-      })
-    })
-      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
-      .then(() => { 
-        setStatus('success'); 
-        setName(''); 
-        setPhone(''); 
-        setEmail(''); 
-        setArea('Tiruppur South'); 
-        setSubject(''); 
-        setSummary(''); 
-        setPhotoData(''); 
-        setPhotoName(''); 
-        setPhotoPreview(null); 
-      })
-      .catch((err) => { console.error(err); setStatus('error'); });
-  };
-
-  const resetForm = () => { setStatus(null); };
-
-  return (
-    <section id="petition" className="petition-section section">
-      <div className="petition-container">
-        <div className="petition-info">
-          <p className="eyebrow">{t.eyebrow}</p>
-          <h2>{t.title}</h2>
-          <p className="petition-lead">{t.lead}</p>
-          <div className="petition-features">
-            <div className="petition-feature">
-              <ShieldCheck size={22} />
-              <span>{lang === 'en' ? 'Confidential & Secure' : 'ரகசியம் & பாதுகாப்பானது'}</span>
-            </div>
-            <div className="petition-feature">
-              <Users size={22} />
-              <span>{lang === 'en' ? 'Reviewed by Leadership' : 'தலைமையால் பரிசீலிக்கப்படும்'}</span>
-            </div>
-            <div className="petition-feature">
-              <Mail size={22} />
-              <span>{lang === 'en' ? 'Get Response & Updates' : 'பதில் & தகவல்கள் பெறுங்கள்'}</span>
-            </div>
-          </div>
-          <div className="petition-track-box" style={{ marginTop: '32px' }}>
-            <button 
-              type="button" 
-              onClick={() => setShowTrackModal(true)}
-              className="track-petition-btn-inline"
-            >
-              <Search size={18} />
-              {lang === 'en' ? 'Track Submitted Petition' : 'மனுவைக் கண்காணிக்க'}
-            </button>
-          </div>
-        </div>
-        <div className="petition-form-wrapper">
-          {status === 'success' ? (
-            <div className="petition-success">
-              <div className="petition-success-icon">✅</div>
-              <h3>{t.success}</h3>
-              <p>{lang === 'en' ? 'Your petition has been received. Our team will review it shortly.' : 'உங்கள் மனு பெறப்பட்டது. எங்கள் குழு விரைவில் பரிசீலிக்கும்.'}</p>
-              <button className="petition-reset-btn" onClick={resetForm}>{t.another}</button>
-            </div>
-          ) : (
-            <form className="petition-form" onSubmit={handleSubmit}>
-              <div className="petition-form-row">
-                <div className="petition-field">
-                  <label>{t.name} *</label>
-                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder={t.name} />
-                </div>
-                <div className="petition-field">
-                  <label>{t.phone} *</label>
-                  <input 
-                    required 
-                    type="tel" 
-                    pattern="[0-9]{10}"
-                    maxLength="10"
-                    value={phone} 
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} 
-                    placeholder="e.g. 9876543210" 
-                  />
+                  ))}
                 </div>
               </div>
-              <div className="petition-form-row">
-                <div className="petition-field">
-                  <label>{t.email}</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. email@example.com" />
-                </div>
-                <div className="petition-field">
-                  <label>{t.area} *</label>
-                  <select required value={area} onChange={(e) => setArea(e.target.value)} style={{ padding: '10px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '0.95rem', width: '100%', boxSizing: 'border-box', background: '#fff', color: '#1e293b' }}>
-                    <option value="Tiruppur South">Tiruppur South</option>
-                    <option value="Tiruppur North">Tiruppur North</option>
-                    <option value="Tiruppur West">Tiruppur West</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-              <div className="petition-field">
-                <label>{t.subject} *</label>
-                <input required value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={t.subject} />
-              </div>
-              <div className="petition-field">
-                <label>{t.summary} *</label>
-                <textarea required rows={4} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder={t.summary} />
-              </div>
-              <div className="petition-field">
+
+              <div className="modal-form-group">
                 <label>{t.photo}</label>
-                <div className="photo-upload-container">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="petition-photo-upload-input"
-                    style={{ display: 'none' }}
-                    onChange={handlePhotoChange}
-                  />
-                  <label htmlFor="petition-photo-upload-input" className="photo-upload-label">
-                    <Camera size={24} />
-                    <span style={{ display: 'block', marginTop: '8px', color: '#666' }}>{t.photo_hint}</span>
-                  </label>
-                  {photoPreview && (
-                    <div className="photo-preview-wrapper" style={{ position: 'relative', marginTop: '10px', display: 'inline-block', maxWidth: '200px' }}>
-                      <img src={photoPreview} alt="Preview" style={{ width: '100%', borderRadius: '6px', border: '1px solid #ddd' }} />
-                      <button
-                        type="button"
-                        className="remove-photo-btn"
-                        onClick={handleRemovePhoto}
-                        style={{
-                          position: 'absolute',
-                          top: '-8px',
-                          right: '-8px',
-                          background: '#E53E3E',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '24px',
-                          height: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                        }}
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <button className="petition-submit-btn" type="submit" disabled={status === 'submitting'}>
-                {status === 'submitting' ? t.submitting : t.submit}
-                <ArrowUpRight size={18} />
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Footer({ lang }) {
-  const t = copy[lang];
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [topic, setTopic] = useState("");
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
-
-  const scrollToTop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-      alert(lang === 'en' ? 'Please enter a valid 10-digit phone number.' : 'தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.');
-      return;
-    }
-    setStatus('submitting');
-    fetch("/api/contact/submit/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, phone: cleanPhone, topic, message })
-    })
-      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
-      .then(() => {
-        setStatus('success');
-        setEmail('');
-        setPhone('');
-        setTopic('');
-        setMessage('');
-      })
-      .catch((err) => {
-        console.error(err);
-        setStatus('error');
-      });
-  };
-
-  return (
-    <footer className="tvk-foot" id="contact">
-      <div className="foot-hero">
-        <div className="foot-bg-layer foot-crowd" aria-hidden="true"></div>
-        <div className="foot-bg-layer foot-flag" aria-hidden="true"></div>
-        <div className="foot-cutout-container">
-          <img className="foot-flag-flowing" src="/assets/branding/flag-flowing.png" alt="" aria-hidden="true" />
-          <img className="foot-thalaivar" src="/assets/branding/thalaivar-cutout.png" alt="CM Vijay" />
-        </div>
-        <div className="foot-cta">
-          <span className="pre">{t.foot_pre}</span>
-          <h3>{t.foot_h}</h3>
-          <p>{t.foot_p}</p>
-          <div className="foot-cta-row">
-            <a className="btn-gold" href="#join">
-              {lang === "en" ? "Join TVK" : "தவெகவில் சேர"}
-              <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-            </a>
-          </div>
-          <div className="foot-socials-group">
-            <div className="foot-socials-inline">
-              <a className="ic" href="#" aria-label="X (Twitter)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <a className="ic" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".7" fill="currentColor"/></svg></a>
-              <a className="ic" href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 22v-8H7v-3.5h2.5V8c0-2.5 1.5-4 3.8-4 1.1 0 2 .2 2.2.2v2.6h-1.5c-1.2 0-1.5.6-1.5 1.4v2.3H16l-.5 3.5h-2.5V22"/></svg></a>
-              <a className="ic" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="foot-wordmark-container">
-        <div className="foot-bg-crowd-gold" aria-hidden="true"></div>
-        <div className="foot-wordmark">
-          <div className="foot-wordmark-brand">
-            <div className="en">{lang === "en" ? "Tamilaga Vettri Kazhagam" : "தமிழக வெற்றிக் கழகம்"}</div>
-            <div className="ta">{lang === "en" ? "Tiruppur South" : "திருப்பூர் தெற்கு"}</div>
-            <div className="domain num">tvktiruppursouth.com</div>
-          </div>
-          <div className="foot-wordmark-copy">{t.copyright}</div>
-        </div>
-        
-        <div className="foot-contact-form-container" style={{ flex: '1 1 450px', maxWidth: '550px' }}>
-          <h5 style={{ color: '#ffd84a', fontFamily: 'Teko, sans-serif', fontSize: '1.8rem', letterSpacing: '1px', marginBottom: '16px', textTransform: 'uppercase' }}>
-            {lang === 'en' ? 'Contact Us / எங்களைத் தொடர்பு கொள்ள' : 'எங்களைத் தொடர்பு கொள்ள / Contact Us'}
-          </h5>
-          {status === 'success' ? (
-            <div style={{ color: '#22c55e', fontSize: '1.1rem', fontWeight: 'bold', padding: '15px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '8px', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-              {lang === 'en' ? '✅ Thank you! Your message has been sent successfully.' : '✅ நன்றி! உங்கள் செய்தி வெற்றிகரமாக அனுப்பப்பட்டது.'}
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '12px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="foot-contact-grid">
                 <input
-                  type="email"
-                  required
-                  placeholder={lang === 'en' ? 'Email ID *' : 'மின்னஞ்சல் முகவரி *'}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  style={{ display: 'none' }}
+                  id="modal-membership-photo"
                 />
-                <input
-                  type="tel"
-                  required
-                  placeholder={lang === 'en' ? 'Phone Number *' : 'தொலைபேசி எண் *'}
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}
-                />
+                {!photoPreview ? (
+                  <div className="modal-file-drop" onClick={() => document.getElementById('modal-membership-photo')?.click()}>
+                    <span className="modal-file-drop-icon">📷</span>
+                    <span className="modal-file-drop-text">{t.photoPlaceholder}</span>
+                    <span className="modal-file-drop-subtext">{t.photoHint}</span>
+                  </div>
+                ) : (
+                  <div className="modal-file-preview">
+                    <span>📷 {formData.photo_name}</span>
+                    <button type="button" onClick={handleRemovePhoto}>✕</button>
+                  </div>
+                )}
               </div>
-              <input
-                type="text"
-                required
-                placeholder={lang === 'en' ? 'Topic / Subject *' : 'தொடர்புக்கான தலைப்பு *'}
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}
-              />
-              <textarea
-                placeholder={lang === 'en' ? 'Message (Optional)' : 'செய்தி (விருப்பத்திற்குரியது)'}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={2}
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,216,74,0.25)', color: '#fff', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem', resize: 'vertical' }}
-              />
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#5a0c12', fontWeight: 'bold', margin: '14px 0', cursor: 'pointer' }}>
+                <input type="checkbox" required style={{ cursor: 'pointer' }} />
+                <span>{t.terms}</span>
+              </label>
+
               <button
                 type="submit"
-                disabled={status === 'submitting'}
-                style={{ background: 'linear-gradient(135deg, #ffd84a 0%, #f3ad20 100%)', color: '#3f0608', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem', transition: 'transform 0.2s', fontFamily: 'Teko, sans-serif', textTransform: 'uppercase', letterSpacing: '1px' }}
+                className="primary-btn"
+                style={{ width: '100%', marginTop: '8px' }}
+                disabled={loading}
               >
-                {status === 'submitting' ? (lang === 'en' ? 'Sending...' : 'அனுப்பப்படுகிறது...') : (lang === 'en' ? 'Submit' : 'சமர்ப்பி')}
+                {loading ? t.submitting : t.submit}
               </button>
-              {status === 'error' && (
-                <div style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '5px' }}>
-                  {lang === 'en' ? '❌ Failed to send message. Please try again.' : '❌ செய்தி அனுப்புவதில் தோல்வி. மீண்டும் முயலவும்.'}
-                </div>
-              )}
             </form>
-          )}
-        </div>
-
-        <div className="foot-meta foot-meta-compact">
-          <div className="foot-meta-cell"><b>{t.office_label}</b>{t.office}</div>
-          <div className="foot-meta-cell"><b>{t.media_label}</b>{t.media_val}</div>
-        </div>
-        <div className="foot-builtby">
-          <div className="foot-builtby-card">
-            <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "வடிவமைப்பு & பராமரிப்பு"}</span>
-            <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-      <button className="scroll-to-top-btn" onClick={scrollToTop} aria-label="Scroll to top">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-      </button>
-    </footer>
+    </div>
   );
 }
 
@@ -2218,13 +2305,20 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
 }
 
 function AdminPanel({ lang }) {
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'petitions'
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!sessionStorage.getItem('tvkAdminLogged'));
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'petitions' | 'contacts'
   const [members, setMembers] = useState([]);
   const [petitions, setPetitions] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   
   const [selectedMember, setSelectedMember] = useState(null);
   const [selectedPetition, setSelectedPetition] = useState(null);
+  const [selectedContact, setSelectedContact] = useState(null);
   
   const [memberNotes, setMemberNotes] = useState('');
   const [memberStatus, setMemberStatus] = useState('');
@@ -2235,6 +2329,13 @@ function AdminPanel({ lang }) {
 
   const [memberSearch, setMemberSearch] = useState('');
   const [petitionSearch, setPetitionSearch] = useState('');
+  const [contactSearch, setContactSearch] = useState('');
+
+  const [memberStatusFilter, setMemberStatusFilter] = useState('all');
+  const [memberAreaFilter, setMemberAreaFilter] = useState('all');
+  const [petitionStatusFilter, setPetitionStatusFilter] = useState('all');
+  const [petitionProblemFilter, setPetitionProblemFilter] = useState('all');
+  const [petitionAreaFilter, setPetitionAreaFilter] = useState('all');
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -2264,13 +2365,46 @@ function AdminPanel({ lang }) {
     }
   };
 
-  useEffect(() => {
-    if (activeTab === 'applications') {
-      fetchMembers();
-    } else {
-      fetchPetitions();
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/contacts/');
+      const data = await response.json();
+      if (data.status === 'success') {
+        setContacts(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  }, [activeTab]);
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchMembers();
+      fetchPetitions();
+      fetchContacts();
+    }
+  }, [isLoggedIn, activeTab]);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setLoginError('');
+    if (username === 'admin' && password === 'tvk123') {
+      sessionStorage.setItem('tvkAdminLogged', 'true');
+      setIsLoggedIn(true);
+    } else {
+      setLoginError(lang === 'en' ? 'Invalid credentials. Please use admin / tvk123' : 'தவறான விபரங்கள். தயவுசெய்து admin / tvk123 ஐப் பயன்படுத்தவும்.');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('tvkAdminLogged');
+    setIsLoggedIn(false);
+    setUsername('');
+    setPassword('');
+  };
 
   const handleSelectMember = async (memberId) => {
     try {
@@ -2300,11 +2434,11 @@ function AdminPanel({ lang }) {
       if (data.status === 'success') {
         setSelectedMember(prev => ({ ...prev, status: memberStatus, admin_notes: memberNotes }));
         setMembers(prev => prev.map(m => m.id === selectedMember.id ? { ...m, status: memberStatus, admin_notes: memberNotes } : m));
-        alert('Application updated successfully!');
+        alert(lang === 'en' ? 'Application updated successfully!' : 'விண்ணப்பம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!');
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to update application.');
+      alert(lang === 'en' ? 'Failed to update application.' : 'விண்ணப்பத்தை புதுப்பிக்க முடியவில்லை.');
     } finally {
       setSavingMember(false);
     }
@@ -2329,155 +2463,627 @@ function AdminPanel({ lang }) {
       if (data.status === 'success') {
         setSelectedPetition(prev => ({ ...prev, status: petitionStatus }));
         setPetitions(prev => prev.map(p => p.id === selectedPetition.id ? { ...p, status: petitionStatus } : p));
-        alert('Petition status updated successfully!');
+        alert(lang === 'en' ? 'Petition status updated successfully!' : 'மனுவின் நிலை வெற்றிகரமாக புதுப்பிக்கப்பட்டது!');
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to update petition.');
+      alert(lang === 'en' ? 'Failed to update petition.' : 'மனுவை புதுப்பிக்க முடியவில்லை.');
     } finally {
       setSavingPetition(false);
     }
   };
 
-  const filteredMembers = members.filter(m => 
-    m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
-    m.phone.includes(memberSearch) ||
-    m.area.toLowerCase().includes(memberSearch.toLowerCase())
-  );
+  const handleSharePetition = (p) => {
+    const shareUrl = `/api/petitions/${p.id}/share/`;
+    window.open(shareUrl, '_blank');
+  };
 
-  const filteredPetitions = petitions.filter(p => 
-    p.name.toLowerCase().includes(petitionSearch.toLowerCase()) ||
-    p.phone.includes(petitionSearch) ||
-    p.subject.toLowerCase().includes(petitionSearch.toLowerCase())
-  );
+  const handleDownloadPDF = (p) => {
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
+    if (!printWindow) {
+      alert(lang === 'en' ? "Please allow popups to download/print." : "மனுவைப் பதிவிறக்க பாப்-அப்களை அனுமதிக்கவும்.");
+      return;
+    }
+    
+    const submittedDateStr = new Date(p.submitted_at).toLocaleDateString();
+    
+    const htmlContent = `
+      <html>
+        <head>
+          <title>TVK Petition #${p.id} - ${p.name}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Instrument+Sans:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
+          <style>
+            body {
+              font-family: 'Instrument Sans', 'Noto Sans Tamil', sans-serif;
+              color: #360507;
+              background: #fffcf5;
+              padding: 40px;
+              margin: 0;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 3.5px solid #ffd84a;
+              padding-bottom: 20px;
+              margin-bottom: 35px;
+            }
+            .header h1 {
+              color: #5a0c12;
+              margin: 0 0 5px 0;
+              font-family: 'Teko', sans-serif;
+              font-size: 38px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .header h2 {
+              color: #746464;
+              margin: 0;
+              font-size: 15px;
+              font-weight: 600;
+            }
+            .petition-title {
+              color: #5a0c12;
+              margin-top: 0;
+              font-family: 'Teko', sans-serif;
+              font-size: 26px;
+              border-bottom: 2px solid #5a0c12;
+              padding-bottom: 8px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .petition-meta {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 15px;
+              margin-bottom: 30px;
+              background: rgba(255, 255, 255, 0.7);
+              border: 1.5px solid rgba(90, 12, 18, 0.1);
+              border-radius: 10px;
+              padding: 20px;
+              box-shadow: 0 4px 12px rgba(90, 12, 18, 0.02);
+            }
+            .meta-item {
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            .meta-label {
+              font-weight: 700;
+              color: #5a0c12;
+            }
+            .content-section {
+              margin-bottom: 30px;
+            }
+            .content-section h3 {
+              color: #5a0c12;
+              font-family: 'Teko', sans-serif;
+              font-size: 20px;
+              font-weight: 600;
+              border-bottom: 1.5px solid rgba(90, 12, 18, 0.15);
+              padding-bottom: 6px;
+              margin-bottom: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .content-text {
+              font-size: 14.5px;
+              line-height: 1.65;
+              white-space: pre-wrap;
+              background: #fff;
+              padding: 20px;
+              border: 1.5px solid rgba(90, 12, 18, 0.08);
+              border-radius: 8px;
+              box-shadow: 0 4px 10px rgba(90, 12, 18, 0.01);
+              color: #360507;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 6px 16px;
+              font-weight: 700;
+              font-size: 12px;
+              border-radius: 20px;
+              text-transform: uppercase;
+              background: rgba(90, 12, 18, 0.05);
+              border: 1.5px solid rgba(90, 12, 18, 0.1);
+              color: #5a0c12;
+            }
+            .status-solved {
+              background: #f0fdf4;
+              border-color: #bbf7d0;
+              color: #166534;
+            }
+            .status-rejected {
+              background: #fef2f2;
+              border-color: #fecaca;
+              color: #991b1b;
+            }
+            .status-inprogress {
+              background: #eff6ff;
+              border-color: #bfdbfe;
+              color: #1e40af;
+            }
+            .footer {
+              margin-top: 60px;
+              border-top: 1.5px solid rgba(90, 12, 18, 0.1);
+              padding-top: 20px;
+              text-align: center;
+              font-size: 12.5px;
+              color: #746464;
+              line-height: 1.5;
+            }
+            @media print {
+              .no-print { display: none; }
+              body { padding: 20px; background: #fffcf5; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print" style="margin-bottom: 20px; text-align: right;">
+            <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
+            <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">Close Window</button>
+          </div>
+          
+          <div class="header">
+            <h1>TAMILAGA VETTRI KAZHAGAM</h1>
+            <h2>Tiruppur South District Committee | திருப்பூர் தெற்கு மாவட்ட அமைப்பு</h2>
+          </div>
+          
+          <h2 class="petition-title">
+            GRIEVANCE PETITION / மக்கள் மனு - #${p.id}
+          </h2>
+          
+          <div class="petition-meta">
+            <div class="meta-item"><span class="meta-label">Petitioner Name / பெயர்:</span> ${p.name}</div>
+            <div class="meta-item"><span class="meta-label">Submitted On / சமர்ப்பிக்கப்பட்ட தேதி:</span> ${submittedDateStr}</div>
+            <div class="meta-item"><span class="meta-label">Phone / தொலைபேசி:</span> ${p.phone}</div>
+            <div class="meta-item"><span class="meta-label">Area / பகுதி:</span> ${p.area || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">Email / மின்னஞ்சல்:</span> ${p.email || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">Problem Type / பிரச்சனை வகை:</span> ${p.problem_type}</div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Subject / தலைப்பு</h3>
+            <div class="content-text" style="font-weight: bold;">${p.subject}</div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Summary of Grievance / மனுவின் சுருக்கம்</h3>
+            <div class="content-text">${p.summary}</div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Current Status / தற்போதைய நிலை</h3>
+            <div style="margin-top: 8px;">
+              <span class="status-badge ${p.status === 'Solved' ? 'status-solved' : p.status === 'Rejected' ? 'status-rejected' : p.status === 'In Progress' ? 'status-inprogress' : ''}">
+                ${p.status || 'Pending'}
+              </span>
+            </div>
+          </div>
+
+          ${p.photo_data && !p.photo_data.startsWith('data:application/pdf') ? `
+          <div class="content-section" style="page-break-before: always; margin-top: 30px;">
+            <h3>Attached Evidence / இணைக்கப்பட்ட ஆவணம்</h3>
+            <div style="text-align: center; border: 1px solid rgba(90, 12, 18, 0.12); padding: 15px; border-radius: 8px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+              <img src="${p.photo_data}" style="max-width: 100%; max-height: 480px; border-radius: 6px; border: 1.5px solid rgba(90, 12, 18, 0.15);" />
+            </div>
+          </div>
+          ` : ''}
+          
+          <div class="footer">
+            Tamilaga Vettri Kazhagam - Tiruppur South District Office. Generated electronically.<br>
+            சிறந்த தமிழ்நாட்டிற்கான மக்கள் சக்தி - தமிழக வெற்றிக் கழகம்
+          </div>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
+  const filteredMembers = members.filter(m => {
+    const matchesSearch = m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+                          m.phone.includes(memberSearch) ||
+                          m.area.toLowerCase().includes(memberSearch.toLowerCase());
+    const matchesStatus = memberStatusFilter === 'all' || m.status.toLowerCase() === memberStatusFilter.toLowerCase();
+    const matchesArea = memberAreaFilter === 'all' || m.area === memberAreaFilter;
+    return matchesSearch && matchesStatus && matchesArea;
+  });
+
+  const filteredPetitions = petitions.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(petitionSearch.toLowerCase()) ||
+                          p.phone.includes(petitionSearch) ||
+                          p.subject.toLowerCase().includes(petitionSearch.toLowerCase());
+    const matchesStatus = petitionStatusFilter === 'all' || p.status.toLowerCase() === petitionStatusFilter.toLowerCase();
+    const matchesProblem = petitionProblemFilter === 'all' || p.problem_type === petitionProblemFilter;
+    const matchesArea = petitionAreaFilter === 'all' || p.area === petitionAreaFilter;
+    return matchesSearch && matchesStatus && matchesProblem && matchesArea;
+  });
+
+  const leadersList = [
+    { name: 'Vijay', src: '/assets/branding/thalaivar-cutout.png' },
+    { name: 'Kamarajar', src: '/assets/leaders/kamarajar-thumbnail.png' },
+    { name: 'Ambedkar', src: '/assets/leaders/ambedkar-thumbnail.png' },
+    { name: 'Periyar', src: '/assets/leaders/periyar-thumbnail.png' },
+    { name: 'Velu Nachiyar', src: '/assets/leaders/velu-nachiyar-thumbnail.png' },
+    { name: 'Anjalai Ammal', src: '/assets/leaders/anjalai-ammal-thumbnail.png' }
+  ];
+
+  if (!isLoggedIn) {
+    return (
+      <div className="admin-portal-dashboard admin-login-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div className="admin-login-card" style={{ background: '#fffcf5', border: '2.5px solid #ffd84a', padding: '40px', borderRadius: '16px', maxWidth: '540px', width: '100%', boxShadow: '0 20px 45px rgba(54, 5, 7, 0.25)', textAlign: 'center' }}>
+          
+          <img src="/assets/branding/tvk-logo-192.png" alt="TVK Logo" style={{ width: '80px', height: '80px', margin: '0 auto 15px auto', display: 'block', borderRadius: '50%', border: '2px solid #ffd84a' }} />
+          
+          <h2 style={{ fontFamily: 'Teko, sans-serif', fontSize: '2.2rem', color: '#5a0c12', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            TVK Tiruppur South
+          </h2>
+          <h3 style={{ fontSize: '1.2rem', color: '#360507', margin: '0 0 24px 0', fontWeight: '600' }}>
+            Administration Login / நிர்வாக தளம்
+          </h3>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap', background: 'rgba(90, 12, 18, 0.03)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(90, 12, 18, 0.08)' }}>
+            {leadersList.map(l => (
+              <img key={l.name} src={l.src} alt={l.name} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #ffd84a', objectFit: 'cover' }} title={l.name} />
+            ))}
+          </div>
+
+          <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
+            {loginError && (
+              <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginBottom: '16px', textAlign: 'center', fontWeight: 'bold', background: '#FFF5F5', padding: '8px', borderRadius: '6px', border: '1px solid #FED7D7' }}>
+                {loginError}
+              </div>
+            )}
+            
+            <div className="modal-form-group" style={{ marginBottom: '16px' }}>
+              <label style={{ color: '#5a0c12', fontWeight: 'bold', fontSize: '0.9rem' }}>Username / பயனர்பெயர்</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter admin username"
+                required
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid rgba(90, 12, 18, 0.15)' }}
+              />
+            </div>
+
+            <div className="modal-form-group" style={{ marginBottom: '24px' }}>
+              <label style={{ color: '#5a0c12', fontWeight: 'bold', fontSize: '0.9rem' }}>Password / கடவுச்சொல்</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                required
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid rgba(90, 12, 18, 0.15)' }}
+              />
+            </div>
+
+            <button type="submit" className="primary-btn" style={{ width: '100%', fontSize: '1.1rem', padding: '12px' }}>
+              Login to Console / உள்நுழையவும்
+            </button>
+          </form>
+
+          <div style={{ marginTop: '24px' }}>
+            <a href="/" style={{ fontSize: '0.9rem', color: '#746464', textDecoration: 'underline', fontWeight: 'bold' }}>
+              Back to Website / தளம் திரும்புக
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-portal-dashboard">
-      <header className="admin-dashboard-header">
-        <div className="admin-header-title">
-          <h2>TVK Tiruppur South</h2>
-          <span>Admin Portal / நிர்வாக தளம்</span>
+    <div className="admin-portal-dashboard" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header className="admin-dashboard-header" style={{ padding: '15px 30px' }}>
+        <div className="admin-header-title" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <img src={`${A}branding/tvk-logo-192.png`} alt="TVK Logo" style={{ width: '48px', height: '48px', borderRadius: '50%', border: '1.5px solid #ffd84a' }} />
+          <div>
+            <h2 style={{ margin: 0, fontFamily: 'Teko, sans-serif', fontSize: '1.8rem', letterSpacing: '0.5px' }}>TVK Tiruppur South Administration</h2>
+            <span style={{ fontSize: '0.85rem' }}>Welcome, Administrator | தவெக நிர்வாகத் தளம்</span>
+          </div>
         </div>
-        <div className="admin-header-actions">
-          <a href="/" className="back-site-btn">Back to Website / தளம் திரும்புக</a>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', overflow: 'hidden' }} className="header-leaders-strip">
+          {leadersList.map(l => (
+            <img key={l.name} src={l.src} alt={l.name} style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1.5px solid #ffd84a', objectFit: 'cover' }} className="no-print" />
+          ))}
+        </div>
+
+        <div className="admin-header-actions" style={{ display: 'flex', gap: '10px' }}>
+          <a href="/" className="back-site-btn" style={{ fontSize: '0.85rem', padding: '8px 14px' }}>Back to Site / தளம்</a>
+          <button onClick={handleLogout} className="view-details-btn" style={{ background: '#5a0c12', color: '#fff', borderColor: '#5a0c12', fontSize: '0.85rem', padding: '8px 14px' }}>Logout / வெளியேறு</button>
         </div>
       </header>
 
-      <main className="admin-dashboard-container">
-        <div className="admin-tab-bar">
+      <main className="admin-dashboard-container" style={{ flex: 1, padding: '30px' }}>
+        {/* Dynamic Admin Summary Stats cards */}
+        <div className="admin-stats-grid">
+          <div className="admin-stat-card">
+            <span className="stat-icon">👥</span>
+            <div className="stat-details">
+              <h3>{members.length}</h3>
+              <p>Total Members / மொத்த உறுப்பினர்கள்</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <span className="stat-icon">📥</span>
+            <div className="stat-details">
+              <h3>{petitions.length}</h3>
+              <p>Total Petitions / மொத்த மனுக்கள்</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <span className="stat-icon">⏳</span>
+            <div className="stat-details">
+              <h3>{petitions.filter(p => p.status === 'Pending').length}</h3>
+              <p>Pending Petitions / நிலுவை மனுக்கள்</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <span className="stat-icon">✅</span>
+            <div className="stat-details">
+              <h3>{petitions.filter(p => p.status === 'Solved').length}</h3>
+              <p>Solved Petitions / தீர்க்கப்பட்டவை</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-tab-bar" style={{ marginBottom: '24px' }}>
           <button 
             onClick={() => { setActiveTab('applications'); setSelectedMember(null); }} 
             className={`admin-tab-btn ${activeTab === 'applications' ? 'active' : ''}`}
           >
-            Applications / விண்ணப்பங்கள்
+            Membership Forms / உறுப்பினர் படிவங்கள்
           </button>
           <button 
             onClick={() => { setActiveTab('petitions'); setSelectedPetition(null); }} 
             className={`admin-tab-btn ${activeTab === 'petitions' ? 'active' : ''}`}
           >
-            Petitions / மனுக்கள்
+            Petitions Box / மனுக்கள்
           </button>
         </div>
 
-        {activeTab === 'applications' ? (
-          <div className="dashboard-content-panel">
-            <div className="panel-controls">
-              <input
-                type="text"
-                placeholder="Search by Name, Phone, Area..."
-                value={memberSearch}
-                onChange={(e) => setMemberSearch(e.target.value)}
-                className="search-input"
-              />
-            </div>
-
-            {loading ? <div className="admin-panel-loading">Loading applications...</div> : (
-              <div className="admin-table-container">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Name / பெயர்</th>
-                      <th>Phone / தொலைபேசி</th>
-                      <th>Area / பகுதி</th>
-                      <th>Submitted / தேதி</th>
-                      <th>Status / நிலை</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredMembers.map(m => (
-                      <tr key={m.id}>
-                        <td><b>{m.name}</b></td>
-                        <td>{m.phone}</td>
-                        <td>{m.area}</td>
-                        <td>{new Date(m.submitted_at).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`status-pill pill-${m.status.toLowerCase()}`}>
-                            {m.status.toUpperCase()}
-                          </span>
-                        </td>
-                        <td>
-                          <button onClick={() => handleSelectMember(m.id)} className="view-details-btn">
-                            View Details
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* APPLICATIONS TAB */}
+        {activeTab === 'applications' && (
+          <div className="admin-layout-with-sidebar">
+            {/* Filters Sidebar */}
+            <aside className="admin-sidebar-filters">
+              <h4>
+                <Search size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                Filters / வடிகட்டிகள்
+              </h4>
+              
+              <div className="filter-group">
+                <label>Status / நிலை</label>
+                <select 
+                  value={memberStatusFilter} 
+                  onChange={(e) => setMemberStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Status / அனைத்தும்</option>
+                  <option value="pending">Pending / காத்திருப்பில்</option>
+                  <option value="approved">Approved / அங்கீகரிக்கப்பட்டது</option>
+                  <option value="rejected">Rejected / நிராகரிக்கப்பட்டது</option>
+                </select>
               </div>
-            )}
+
+              <div className="filter-group">
+                <label>Area / பகுதி</label>
+                <select 
+                  value={memberAreaFilter} 
+                  onChange={(e) => setMemberAreaFilter(e.target.value)}
+                >
+                  <option value="all">All Areas / அனைத்தும்</option>
+                  <option value="Udumalpet">Udumalpet / உடுமலைப்பேட்டை</option>
+                  <option value="Madathukkulam">Madathukkulam / மடத்துக்குளம்</option>
+                </select>
+              </div>
+
+              <button 
+                onClick={() => { setMemberStatusFilter('all'); setMemberAreaFilter('all'); setMemberSearch(''); }}
+                className="clear-filter-btn"
+              >
+                Clear Filters / நீக்குக
+              </button>
+            </aside>
+
+            {/* Main Table Content */}
+            <div className="dashboard-content-panel" style={{ flex: 1 }}>
+              <div className="panel-controls">
+                <input
+                  type="text"
+                  placeholder="Search by Name, Phone, Area..."
+                  value={memberSearch}
+                  onChange={(e) => setMemberSearch(e.target.value)}
+                  className="search-input"
+                />
+                <div className="search-results-info">
+                  Showing {filteredMembers.length} of {members.length} applications / {filteredMembers.length} விண்ணப்பங்கள் காண்பிக்கப்படுகின்றன
+                </div>
+              </div>
+
+              {loading ? <div className="admin-panel-loading">Loading applications...</div> : (
+                <div className="admin-table-container">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Name / பெயர்</th>
+                        <th>Phone / தொலைபேசி</th>
+                        <th>Area / பகுதி</th>
+                        <th>Submitted / தேதி</th>
+                        <th>Status / நிலை</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredMembers.map(m => (
+                        <tr key={m.id}>
+                          <td><b>{m.name}</b></td>
+                          <td>{m.phone}</td>
+                          <td>{m.area}</td>
+                          <td>{new Date(m.submitted_at).toLocaleDateString()}</td>
+                          <td>
+                            <span className={`status-pill pill-${m.status.toLowerCase()}`}>
+                              {m.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td>
+                            <button onClick={() => handleSelectMember(m.id)} className="view-details-btn">
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
-        ) : (
-          <div className="dashboard-content-panel">
-            <div className="panel-controls">
-              <input
-                type="text"
-                placeholder="Search by Petitioner, Phone, Subject..."
-                value={petitionSearch}
-                onChange={(e) => setPetitionSearch(e.target.value)}
-                className="search-input"
-              />
-            </div>
+        )}
 
-            {loading ? <div className="admin-panel-loading">Loading petitions...</div> : (
-              <div className="admin-table-container">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Name / பெயர்</th>
-                      <th>Phone / தொலைபேசி</th>
-                      <th>Subject / தலைப்பு</th>
-                      <th>Submitted / தேதி</th>
-                      <th>Status / நிலை</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredPetitions.map(p => (
-                      <tr key={p.id}>
-                        <td>#{p.id}</td>
-                        <td><b>{p.name}</b></td>
-                        <td>{p.phone}</td>
-                        <td>{p.subject}</td>
-                        <td>{new Date(p.submitted_at).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`status-pill pill-${p.status ? p.status.toLowerCase().replace(' ', '-') : 'pending'}`}>
-                            {p.status || 'PENDING'}
-                          </span>
-                        </td>
-                        <td>
-                          <button onClick={() => handleSelectPetition(p)} className="view-details-btn">
-                            Manage
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* PETITIONS TAB */}
+        {activeTab === 'petitions' && (
+          <div className="admin-layout-with-sidebar">
+            {/* Filters Sidebar */}
+            <aside className="admin-sidebar-filters">
+              <h4>
+                <Search size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                Filters / வடிகட்டிகள்
+              </h4>
+              
+              <div className="filter-group">
+                <label>Status / நிலை</label>
+                <select 
+                  value={petitionStatusFilter} 
+                  onChange={(e) => setPetitionStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Status / அனைத்தும்</option>
+                  <option value="Pending">Pending / காத்திருப்பில்</option>
+                  <option value="In Progress">In Progress / செயல்பாட்டில்</option>
+                  <option value="Rejected">Rejected / நிராகரிக்கப்பட்டது</option>
+                  <option value="Solved">Solved / தீர்க்கப்பட்டது</option>
+                </select>
               </div>
-            )}
+
+              <div className="filter-group">
+                <label>Problem / பிரச்சனை</label>
+                <select 
+                  value={petitionProblemFilter} 
+                  onChange={(e) => setPetitionProblemFilter(e.target.value)}
+                >
+                  <option value="all">All Problems / அனைத்தும்</option>
+                  <option value="Water">Water / தண்ணீர்</option>
+                  <option value="Road">Road / சாலை</option>
+                  <option value="Electricity">Electricity / மின்சாரம்</option>
+                  <option value="Garbage">Garbage / குப்பை</option>
+                  <option value="Personal">Personal / தனிப்பட்டவை</option>
+                  <option value="Others">Others / இதர</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Area / பகுதி</label>
+                <select 
+                  value={petitionAreaFilter} 
+                  onChange={(e) => setPetitionAreaFilter(e.target.value)}
+                >
+                  <option value="all">All Areas / அனைத்தும்</option>
+                  <option value="Udumalpet">Udumalpet / உடுமலைப்பேட்டை</option>
+                  <option value="Madathukkulam">Madathukkulam / மடத்துக்குளம்</option>
+                </select>
+              </div>
+
+              <button 
+                onClick={() => { setPetitionStatusFilter('all'); setPetitionProblemFilter('all'); setPetitionAreaFilter('all'); setPetitionSearch(''); }}
+                className="clear-filter-btn"
+              >
+                Clear Filters / நீக்குக
+              </button>
+            </aside>
+
+            {/* Main Table Content */}
+            <div className="dashboard-content-panel" style={{ flex: 1 }}>
+              <div className="panel-controls">
+                <input
+                  type="text"
+                  placeholder="Search by Petitioner, Phone, Subject..."
+                  value={petitionSearch}
+                  onChange={(e) => setPetitionSearch(e.target.value)}
+                  className="search-input"
+                />
+                <div className="search-results-info">
+                  Showing {filteredPetitions.length} of {petitions.length} petitions / {filteredPetitions.length} மனுக்கள் காண்பிக்கப்படுகின்றன
+                </div>
+              </div>
+
+              {loading ? <div className="admin-panel-loading">Loading petitions...</div> : (
+                <div className="admin-table-container">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name / பெயர்</th>
+                        <th>Phone / தொலைபேசி</th>
+                        <th>Problem Type / வகை</th>
+                        <th>Subject / தலைப்பு</th>
+                        <th>Submitted / தேதி</th>
+                        <th>Status / நிலை</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredPetitions.map(p => (
+                        <tr key={p.id}>
+                          <td>#{p.id}</td>
+                          <td><b>{p.name}</b></td>
+                          <td>{p.phone}</td>
+                          <td><span style={{ fontSize: '0.85rem', background: 'rgba(90, 12, 18, 0.08)', color: '#5a0c12', padding: '3px 8px', borderRadius: '4px', fontWeight: 'bold' }}>{p.problem_type}</span></td>
+                          <td>{p.subject}</td>
+                          <td>{new Date(p.submitted_at).toLocaleDateString()}</td>
+                          <td>
+                            <span className={`status-pill pill-${p.status ? p.status.toLowerCase().replace(' ', '-') : 'pending'}`}>
+                              {p.status || 'PENDING'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button 
+                                onClick={() => handleSelectPetition(p)} 
+                                className="view-details-btn" 
+                                style={{ padding: '6px 10px', fontSize: '0.8rem' }}
+                                title="Manage Status / மேலாண்மை"
+                              >
+                                Manage
+                              </button>
+                              <button 
+                                onClick={() => handleDownloadPDF(p)} 
+                                className="view-details-btn" 
+                                style={{ background: '#5a0c12', color: '#ffffff', borderColor: '#5a0c12', padding: '6px 10px', fontSize: '0.8rem' }}
+                                title="Download PDF / பதிவிறக்கம்"
+                              >
+                                PDF
+                              </button>
+                              <button 
+                                onClick={() => handleSharePetition(p)} 
+                                className="view-details-btn" 
+                                style={{ background: '#25D366', color: '#ffffff', borderColor: '#25D366', padding: '6px 10px', fontSize: '0.8rem' }}
+                                title="Share Petition / வாட்ஸ்அப் பகிர்வு"
+                              >
+                                Share
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
@@ -2579,7 +3185,7 @@ function AdminPanel({ lang }) {
       {/* Petition Details Modal */}
       {selectedPetition && (
         <div className="admin-modal-overlay" onClick={() => setSelectedPetition(null)}>
-          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()}>
+          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px' }}>
             <button className="admin-modal-close" onClick={() => setSelectedPetition(null)}>
               <X size={24} />
             </button>
@@ -2602,6 +3208,10 @@ function AdminPanel({ lang }) {
                 <span className="p-val">{selectedPetition.area || 'N/A'}</span>
               </div>
               <div className="p-detail-item">
+                <span className="p-label">Problem Type / பிரச்சனை வகை:</span>
+                <span className="p-val" style={{ background: 'rgba(90, 12, 18, 0.08)', color: '#5a0c12', padding: '3px 8px', borderRadius: '4px', fontWeight: 'bold', display: 'inline-block' }}>{selectedPetition.problem_type || 'Others'}</span>
+              </div>
+              <div className="p-detail-item">
                 <span className="p-label">Subject / தலைப்பு:</span>
                 <span className="p-val">{selectedPetition.subject}</span>
               </div>
@@ -2614,17 +3224,51 @@ function AdminPanel({ lang }) {
                 <span className="p-val">{new Date(selectedPetition.submitted_at).toLocaleString()}</span>
               </div>
               <div className="p-detail-item" style={{ display: 'block' }}>
-                <span className="p-label" style={{ display: 'block', marginBottom: '6px' }}>Attached Photo / இணைக்கப்பட்ட படம்:</span>
+                <span className="p-label" style={{ display: 'block', marginBottom: '6px' }}>Attached File / இணைக்கப்பட்ட கோப்பு:</span>
                 {selectedPetition.photo_data ? (
-                  <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-block' }}>
-                    <img src={selectedPetition.photo_data} alt="Petition Attachment" style={{ maxWidth: '100%', maxHeight: '250px', borderRadius: '6px', display: 'block' }} />
+                  <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-block', maxWidth: '100%' }}>
+                    {selectedPetition.photo_data.startsWith('data:application/pdf') ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', padding: '10px 20px' }}>
+                        <span style={{ fontSize: '2rem' }}>📄</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#360507' }}>{selectedPetition.photo_name || 'attachment.pdf'}</span>
+                        <a 
+                          href={selectedPetition.photo_data} 
+                          download={selectedPetition.photo_name || 'attachment.pdf'}
+                          className="quick-action-btn primary"
+                          style={{ padding: '6px 14px', fontSize: '1.1rem', minHeight: 'auto', maxHeight: '40px', maxWidth: '200px' }}
+                        >
+                          Download PDF / பதிவிறக்கு
+                        </a>
+                      </div>
+                    ) : (
+                      <a href={selectedPetition.photo_data} target="_blank" rel="noopener noreferrer">
+                        <img src={selectedPetition.photo_data} alt="Petition Attachment" style={{ maxWidth: '100%', maxHeight: '250px', borderRadius: '6px', display: 'block', cursor: 'zoom-in' }} />
+                      </a>
+                    )}
                   </div>
                 ) : (
-                  <span className="p-val" style={{ color: '#64748b', fontStyle: 'italic' }}>No photo uploaded</span>
+                  <span className="p-val" style={{ color: '#8c7d7e', fontStyle: 'italic' }}>No file uploaded</span>
                 )}
               </div>
 
-              <form onSubmit={handleUpdatePetition} className="admin-update-form">
+              <div style={{ display: 'flex', gap: '10px', margin: '20px 0 10px 0' }}>
+                <button 
+                  onClick={() => handleDownloadPDF(selectedPetition)} 
+                  className="primary-btn" 
+                  style={{ flex: 1, background: '#ffd84a', color: '#3f0608', borderColor: '#ffd84a' }}
+                >
+                  Download PDF / பிடிஎப் ஆக டவுன்லோட்
+                </button>
+                <button 
+                  onClick={() => handleSharePetition(selectedPetition)} 
+                  className="primary-btn" 
+                  style={{ flex: 1, background: '#25D366', color: '#fff', borderColor: '#25D366' }}
+                >
+                  Share Petition / வாட்ஸ்அப்பில் பகிர்
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdatePetition} className="admin-update-form" style={{ borderTop: '1px solid rgba(90, 12, 18, 0.1)', paddingTop: '15px' }}>
                 <div className="form-group">
                   <label>Update Status / மனு நிலைமை</label>
                   <select value={petitionStatus} onChange={(e) => setPetitionStatus(e.target.value)}>
@@ -2642,13 +3286,91 @@ function AdminPanel({ lang }) {
           </div>
         </div>
       )}
+
+
     </div>
   );
 }
 
+function JoinPartyBanner({ lang }) {
+  const isEn = lang === 'en';
+  return (
+    <section className="join-party-banner" style={{
+      padding: '80px 24px',
+      background: 'linear-gradient(135deg, #5a0c12 0%, #360507 100%)',
+      borderTop: '4px solid #ffd84a',
+      borderBottom: '4px solid #ffd84a',
+      textAlign: 'center',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: '-50%',
+        left: '-50%',
+        width: '200%',
+        height: '200%',
+        background: 'radial-gradient(circle, rgba(255, 216, 74, 0.1) 0%, transparent 60%)',
+        pointerEvents: 'none'
+      }} />
+      
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto' }}>
+        <h2 style={{
+          fontFamily: 'Teko, sans-serif',
+          fontSize: 'clamp(2.5rem, 5vw, 3.8rem)',
+          color: '#ffd84a',
+          textTransform: 'uppercase',
+          margin: '0 0 12px 0',
+          letterSpacing: '1px'
+        }}>
+          {isEn ? "Join Tamilaga Vettri Kazhagam" : "தமிழக வெற்றிக் கழகத்தில் இணையுங்கள்"}
+        </h2>
+        <p style={{
+          fontFamily: "'Instrument Sans', 'Noto Sans Tamil', sans-serif",
+          fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+          color: '#fff',
+          opacity: 0.95,
+          margin: '0 0 35px 0',
+          lineHeight: 1.65
+        }}>
+          {isEn 
+            ? "Become an official member of TVK and stand with our Thalapathy Vijay to build a transparent, equal, and progressive future for Tamil Nadu."
+            : "நமது தவெக தலைவர் தளபதி விஜய் அவர்களின் வழியில் நேர்மையான, சமத்துவமான மற்றும் முற்போக்கான தமிழ்நாட்டை உருவாக்க அதிகாரப்பூர்வ உறுப்பினராக எங்களோடு இணையுங்கள்."}
+        </p>
+        <a 
+          href="https://tvk.world/register" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="primary-btn" 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontSize: '1.2rem',
+            padding: '14px 38px',
+            borderRadius: '30px',
+            background: 'linear-gradient(135deg, #ffd84a 0%, #f3ad20 100%)',
+            color: '#3f0608',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            boxShadow: '0 8px 24px rgba(255, 216, 74, 0.3)',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+          }}
+        >
+          {isEn ? "Join Us Now" : "இப்போதே இணையுங்கள்"}
+          <ArrowUpRight size={20} />
+        </a>
+      </div>
+    </section>
+  );
+}
+
 function App() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState("ta");
   const [showTrackModal, setShowTrackModal] = useState(false);
+  const [showPetitionModal, setShowPetitionModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
   const [hash, setHash] = useState(window.location.hash);
 
   useEffect(() => {
@@ -2670,18 +3392,18 @@ function App() {
 
   return (
     <>
-      <Header lang={lang} setLang={setLang} setShowTrackModal={setShowTrackModal} />
+      <Header lang={lang} setLang={setLang} setShowTrackModal={setShowTrackModal} setShowJoinModal={setShowJoinModal} setShowContactModal={setShowContactModal} />
       <main>
-        <Hero lang={lang} />
+        <Hero lang={lang} setShowJoinModal={setShowJoinModal} setShowPetitionModal={setShowPetitionModal} setShowContactModal={setShowContactModal} />
+        <QuickActions lang={lang} setShowPetitionModal={setShowPetitionModal} setShowJoinModal={setShowJoinModal} setShowContactModal={setShowContactModal} />
         <PartySection lang={lang} />
+        <JoinPartyBanner lang={lang} />
         <PartyFeatures lang={lang} />
         <JourneySection lang={lang} />
         <NewsSection lang={lang} />
         <EventsSection lang={lang} />
-        <Join lang={lang} />
-        <PetitionSection lang={lang} setShowTrackModal={setShowTrackModal} />
       </main>
-      <Footer lang={lang} />
+      <Footer lang={lang} setShowJoinModal={setShowJoinModal} />
       <ChatBot />
 
       {/* Floating Submit Petition Button */}
@@ -2690,8 +3412,7 @@ function App() {
         className="floating-submit-petition-btn"
         onClick={(e) => {
           e.preventDefault();
-          const el = document.getElementById("petition");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
+          setShowPetitionModal(true);
         }}
         title={lang === 'en' ? 'Submit Petition' : 'மனுவைச் சமர்ப்பிக்க'}
       >
@@ -2703,6 +3424,27 @@ function App() {
         lang={lang} 
         isOpen={showTrackModal} 
         onClose={() => setShowTrackModal(false)} 
+      />
+
+      {/* Submit Petition Modal */}
+      <SubmitPetitionModal 
+        lang={lang} 
+        isOpen={showPetitionModal} 
+        onClose={() => setShowPetitionModal(false)} 
+      />
+
+      {/* Join Membership Modal */}
+      <JoinMembershipModal 
+        lang={lang} 
+        isOpen={showJoinModal} 
+        onClose={() => setShowJoinModal(false)} 
+      />
+
+      {/* Contact Us Modal */}
+      <ContactModal 
+        lang={lang} 
+        isOpen={showContactModal} 
+        onClose={() => setShowContactModal(false)} 
       />
     </>
   );

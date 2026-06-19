@@ -1,0 +1,158 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | TVK Tiruppur South Administration{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="icon" type="image/png" href="/static/assets/branding/tvk-logo-192.png" />
+{% endblock %}
+
+{% block branding %}
+<div id="site-name" style="display: flex; align-items: center; gap: 12px; margin: 5px 0;">
+  <img src="/static/assets/branding/tvk-logo-192.png" alt="TVK Logo" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #ffd84a; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" />
+  <h1 id="site-name" style="font-size: 1.8rem; margin: 0; padding: 0; font-family: 'Teko', sans-serif; font-weight: bold; letter-spacing: 0.5px; color: #ffd84a;">
+    TVK Tiruppur South Admin
+  </h1>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style type="text/css">
+  /* Base color overrides */
+  :root {
+    --primary: #5a0c12 !important;
+    --secondary: #ffd84a !important;
+    --accent: #ffd84a !important;
+    --primary-fg: #fff !important;
+    --body-bg: #fffcf5 !important;
+    --body-fg: #360507 !important;
+    --header-bg: #360507 !important;
+    --header-fg: #ffd84a !important;
+    --header-link-color: #fff !important;
+    --breadcrumbs-bg: #fffcf5 !important;
+    --breadcrumbs-link-color: #5a0c12 !important;
+    --breadcrumbs-fg: #746464 !important;
+    --link-color: #5a0c12 !important;
+    --link-hover-color: #b7111b !important;
+    --button-bg: #ffd84a !important;
+    --button-hover-bg: #f3ad20 !important;
+    --button-fg: #360507 !important;
+  }
+
+  body {
+    background: radial-gradient(circle at top left, rgba(255, 216, 74, 0.08), transparent 32rem), #fffcf5 !important;
+    color: #360507 !important;
+    font-family: 'Noto Sans Tamil', 'Instrument Sans', system-ui, sans-serif !important;
+  }
+
+  #header {
+    background: linear-gradient(90deg, #360507 0%, #5a0c12 50%, #360507 100%) !important;
+    border-bottom: 3.5px solid #ffd84a !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+  }
+
+  #branding h1 {
+    color: #ffd84a !important;
+  }
+
+  div.breadcrumbs {
+    background: rgba(90, 12, 18, 0.03) !important;
+    border-bottom: 1px solid rgba(90, 12, 18, 0.08) !important;
+    color: #746464 !important;
+    font-weight: 600 !important;
+  }
+
+  div.breadcrumbs a {
+    color: #5a0c12 !important;
+  }
+
+  div.breadcrumbs a:hover {
+    color: #b7111b !important;
+  }
+
+  .module {
+    background: #ffffff !important;
+    border: 1.5px solid rgba(90, 12, 18, 0.1) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(90, 12, 18, 0.02) !important;
+    overflow: hidden !important;
+  }
+
+  .module h2, .module caption {
+    background: rgba(90, 12, 18, 0.05) !important;
+    color: #5a0c12 !important;
+    font-weight: bold !important;
+    border-bottom: 2px solid rgba(90, 12, 18, 0.08) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* Table styling */
+  #changelist table thead th {
+    background: rgba(90, 12, 18, 0.04) !important;
+    border-bottom: 2px solid rgba(90, 12, 18, 0.1) !important;
+  }
+
+  #changelist table thead th a {
+    color: #5a0c12 !important;
+    font-weight: bold !important;
+  }
+
+  .row1, .row2 {
+    background: #ffffff !important;
+  }
+
+  tr:hover td {
+    background: rgba(255, 216, 74, 0.06) !important;
+  }
+
+  /* Buttons */
+  .button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: #ffd84a !important;
+    border: 1px solid #ffd84a !important;
+    color: #360507 !important;
+    font-weight: bold !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+    background: #f3ad20 !important;
+    border-color: #f3ad20 !important;
+    color: #360507 !important;
+    cursor: pointer !important;
+  }
+
+  .button.default, input[type=submit].default {
+    background: #5a0c12 !important;
+    border: 1px solid #5a0c12 !important;
+    color: #ffffff !important;
+  }
+
+  .button.default:hover, input[type=submit].default:hover {
+    background: #b7111b !important;
+    border-color: #b7111b !important;
+  }
+
+  /* Sidebar styling */
+  #content-related {
+    background: #fffcf8 !important;
+    border: 1px solid rgba(90, 12, 18, 0.08) !important;
+    border-radius: 8px !important;
+  }
+
+  /* Input fields */
+  input[type=text], input[type=password], input[type=email], input[type=number], input[type=tel], input[type=url], select, textarea {
+    border: 1.5px solid rgba(90, 12, 18, 0.15) !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+  }
+
+  input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, select:focus, textarea:focus {
+    border-color: #5a0c12 !important;
+    box-shadow: 0 0 0 3px rgba(90, 12, 18, 0.08) !important;
+    outline: none !important;
+  }
+</style>
+{% endblock %}

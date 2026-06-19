@@ -84,10 +84,20 @@ class Petition(models.Model):
         ('Solved', 'Solved'),
     ]
 
+    PROBLEM_CHOICES = [
+        ('Water', 'Water'),
+        ('Road', 'Road'),
+        ('Electricity', 'Electricity'),
+        ('Garbage', 'Garbage'),
+        ('Personal', 'Personal'),
+        ('Others', 'Others'),
+    ]
+
     name = models.CharField(max_length=255, verbose_name="Petitioner Name")
     phone = models.CharField(max_length=50, verbose_name="Phone Number")
     email = models.EmailField(verbose_name="Email Address", blank=True, null=True)
     area = models.CharField(max_length=255, verbose_name="Area / Ward", blank=True)
+    problem_type = models.CharField(max_length=50, choices=PROBLEM_CHOICES, default='Others', verbose_name="Problem Type")
     subject = models.CharField(max_length=500, verbose_name="Subject")
     summary = models.TextField(verbose_name="Summary")
     photo_data = models.TextField(verbose_name="Petition Photo (Base64)", blank=True, null=True)
