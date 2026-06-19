@@ -447,32 +447,32 @@ function Hero({ lang, setShowJoinModal, setShowPetitionModal, setShowContactModa
             preload="metadata"
           />
         </div>
-      </div>
-      <div className="hero-copy official-box">
-        <p className="eyebrow">{t.heroKicker}</p>
-        <h1>{t.heroTitle}</h1>
-        <p className="hero-lead">{t.heroLead}</p>
-        <div className="hero-actions">
-          <a className="primary-btn" href="#join" onClick={(e) => { e.preventDefault(); setShowJoinModal(true); }}>
-            {t.heroCta}
-            <ChevronRight size={18} />
-          </a>
-          <a className="ghost-btn" href="#contact" onClick={(e) => { e.preventDefault(); setShowContactModal(true); }}>
-            {t.contactCta}
-            <ArrowUpRight size={17} />
-          </a>
-        </div>
-        <div className="stat-row">
-          {[
-            [t.stat1, t.stat1Label],
-            [t.stat2, t.stat2Label],
-            [t.stat3, t.stat3Label]
-          ].map(([n, l]) => (
-            <div className="stat" key={n}>
-              <b>{n}</b>
-              <span>{l}</span>
-            </div>
-          ))}
+        <div className="hero-copy official-box">
+          <p className="eyebrow">{t.heroKicker}</p>
+          <h1>{t.heroTitle}</h1>
+          <p className="hero-lead">{t.heroLead}</p>
+          <div className="hero-actions">
+            <a className="primary-btn" href="#join" onClick={(e) => { e.preventDefault(); setShowJoinModal(true); }}>
+              {t.heroCta}
+              <ChevronRight size={18} />
+            </a>
+            <a className="ghost-btn" href="#contact" onClick={(e) => { e.preventDefault(); setShowContactModal(true); }}>
+              {t.contactCta}
+              <ArrowUpRight size={17} />
+            </a>
+          </div>
+          <div className="stat-row">
+            {[
+              [t.stat1, t.stat1Label],
+              [t.stat2, t.stat2Label],
+              [t.stat3, t.stat3Label]
+            ].map(([n, l]) => (
+              <div className="stat" key={n}>
+                <b>{n}</b>
+                <span>{l}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -1351,140 +1351,223 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
 }
 
 function ContactModal({ lang, isOpen, onClose }) {
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [topic, setTopic] = useState("");
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
 
   if (!isOpen) return null;
-
   const isEn = lang === 'en';
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-      alert(isEn ? 'Please enter a valid 10-digit phone number.' : 'தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.');
-      return;
-    }
-    setStatus('submitting');
-    apiFetch("/api/contact/submit/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, phone: cleanPhone, topic, message })
-    })
-      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
-      .then(() => {
-        setStatus('success');
-        setEmail('');
-        setPhone('');
-        setTopic('');
-        setMessage('');
-      })
-      .catch((err) => {
-        console.error(err);
-        setStatus('error');
-      });
-  };
 
   return (
     <div className="track-modal-overlay" onClick={onClose}>
-      <div className="track-modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="track-modal-close" onClick={onClose} aria-label="Close contact modal">
-          <X size={24} />
-        </button>
+      <div
+        className="track-modal-content contact-profile-modal"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '460px', padding: 0, overflow: 'hidden', borderRadius: '20px', border: 'none' }}
+      >
+        {/* Header Banner */}
+        <div style={{
+          background: 'linear-gradient(135deg, #3f0608 0%, #7a1018 50%, #3f0608 100%)',
+          padding: '28px 28px 0',
+          position: 'relative',
+          textAlign: 'center'
+        }}>
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              position: 'absolute', top: '14px', right: '14px',
+              background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,216,74,0.3)',
+              borderRadius: '50%', width: '36px', height: '36px',
+              color: '#ffd84a', cursor: 'pointer', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', padding: 0
+            }}
+          >
+            <X size={18} />
+          </button>
 
-        {status === 'success' ? (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
-            <h3 className="track-modal-title">
-              {isEn ? "Message Sent Successfully!" : "செய்தி வெற்றிகரமாக அனுப்பப்பட்டது!"}
-            </h3>
-            <p style={{ color: '#4a5568', marginBottom: '24px', lineHeight: '1.6' }}>
-              {isEn 
-                ? "Thank you for reaching out. We will get back to you as soon as possible." 
-                : "தொடர்பு கொண்டமைக்கு நன்றி. கூடிய விரைவில் உங்களைத் தொடர்பு கொள்வோம்."}
-            </p>
-            <button className="primary-btn" onClick={() => { setStatus(null); onClose(); }} style={{ width: '100%' }}>
-              {isEn ? "Close" : "மூடவும்"}
-            </button>
+          {/* Badge */}
+          <div style={{
+            display: 'inline-block',
+            background: 'rgba(255,216,74,0.15)',
+            border: '1px solid rgba(255,216,74,0.5)',
+            borderRadius: '20px',
+            padding: '4px 14px',
+            marginBottom: '14px',
+            fontSize: '0.72rem',
+            fontWeight: '800',
+            letterSpacing: '0.12em',
+            color: '#ffd84a',
+            textTransform: 'uppercase'
+          }}>
+            {isEn ? '🟡 Always Here to Help · TVK Tiruppur South' : '🟡 உதவ தயாரான · தவெக திருப்பூர் தெற்கு'}
           </div>
-        ) : (
-          <>
-            <h3 className="track-modal-title" style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '6px' }}>
-              {isEn ? "Contact Us" : "எங்களைத் தொடர்பு கொள்ள"}
-            </h3>
-            <p className="track-modal-subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
-              {isEn 
-                ? "Send us a message and we will respond shortly." 
-                : "எங்களுக்கு ஒரு செய்தியை அனுப்புங்கள், நாங்கள் விரைவில் பதிலளிப்போம்."}
+
+          {/* Profile photo */}
+          <div style={{
+            width: '130px', height: '130px',
+            borderRadius: '50%',
+            border: '4px solid #ffd84a',
+            boxShadow: '0 0 0 4px rgba(255,216,74,0.25), 0 8px 32px rgba(0,0,0,0.5)',
+            overflow: 'hidden',
+            margin: '0 auto',
+            background: '#fff'
+          }}>
+            <img
+              src="/assets/branding/tirumalai-avatar.png"
+              alt="Tirumalai"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+            />
+          </div>
+
+          {/* Curved bottom */}
+          <div style={{
+            height: '32px',
+            background: '#fff',
+            borderRadius: '50% 50% 0 0 / 100% 100% 0 0',
+            marginTop: '0px'
+          }} />
+        </div>
+
+        {/* Body */}
+        <div style={{ background: '#fff', padding: '4px 28px 28px', textAlign: 'center' }}>
+          {/* Name & Title */}
+          <h2 style={{
+            margin: '0 0 4px',
+            fontFamily: '"Teko", sans-serif',
+            fontSize: '2.2rem',
+            color: '#3f0608',
+            letterSpacing: '0.02em',
+            lineHeight: 1
+          }}>
+            {isEn ? 'Tirumalai' : 'திருமலை'}
+          </h2>
+          <p style={{
+            margin: '0 0 6px',
+            fontSize: '0.82rem',
+            fontWeight: '700',
+            color: '#7a1018',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em'
+          }}>
+            {isEn ? 'District Secretary · TVK Tiruppur South' : 'மாவட்ட செயலாளர் · தவெக திருப்பூர் தெற்கு'}
+          </p>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '14px 0' }}>
+            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, transparent, #ffd84a)' }} />
+            <span style={{ fontSize: '0.9rem' }}>⭐</span>
+            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left, transparent, #ffd84a)' }} />
+          </div>
+
+          {/* Tagline card */}
+          <div style={{
+            background: 'linear-gradient(135deg, #fff7df, #fff3c7)',
+            border: '1px solid rgba(255,216,74,0.5)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '18px'
+          }}>
+            <p style={{
+              margin: '0 0 8px',
+              fontSize: '1.1rem',
+              fontWeight: '700',
+              color: '#3f0608',
+              lineHeight: 1.4
+            }}>
+              {isEn
+                ? '"I\'m here for you — always."'
+                : '"நான் உங்களுக்காக எப்போதும் இருக்கிறேன்."'}
             </p>
+            <p style={{ margin: 0, fontSize: '0.86rem', color: '#5a3030', lineHeight: 1.6 }}>
+              {isEn
+                ? 'Your voice matters. Your problem is my responsibility. Reach out — I personally ensure every concern gets the attention it deserves. No waiting, no barriers, just solutions.'
+                : 'உங்கள் குரல் முக்கியம். உங்கள் பிரச்சினை என் பொறுப்பு. தொடர்பு கொள்ளுங்கள் — ஒவ்வொரு கவலையும் தீர்க்கப்படும்.'}
+            </p>
+          </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="modal-form-group">
-                <label>{isEn ? "Email ID *" : "மின்னஞ்சல் முகவரி *"}</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={isEn ? "name@example.com" : "மின்னஞ்சல் முகவரியை உள்ளிடவும்"}
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>{isEn ? "Phone Number *" : "தொலைபேசி எண் *"}</label>
-                <input
-                  type="tel"
-                  required
-                  pattern="[0-9]{10}"
-                  maxLength="10"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                  placeholder={isEn ? "e.g. 9876543210" : "எ.கா. 9876543210"}
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>{isEn ? "Topic / Subject *" : "தொடர்புக்கான தலைப்பு *"}</label>
-                <input
-                  type="text"
-                  required
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder={isEn ? "e.g. Question, Feedback" : "எ.கா. கேள்வி, கருத்து"}
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>{isEn ? "Message" : "செய்தி"}</label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder={isEn ? "Enter your message (optional)..." : "செய்தியை உள்ளிடவும் (விருப்பத்திற்குரியது)..."}
-                  rows={4}
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="primary-btn"
-                style={{ width: '100%', marginTop: '8px' }}
-                disabled={status === 'submitting'}
-              >
-                {status === 'submitting' 
-                  ? (isEn ? "Sending..." : "அனுப்பப்படுகிறது...") 
-                  : (isEn ? "Send Message" : "செய்தி அனுப்பவும்")}
-              </button>
-              {status === 'error' && (
-                <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginTop: '10px', textAlign: 'center' }}>
-                  {isEn ? "❌ Failed to send message. Please try again." : "❌ செய்தி அனுப்புவதில் தோல்வி. மீண்டும் முயலவும்."}
+          {/* Contact Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Phone */}
+            <a
+              href="tel:+919876543210"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                padding: '14px 20px',
+                background: 'linear-gradient(135deg, #3f0608, #7a1018)',
+                borderRadius: '12px',
+                color: '#fff',
+                textDecoration: 'none',
+                boxShadow: '0 4px 16px rgba(63,6,8,0.3)',
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <div style={{
+                width: '40px', height: '40px', background: 'rgba(255,216,74,0.2)',
+                borderRadius: '10px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem'
+              }}>📞</div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.65)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  {isEn ? 'Call / WhatsApp' : 'அழைக்க / வாட்ஸ்அப்'}
                 </div>
-              )}
-            </form>
-          </>
-        )}
+                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffd84a' }}>
+                  +91 98765 43210
+                </div>
+              </div>
+              <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.5)', fontSize: '1.1rem' }}>→</div>
+            </a>
+
+            {/* Email */}
+            <a
+              href="mailto:tirumalai.tvk@gmail.com"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                padding: '14px 20px',
+                background: '#fff',
+                border: '1.5px solid rgba(63,6,8,0.15)',
+                borderRadius: '12px',
+                color: '#3f0608',
+                textDecoration: 'none',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <div style={{
+                width: '40px', height: '40px', background: 'rgba(255,216,74,0.15)',
+                borderRadius: '10px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem'
+              }}>✉️</div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '0.7rem', color: '#7a1018', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  {isEn ? 'Email / Gmail' : 'மின்னஞ்சல் / ஜிமெயில்'}
+                </div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#3f0608' }}>
+                  tirumalai.tvk@gmail.com
+                </div>
+              </div>
+              <div style={{ marginLeft: 'auto', color: 'rgba(63,6,8,0.3)', fontSize: '1.1rem' }}>→</div>
+            </a>
+          </div>
+
+          {/* Promise strip */}
+          <div style={{
+            marginTop: '16px',
+            padding: '11px 16px',
+            background: 'linear-gradient(90deg, rgba(63,6,8,0.04), rgba(255,216,74,0.15), rgba(63,6,8,0.04))',
+            borderRadius: '10px',
+            fontSize: '0.8rem',
+            color: '#5a3030',
+            fontWeight: '600',
+            textAlign: 'center'
+          }}>
+            {isEn
+              ? '🤝 Every message is read · Every need is heard · Tiruppur South is our family'
+              : '🤝 ஒவ்வொரு செய்தியும் படிக்கப்படும் · திருப்பூர் தெற்கு நம் குடும்பம்'}
+          </div>
+        </div>
       </div>
     </div>
   );
