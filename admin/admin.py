@@ -1,10 +1,23 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from api.models import JoinRequest, Petition
+from django.contrib.auth.models import Group, User
+
+# Remove Authentication and Authorization options (Groups & Users) from Django Admin
+try:
+    admin.site.unregister(Group)
+except admin.sites.NotRegistered:
+    pass
+
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
+
 
 @admin.register(JoinRequest)
 class JoinRequestAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'area', 'status', 'submitted_at')
+    list_display = ('name', 'phone', 'area', 'status', 'submitted_at', 'download_pdf_link', 'share_whatsapp_link')
     search_fields = ('name', 'phone', 'area', 'email')
     list_filter = ('status', 'submitted_at', 'gender')
     readonly_fields = ('submitted_at', 'photo_preview')
@@ -28,6 +41,14 @@ class JoinRequestAdmin(admin.ModelAdmin):
         }),
     )
 
+    def download_pdf_link(self, obj):
+        return format_html('<a class="button" href="/api/members/{}/pdf/" target="_blank" style="background-color: #5a0c12; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 0.85rem;">PDF</a>', obj.id)
+    download_pdf_link.short_description = 'PDF'
+
+    def share_whatsapp_link(self, obj):
+        return format_html('<a class="button" href="/api/members/{}/share/" target="_blank" style="background-color: #25D366; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 0.85rem; border-color: #25D366;">Share</a>', obj.id)
+    share_whatsapp_link.short_description = 'Share'
+
     def photo_preview(self, obj):
         if obj.photo_data:
             return format_html('<img src="{}" style="max-width: 150px; max-height: 150px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />', obj.photo_data)
@@ -41,7 +62,7 @@ class JoinRequestAdmin(admin.ModelAdmin):
 class PetitionAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'area', 'problem_type', 'status', 'is_read', 'submitted_at', 'download_pdf_link', 'share_whatsapp_link')
     search_fields = ('name', 'phone', 'subject', 'summary', 'email', 'area', 'problem_type')
-    list_filter = ('status', 'is_read', 'submitted_at', 'area', 'problem_type')
+    list_filter = ('area',)
     list_editable = ('status', 'is_read')
     readonly_fields = ('submitted_at', 'photo_preview')
     

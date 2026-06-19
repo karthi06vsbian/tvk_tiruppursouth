@@ -966,11 +966,17 @@ function Footer({ lang, setShowJoinModal }) {
           <div className="foot-meta-cell"><b>{t.media_label}</b>{t.media_val}</div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '30px', background: '#120203' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '30px', background: '#120203', gap: '20px', flexWrap: 'wrap' }}>
         <div className="foot-builtby" style={{ margin: 0 }}>
           <a href="#admin" className="foot-builtby-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
             <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "வடிவமைப்பு & பராமரிப்பு"}</span>
             <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
+          </a>
+        </div>
+        <div className="foot-builtby" style={{ margin: 0 }}>
+          <a href="#itwing" className="foot-builtby-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+            <span className="foot-builtby-label">{lang === "en" ? "IT WING DESK" : "ஐடி விங் பிரிவு"}</span>
+            <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>IT WING</span>
           </a>
         </div>
       </div>
@@ -2310,7 +2316,7 @@ function AdminPanel({ lang }) {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'petitions' | 'contacts'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'applications' | 'petitions'
   const [members, setMembers] = useState([]);
   const [petitions, setPetitions] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -2395,7 +2401,7 @@ function AdminPanel({ lang }) {
       sessionStorage.setItem('tvkAdminLogged', 'true');
       setIsLoggedIn(true);
     } else {
-      setLoginError(lang === 'en' ? 'Invalid credentials. Please use admin / tvk123' : 'தவறான விபரங்கள். தயவுசெய்து admin / tvk123 ஐப் பயன்படுத்தவும்.');
+      setLoginError(lang === 'en' ? 'Invalid credentials. Please enter the correct password.' : 'தவறான விபரங்கள். தயவுசெய்து சரியான கடவுச்சொல்லை உள்ளிடவும்.');
     }
   };
 
@@ -2471,6 +2477,233 @@ function AdminPanel({ lang }) {
     } finally {
       setSavingPetition(false);
     }
+  };
+
+  const handleDownloadMemberPDF = (m) => {
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
+    if (!printWindow) {
+      alert(lang === 'en' ? "Please allow popups to download/print." : "பதிவிறக்க பாப்-அப்களை அனுமதிக்கவும்.");
+      return;
+    }
+    
+    const submittedDateStr = new Date(m.submitted_at).toLocaleDateString();
+    const dobStr = m.dob ? new Date(m.dob).toLocaleDateString() : 'N/A';
+    
+    const photoHtml = m.photo_data ? `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="${m.photo_data}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 3px solid #ffd84a; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+      </div>
+    ` : `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <div style="width: 150px; height: 150px; border-radius: 50%; border: 3px dashed #cbd5e0; display: inline-flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: bold; font-size: 14px;">No Photo</div>
+      </div>
+    `;
+    
+    const htmlContent = `
+      <html>
+        <head>
+          <title>TVK Membership Card #${m.id} - ${m.name}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Instrument+Sans:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
+          <style>
+            body {
+              font-family: 'Instrument Sans', 'Noto Sans Tamil', sans-serif;
+              color: #360507;
+              background: #fffcf5;
+              padding: 40px;
+              margin: 0;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 3.5px solid #ffd84a;
+              padding-bottom: 20px;
+              margin-bottom: 35px;
+            }
+            .header h1 {
+              color: #5a0c12;
+              margin: 0 0 5px 0;
+              font-family: 'Teko', sans-serif;
+              font-size: 38px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .header h2 {
+              color: #746464;
+              margin: 0;
+              font-size: 15px;
+              font-weight: 600;
+            }
+            .petition-title {
+              color: #5a0c12;
+              margin-top: 0;
+              font-family: 'Teko', sans-serif;
+              font-size: 26px;
+              border-bottom: 2px solid #5a0c12;
+              padding-bottom: 8px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              text-align: center;
+            }
+            .petition-meta {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 15px;
+              margin-bottom: 30px;
+              background: rgba(255, 255, 255, 0.7);
+              border: 1.5px solid rgba(90, 12, 18, 0.1);
+              border-radius: 10px;
+              padding: 20px;
+              box-shadow: 0 4px 12px rgba(90, 12, 18, 0.02);
+            }
+            .meta-item {
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            .meta-label {
+              font-weight: 700;
+              color: #5a0c12;
+            }
+            .content-section {
+              margin-bottom: 30px;
+            }
+            .content-section h3 {
+              color: #5a0c12;
+              font-family: 'Teko', sans-serif;
+              font-size: 20px;
+              font-weight: 600;
+              border-bottom: 1.5px solid rgba(90, 12, 18, 0.15);
+              padding-bottom: 6px;
+              margin-bottom: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .content-text {
+              font-size: 14.5px;
+              line-height: 1.65;
+              white-space: pre-wrap;
+              background: #fff;
+              padding: 20px;
+              border: 1.5px solid rgba(90, 12, 18, 0.08);
+              border-radius: 8px;
+              box-shadow: 0 4px 10px rgba(90, 12, 18, 0.01);
+              color: #360507;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 6px 16px;
+              font-weight: 700;
+              font-size: 12px;
+              border-radius: 20px;
+              text-transform: uppercase;
+              background: rgba(90, 12, 18, 0.05);
+              border: 1.5px solid rgba(90, 12, 18, 0.1);
+              color: #5a0c12;
+            }
+            .status-approved {
+              background: #f0fdf4;
+              border-color: #bbf7d0;
+              color: #166534;
+            }
+            .status-rejected {
+              background: #fef2f2;
+              border-color: #fecaca;
+              color: #991b1b;
+            }
+            .status-pending {
+              background: #eff6ff;
+              border-color: #bfdbfe;
+              color: #1e40af;
+            }
+            .footer {
+              margin-top: 60px;
+              border-top: 1.5px solid rgba(90, 12, 18, 0.1);
+              padding-top: 20px;
+              text-align: center;
+              font-size: 12.5px;
+              color: #746464;
+              line-height: 1.5;
+            }
+            @media print {
+              .no-print { display: none; }
+              body { padding: 20px; background: #fffcf5; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print" style="margin-bottom: 20px; text-align: right;">
+            <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
+            <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">Close Window</button>
+          </div>
+          
+          <div class="header">
+            <h1>TAMILAGA VETTRI KAZHAGAM</h1>
+            <h2>Tiruppur South District Committee | திருப்பூர் தெற்கு மாவட்ட அமைப்பு</h2>
+            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;" class="pdf-leaders">
+              <img src="/assets/branding/thalaivar-cutout.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/kamarajar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/ambedkar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/periyar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/velu-nachiyar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/anjalai-ammal-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+            </div>
+          </div>
+          
+          <h2 class="petition-title">
+            MEMBERSHIP APPLICATION / உறுப்பினர் சேர்க்கை படிவம் - #${m.id}
+          </h2>
+          
+          ${photoHtml}
+          
+          <div class="petition-meta">
+            <div class="meta-item"><span class="meta-label">Full Name / பெயர்:</span> ${m.name}</div>
+            <div class="meta-item"><span class="meta-label">Submitted On / சமர்ப்பிக்கப்பட்ட தேதி:</span> ${submittedDateStr}</div>
+            <div class="meta-item"><span class="meta-label">Phone / தொலைபேசி:</span> ${m.phone}</div>
+            <div class="meta-item"><span class="meta-label">Area / பகுதி:</span> ${m.area}</div>
+            <div class="meta-item"><span class="meta-label">Email / மின்னஞ்சல்:</span> ${m.email || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">Date of Birth / பிறந்த தேதி:</span> ${dobStr}</div>
+            <div class="meta-item"><span class="meta-label">Gender / பாலினம்:</span> ${m.gender || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">Occupation / தொழில்:</span> ${m.occupation || 'N/A'}</div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Residential Address / வீட்டு முகவரி</h3>
+            <div class="content-text">${m.address || 'N/A'}</div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Interests / ஆர்வங்கள்</h3>
+            <div class="content-text" style="text-transform: capitalize;">${m.interests || 'None'}</div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Application Status & Notes / விண்ணப்ப நிலை மற்றும் குறிப்புகள்</h3>
+            <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 10px;">
+              <div>
+                <span class="status-badge ${m.status === 'approved' ? 'status-approved' : m.status === 'rejected' ? 'status-rejected' : 'status-pending'}">
+                  ${m.status || 'pending'}
+                </span>
+              </div>
+              ${m.admin_notes ? `<div class="content-text" style="font-style: italic;">${m.admin_notes}</div>` : ''}
+            </div>
+          </div>
+          
+          <div class="footer">
+            Tamilaga Vettri Kazhagam - Tiruppur South District Office. Generated electronically.<br>
+            சிறந்த தமிழ்நாட்டிற்கான மக்கள் சக்தி - தமிழக வெற்றிக் கழகம்
+          </div>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
+  const handleShareMember = (m) => {
+    const shareUrl = `/api/members/${m.id}/share/`;
+    window.open(shareUrl, '_blank');
   };
 
   const handleSharePetition = (p) => {
@@ -2627,6 +2860,14 @@ function AdminPanel({ lang }) {
           <div class="header">
             <h1>TAMILAGA VETTRI KAZHAGAM</h1>
             <h2>Tiruppur South District Committee | திருப்பூர் தெற்கு மாவட்ட அமைப்பு</h2>
+            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;" class="pdf-leaders">
+              <img src="/assets/branding/thalaivar-cutout.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/kamarajar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/ambedkar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/periyar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/velu-nachiyar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+              <img src="/assets/leaders/anjalai-ammal-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
+            </div>
           </div>
           
           <h2 class="petition-title">
@@ -2800,39 +3041,114 @@ function AdminPanel({ lang }) {
       </header>
 
       <main className="admin-dashboard-container" style={{ flex: 1, padding: '30px' }}>
-        {/* Dynamic Admin Summary Stats cards */}
-        <div className="admin-stats-grid">
-          <div className="admin-stat-card">
-            <span className="stat-icon">👥</span>
-            <div className="stat-details">
-              <h3>{members.length}</h3>
-              <p>Total Members / மொத்த உறுப்பினர்கள்</p>
+        {/* Dynamic Admin Summary Stats cards - Dashboard Landing View */}
+        {activeTab === 'dashboard' && (
+          <div style={{ animation: 'fadeIn 0.4s ease' }}>
+            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+              <h2 style={{ color: '#5a0c12', fontFamily: 'Teko, sans-serif', fontSize: '2.6rem', textTransform: 'uppercase', margin: 0, letterSpacing: '0.5px' }}>
+                Administrative Control Centre
+              </h2>
+              <p style={{ color: '#746464', margin: '6px 0 0 0', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                Select a module below to manage data / தகவல்களை நிர்வகிக்க பகுதியைத் தேர்ந்தெடுக்கவும்
+              </p>
+            </div>
+            
+            <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', maxWidth: '1000px', margin: '0 auto 40px auto' }}>
+              <div 
+                className="admin-stat-card" 
+                onClick={() => { setActiveTab('petitions'); setSelectedPetition(null); }}
+                style={{ 
+                  cursor: 'pointer', 
+                  flexDirection: 'column', 
+                  padding: '40px 30px', 
+                  textAlign: 'center', 
+                  gap: '24px', 
+                  background: 'linear-gradient(135deg, #ffffff, #fffdf6)', 
+                  border: '2px solid rgba(90, 12, 18, 0.15)',
+                  borderRadius: '16px',
+                  boxShadow: '0 12px 30px rgba(90, 12, 18, 0.06)',
+                  transition: 'all 0.25s ease-in-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <div className="stat-icon-wrapper" style={{
+                  width: '110px',
+                  height: '110px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(255, 216, 74, 0.25), rgba(90, 12, 18, 0.05))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '16px',
+                  border: '2px solid rgba(255, 216, 74, 0.5)',
+                  boxShadow: 'inset 0 4px 8px rgba(255,255,255,0.8), 0 8px 16px rgba(0,0,0,0.06)'
+                }}>
+                  <img 
+                    src={`${A}icons/petition_box_icon.png`} 
+                    alt="Petition Box" 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                  />
+                </div>
+                <div className="stat-details" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '3.2rem', color: '#5a0c12', fontFamily: 'Teko, sans-serif', margin: 0, lineHeight: 1 }}>{petitions.length}</h3>
+                  <p style={{ fontWeight: '800', color: '#360507', margin: '12px 0 0 0', fontSize: '1.1rem' }}>Petition / மனுக்கள்</p>
+                </div>
+              </div>
+              <div 
+                className="admin-stat-card" 
+                onClick={() => { setActiveTab('applications'); setSelectedMember(null); }}
+                style={{ 
+                  cursor: 'pointer', 
+                  flexDirection: 'column', 
+                  padding: '40px 30px', 
+                  textAlign: 'center', 
+                  gap: '24px', 
+                  background: 'linear-gradient(135deg, #ffffff, #fffdf6)', 
+                  border: '2px solid rgba(90, 12, 18, 0.15)',
+                  borderRadius: '16px',
+                  boxShadow: '0 12px 30px rgba(90, 12, 18, 0.06)',
+                  transition: 'all 0.25s ease-in-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <div className="stat-icon-wrapper" style={{
+                  width: '110px',
+                  height: '110px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(255, 216, 74, 0.25), rgba(90, 12, 18, 0.05))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '16px',
+                  border: '2px solid rgba(255, 216, 74, 0.5)',
+                  boxShadow: 'inset 0 4px 8px rgba(255,255,255,0.8), 0 8px 16px rgba(0,0,0,0.06)'
+                }}>
+                  <img 
+                    src={`${A}icons/membership_icon.png`} 
+                    alt="Membership Form" 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                  />
+                </div>
+                <div className="stat-details" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '3.2rem', color: '#5a0c12', fontFamily: 'Teko, sans-serif', margin: 0, lineHeight: 1 }}>{members.length}</h3>
+                  <p style={{ fontWeight: '800', color: '#360507', margin: '12px 0 0 0', fontSize: '1.1rem' }}>Membership Form / உறுப்பினர் படிவங்கள்</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="admin-stat-card">
-            <span className="stat-icon">📥</span>
-            <div className="stat-details">
-              <h3>{petitions.length}</h3>
-              <p>Total Petitions / மொத்த மனுக்கள்</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <span className="stat-icon">⏳</span>
-            <div className="stat-details">
-              <h3>{petitions.filter(p => p.status === 'Pending').length}</h3>
-              <p>Pending Petitions / நிலுவை மனுக்கள்</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <span className="stat-icon">✅</span>
-            <div className="stat-details">
-              <h3>{petitions.filter(p => p.status === 'Solved').length}</h3>
-              <p>Solved Petitions / தீர்க்கப்பட்டவை</p>
-            </div>
-          </div>
-        </div>
+        )}
 
         <div className="admin-tab-bar" style={{ marginBottom: '24px' }}>
+          <button 
+            onClick={() => setActiveTab('dashboard')} 
+            className={`admin-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+          >
+            Dashboard / முகப்பு
+          </button>
           <button 
             onClick={() => { setActiveTab('applications'); setSelectedMember(null); }} 
             className={`admin-tab-btn ${activeTab === 'applications' ? 'active' : ''}`}
@@ -2931,9 +3247,27 @@ function AdminPanel({ lang }) {
                             </span>
                           </td>
                           <td>
-                            <button onClick={() => handleSelectMember(m.id)} className="view-details-btn">
-                              View Details
-                            </button>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button onClick={() => handleSelectMember(m.id)} className="view-details-btn" style={{ padding: '6px 10px', fontSize: '0.8rem' }}>
+                                View Details
+                              </button>
+                              <button 
+                                onClick={() => handleDownloadMemberPDF(m)} 
+                                className="view-details-btn" 
+                                style={{ background: '#5a0c12', color: '#ffffff', borderColor: '#5a0c12', padding: '6px 10px', fontSize: '0.8rem' }}
+                                title="Download PDF / பதிவிறக்கம்"
+                              >
+                                PDF
+                              </button>
+                              <button 
+                                onClick={() => handleShareMember(m)} 
+                                className="view-details-btn" 
+                                style={{ background: '#25D366', color: '#ffffff', borderColor: '#25D366', padding: '6px 10px', fontSize: '0.8rem' }}
+                                title="Share Application / வாட்ஸ்அப் பகிர்வு"
+                              >
+                                Share
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -2956,44 +3290,14 @@ function AdminPanel({ lang }) {
               </h4>
               
               <div className="filter-group">
-                <label>Status / நிலை</label>
-                <select 
-                  value={petitionStatusFilter} 
-                  onChange={(e) => setPetitionStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Status / அனைத்தும்</option>
-                  <option value="Pending">Pending / காத்திருப்பில்</option>
-                  <option value="In Progress">In Progress / செயல்பாட்டில்</option>
-                  <option value="Rejected">Rejected / நிராகரிக்கப்பட்டது</option>
-                  <option value="Solved">Solved / தீர்க்கப்பட்டது</option>
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label>Problem / பிரச்சனை</label>
-                <select 
-                  value={petitionProblemFilter} 
-                  onChange={(e) => setPetitionProblemFilter(e.target.value)}
-                >
-                  <option value="all">All Problems / அனைத்தும்</option>
-                  <option value="Water">Water / தண்ணீர்</option>
-                  <option value="Road">Road / சாலை</option>
-                  <option value="Electricity">Electricity / மின்சாரம்</option>
-                  <option value="Garbage">Garbage / குப்பை</option>
-                  <option value="Personal">Personal / தனிப்பட்டவை</option>
-                  <option value="Others">Others / இதர</option>
-                </select>
-              </div>
-
-              <div className="filter-group">
                 <label>Area / பகுதி</label>
                 <select 
                   value={petitionAreaFilter} 
                   onChange={(e) => setPetitionAreaFilter(e.target.value)}
                 >
-                  <option value="all">All Areas / அனைத்தும்</option>
-                  <option value="Udumalpet">Udumalpet / உடுமலைப்பேட்டை</option>
+                  <option value="all">All / அனைத்தும்</option>
                   <option value="Madathukkulam">Madathukkulam / மடத்துக்குளம்</option>
+                  <option value="Udumalpet">Udumalpet / உடுமலைப்பேட்டை</option>
                 </select>
               </div>
 
@@ -3131,6 +3435,23 @@ function AdminPanel({ lang }) {
                   <p className="detail-value text-capitalize">
                     {selectedMember.interests ? selectedMember.interests.split(', ').join(', ') : 'None'}
                   </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', margin: '20px 0 10px 0' }}>
+                  <button 
+                    onClick={() => handleDownloadMemberPDF(selectedMember)} 
+                    className="primary-btn" 
+                    style={{ flex: 1, background: '#ffd84a', color: '#3f0608', borderColor: '#ffd84a' }}
+                  >
+                    Download PDF / பிடிஎப் ஆக டவுன்லோட்
+                  </button>
+                  <button 
+                    onClick={() => handleShareMember(selectedMember)} 
+                    className="primary-btn" 
+                    style={{ flex: 1, background: '#25D366', color: '#fff', borderColor: '#25D366' }}
+                  >
+                    Share Application / வாட்ஸ்அப்பில் பகிர்
+                  </button>
                 </div>
 
                 <form onSubmit={handleUpdateMember} className="admin-update-form">
@@ -3292,6 +3613,592 @@ function AdminPanel({ lang }) {
   );
 }
 
+function ITWingPanel({ lang }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!sessionStorage.getItem('tvkItWingLogged'));
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const [activeTab, setActiveTab] = useState('news'); // 'news' | 'events'
+  const [news, setNews] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Modals state
+  const [selectedNews, setSelectedNews] = useState(null); // for editing
+  const [selectedEvent, setSelectedEvent] = useState(null); // for editing
+  const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+
+  // Form states for News
+  const [newsTitleEn, setNewsTitleEn] = useState('');
+  const [newsTitleTa, setNewsTitleTa] = useState('');
+  const [newsTextEn, setNewsTextEn] = useState('');
+  const [newsTextTa, setNewsTextTa] = useState('');
+  const [newsTagEn, setNewsTagEn] = useState('Organisation');
+  const [newsTagTa, setNewsTagTa] = useState('அமைப்பு');
+  const [newsImg, setNewsImg] = useState('/assets/branding/flag.png');
+
+  // Form states for Events
+  const [eventSrc, setEventSrc] = useState('');
+  const [eventCaptionEn, setEventCaptionEn] = useState('');
+  const [eventCaptionTa, setEventCaptionTa] = useState('');
+  const [eventColSpan, setEventColSpan] = useState(2);
+  const [eventRowSpan, setEventRowSpan] = useState(1);
+
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/news/');
+      const data = await response.json();
+      setNews(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/events/');
+      const data = await response.json();
+      setEvents(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNews();
+      fetchEvents();
+    }
+  }, [isLoggedIn]);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setLoginError('');
+    if (username === 'itwing' && password === 'tvkit123') {
+      sessionStorage.setItem('tvkItWingLogged', 'true');
+      setIsLoggedIn(true);
+    } else {
+      setLoginError(lang === 'en' ? 'Invalid credentials. Please enter the correct password.' : 'தவறான விபரங்கள். தயவுசெய்து சரியான கடவுச்சொல்லை உள்ளிடவும்.');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('tvkItWingLogged');
+    setIsLoggedIn(false);
+    setUsername('');
+    setPassword('');
+  };
+
+  // News Actions
+  const handleOpenNewsModal = (item = null) => {
+    if (item) {
+      setSelectedNews(item);
+      setNewsTitleEn(item.title_en || item.title);
+      setNewsTitleTa(item.title_ta || item.title);
+      setNewsTextEn(item.text_en || item.text);
+      setNewsTextTa(item.text_ta || item.text);
+      setNewsTagEn(item.tag_en || item.tag);
+      setNewsTagTa(item.tag_ta || item.tag);
+      setNewsImg(item.img || '');
+    } else {
+      setSelectedNews(null);
+      setNewsTitleEn('');
+      setNewsTitleTa('');
+      setNewsTextEn('');
+      setNewsTextTa('');
+      setNewsTagEn('Organisation');
+      setNewsTagTa('அமைப்பு');
+      setNewsImg('/assets/branding/flag.png');
+    }
+    setIsNewsModalOpen(true);
+  };
+
+  const handleSaveNews = async (e) => {
+    e.preventDefault();
+    const payload = {
+      title_en: newsTitleEn,
+      title_ta: newsTitleTa,
+      text_en: newsTextEn,
+      text_ta: newsTextTa,
+      tag_en: newsTagEn,
+      tag_ta: newsTagTa,
+      img: newsImg
+    };
+
+    const url = selectedNews ? `/api/news/${selectedNews.id}/update/` : '/api/news/create/';
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(lang === 'en' ? 'News saved successfully!' : 'செய்தி வெற்றிகரமாக சேமிக்கப்பட்டது!');
+        setIsNewsModalOpen(false);
+        fetchNews();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error saving news');
+    }
+  };
+
+  const handleDeleteNews = async (newsId) => {
+    if (!window.confirm(lang === 'en' ? 'Are you sure you want to delete this news update?' : 'இந்த செய்தியை நீக்க வேண்டுமா?')) return;
+    try {
+      const response = await fetch(`/api/news/${newsId}/delete/`, { method: 'POST' });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(lang === 'en' ? 'News deleted successfully!' : 'செய்தி நீக்கப்பட்டது!');
+        fetchNews();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Event Actions
+  const handleOpenEventModal = (item = null) => {
+    if (item) {
+      setSelectedEvent(item);
+      setEventSrc(item.src || '');
+      setEventCaptionEn(item.caption_en || item.caption);
+      setEventCaptionTa(item.caption_ta || item.caption);
+      setEventColSpan(item.col_span || (item.span?.col || 2));
+      setEventRowSpan(item.row_span || (item.span?.row || 1));
+    } else {
+      setSelectedEvent(null);
+      setEventSrc('');
+      setEventCaptionEn('');
+      setEventCaptionTa('');
+      setEventColSpan(2);
+      setEventRowSpan(1);
+    }
+    setIsEventModalOpen(true);
+  };
+
+  const handleSaveEvent = async (e) => {
+    e.preventDefault();
+    const payload = {
+      src: eventSrc,
+      caption_en: eventCaptionEn,
+      caption_ta: eventCaptionTa,
+      col_span: parseInt(eventColSpan),
+      row_span: parseInt(eventRowSpan)
+    };
+
+    const url = selectedEvent ? `/api/events/${selectedEvent.id}/update/` : '/api/events/create/';
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(lang === 'en' ? 'Event saved successfully!' : 'புகைப்படம் வெற்றிகரமாக சேமிக்கப்பட்டது!');
+        setIsEventModalOpen(false);
+        fetchEvents();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error saving event');
+    }
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    if (!window.confirm(lang === 'en' ? 'Are you sure you want to delete this event/photo?' : 'இந்த புகைப்படத்தை நீக்க வேண்டுமா?')) return;
+    try {
+      const response = await fetch(`/api/events/${eventId}/delete/`, { method: 'POST' });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(lang === 'en' ? 'Photo deleted successfully!' : 'புகைப்படம் நீக்கப்பட்டது!');
+        fetchEvents();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Base64 helper
+  const handleImageUpload = (file, setter) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setter(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const leadersList = [
+    { name: 'Vijay', src: '/assets/branding/thalaivar-cutout.png' },
+    { name: 'Kamarajar', src: '/assets/leaders/kamarajar-thumbnail.png' },
+    { name: 'Ambedkar', src: '/assets/leaders/ambedkar-thumbnail.png' },
+    { name: 'Periyar', src: '/assets/leaders/periyar-thumbnail.png' },
+    { name: 'Velu Nachiyar', src: '/assets/leaders/velu-nachiyar-thumbnail.png' },
+    { name: 'Anjalai Ammal', src: '/assets/leaders/anjalai-ammal-thumbnail.png' }
+  ];
+
+  if (!isLoggedIn) {
+    return (
+      <div className="admin-portal-dashboard admin-login-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div className="admin-login-card" style={{ background: '#fffcf5', border: '2.5px solid #ffd84a', padding: '40px', borderRadius: '16px', maxWidth: '540px', width: '100%', boxShadow: '0 20px 45px rgba(54, 5, 7, 0.25)', textAlign: 'center' }}>
+          
+          <img src="/assets/branding/tvk-logo-192.png" alt="TVK Logo" style={{ width: '80px', height: '80px', margin: '0 auto 15px auto', display: 'block', borderRadius: '50%', border: '2px solid #ffd84a' }} />
+          
+          <h2 style={{ fontFamily: 'Teko, sans-serif', fontSize: '2.2rem', color: '#5a0c12', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            TVK IT Wing
+          </h2>
+          <h3 style={{ fontSize: '1.2rem', color: '#360507', margin: '0 0 24px 0', fontWeight: '600' }}>
+            IT Wing Control Console / ஐடி விங் தளம்
+          </h3>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap', background: 'rgba(90, 12, 18, 0.03)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(90, 12, 18, 0.08)' }}>
+            {leadersList.map(l => (
+              <img key={l.name} src={l.src} alt={l.name} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #ffd84a', objectFit: 'cover' }} title={l.name} />
+            ))}
+          </div>
+
+          <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
+            {loginError && (
+              <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginBottom: '16px', textAlign: 'center', fontWeight: 'bold', background: '#FFF5F5', padding: '8px', borderRadius: '6px', border: '1px solid #FED7D7' }}>
+                {loginError}
+              </div>
+            )}
+            
+            <div className="modal-form-group" style={{ marginBottom: '16px' }}>
+              <label style={{ color: '#5a0c12', fontWeight: 'bold', fontSize: '0.9rem' }}>Username / பயனர்பெயர்</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter IT wing username"
+                required
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid rgba(90, 12, 18, 0.15)' }}
+              />
+            </div>
+
+            <div className="modal-form-group" style={{ marginBottom: '24px' }}>
+              <label style={{ color: '#5a0c12', fontWeight: 'bold', fontSize: '0.9rem' }}>Password / கடவுச்சொல்</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                required
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid rgba(90, 12, 18, 0.15)' }}
+              />
+            </div>
+
+            <button type="submit" className="primary-btn" style={{ width: '100%', fontSize: '1.1rem', padding: '12px' }}>
+              Login / உள்நுழையவும்
+            </button>
+          </form>
+
+          <div style={{ marginTop: '24px' }}>
+            <a href="/" style={{ fontSize: '0.9rem', color: '#746464', textDecoration: 'underline', fontWeight: 'bold' }}>
+              Back to Website / தளம் திரும்புக
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-portal-dashboard" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header className="admin-dashboard-header" style={{ padding: '15px 30px' }}>
+        <div className="admin-header-title" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <img src="/assets/branding/tvk-logo-192.png" alt="TVK Logo" style={{ width: '48px', height: '48px', borderRadius: '50%', border: '1.5px solid #ffd84a' }} />
+          <div>
+            <h2 style={{ margin: 0, fontFamily: 'Teko, sans-serif', fontSize: '1.8rem', letterSpacing: '0.5px' }}>TVK IT Wing Control Panel</h2>
+            <span style={{ fontSize: '0.85rem' }}>Welcome, IT Admin | தவெக ஐடி விங் பிரிவு</span>
+          </div>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', overflow: 'hidden' }} className="header-leaders-strip">
+          {leadersList.map(l => (
+            <img key={l.name} src={l.src} alt={l.name} style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1.5px solid #ffd84a', objectFit: 'cover' }} className="no-print" />
+          ))}
+        </div>
+
+        <div className="admin-header-actions" style={{ display: 'flex', gap: '10px' }}>
+          <a href="/" className="back-site-btn" style={{ fontSize: '0.85rem', padding: '8px 14px' }}>Back to Site / தளம்</a>
+          <button onClick={handleLogout} className="view-details-btn" style={{ background: '#5a0c12', color: '#fff', borderColor: '#5a0c12', fontSize: '0.85rem', padding: '8px 14px' }}>Logout / வெளியேறு</button>
+        </div>
+      </header>
+
+      <main className="admin-dashboard-container" style={{ flex: 1, padding: '30px' }}>
+        <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+          <div className="admin-stat-card">
+            <span className="stat-icon">📰</span>
+            <div className="stat-details">
+              <h3>{news.length}</h3>
+              <p>Total News updates / செய்திகள்</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <span className="stat-icon">🖼️</span>
+            <div className="stat-details">
+              <h3>{events.length}</h3>
+              <p>Gallery Photos / புகைப்படங்கள்</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-tab-bar" style={{ marginBottom: '24px' }}>
+          <button 
+            onClick={() => setActiveTab('news')} 
+            className={`admin-tab-btn ${activeTab === 'news' ? 'active' : ''}`}
+          >
+            News updates / செய்திகள் & அறிவிப்புகள்
+          </button>
+          <button 
+            onClick={() => setActiveTab('events')} 
+            className={`admin-tab-btn ${activeTab === 'events' ? 'active' : ''}`}
+          >
+            Gallery (Events) / புகைப்படத் தொகுப்பு
+          </button>
+        </div>
+
+        {activeTab === 'news' && (
+          <div className="dashboard-content-panel" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: '#5a0c12', fontWeight: 'bold' }}>Manage News Updates</h3>
+              <button className="primary-btn" onClick={() => handleOpenNewsModal()} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                + Add News / புதிய செய்தி சேர்க்க
+              </button>
+            </div>
+
+            {loading ? <div className="admin-panel-loading">Loading News...</div> : (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Image / படம்</th>
+                      <th>Title (EN)</th>
+                      <th>Title (TA)</th>
+                      <th>Tag (EN/TA)</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {news.map(item => (
+                      <tr key={item.id}>
+                        <td>
+                          <img src={item.img} alt={item.title_en || item.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ffd84a' }} />
+                        </td>
+                        <td><b>{item.title_en || item.title}</b></td>
+                        <td><b>{item.title_ta || item.title}</b></td>
+                        <td>{item.tag_en || item.tag} / {item.tag_ta || item.tag}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="view-details-btn" onClick={() => handleOpenNewsModal(item)}>Edit</button>
+                            <button className="view-details-btn" style={{ background: '#e53e3e', color: '#fff', borderColor: '#e53e3e' }} onClick={() => handleDeleteNews(item.id)}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'events' && (
+          <div className="dashboard-content-panel" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: '#5a0c12', fontWeight: 'bold' }}>Manage Gallery Photos</h3>
+              <button className="primary-btn" onClick={() => handleOpenEventModal()} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                + Add Photo / புகைப்படம் சேர்க்க
+              </button>
+            </div>
+
+            {loading ? <div className="admin-panel-loading">Loading Gallery...</div> : (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Image / படம்</th>
+                      <th>Caption (EN)</th>
+                      <th>Caption (TA)</th>
+                      <th>Layout Span (Col x Row)</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.map(ev => (
+                      <tr key={ev.id}>
+                        <td>
+                          <img src={ev.src} alt={ev.caption_en || ev.caption} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ffd84a' }} />
+                        </td>
+                        <td><b>{ev.caption_en || ev.caption}</b></td>
+                        <td><b>{ev.caption_ta || ev.caption}</b></td>
+                        <td>{ev.col_span || ev.span?.col || 2} x {ev.row_span || ev.span?.row || 1}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="view-details-btn" onClick={() => handleOpenEventModal(ev)}>Edit</button>
+                            <button className="view-details-btn" style={{ background: '#e53e3e', color: '#fff', borderColor: '#e53e3e' }} onClick={() => handleDeleteEvent(ev.id)}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* News Modal */}
+      {isNewsModalOpen && (
+        <div className="admin-modal-overlay" onClick={() => setIsNewsModalOpen(false)}>
+          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px' }}>
+            <button className="admin-modal-close" onClick={() => setIsNewsModalOpen(false)}><X size={24} /></button>
+            <h3 style={{ color: '#5a0c12', borderBottom: '2.5px solid #ffd84a', paddingBottom: '10px', marginTop: 0, marginBottom: '20px' }}>
+              {selectedNews ? 'Edit News Update / செய்தி திருத்துதல்' : 'Add News Update / புதிய செய்தி'}
+            </h3>
+            <form onSubmit={handleSaveNews} className="membership-form">
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label>Title (English)</label>
+                  <input type="text" value={newsTitleEn} onChange={e => setNewsTitleEn(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label>Title (Tamil / தமிழ்)</label>
+                  <input type="text" value={newsTitleTa} onChange={e => setNewsTitleTa(e.target.value)} required />
+                </div>
+              </div>
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label>Tag (English)</label>
+                  <input type="text" value={newsTagEn} onChange={e => setNewsTagEn(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label>Tag (Tamil / தமிழ்)</label>
+                  <input type="text" value={newsTagTa} onChange={e => setNewsTagTa(e.target.value)} required />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Text Content (English)</label>
+                <textarea rows="3" value={newsTextEn} onChange={e => setNewsTextEn(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Text Content (Tamil / தமிழ்)</label>
+                <textarea rows="3" value={newsTextTa} onChange={e => setNewsTextTa(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Image Selection (Upload File or Enter URL)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => handleImageUpload(e.target.files[0], setNewsImg)} 
+                  style={{ marginBottom: '8px' }} 
+                />
+                <input 
+                  type="text" 
+                  value={newsImg} 
+                  onChange={e => setNewsImg(e.target.value)} 
+                  placeholder="Or enter image URL path (e.g. /assets/...)" 
+                />
+                {newsImg && (
+                  <div style={{ marginTop: '10px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>Preview:</span>
+                    <img src={newsImg} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', border: '1px solid #ffd84a', borderRadius: '6px' }} />
+                  </div>
+                )}
+              </div>
+              <button type="submit" className="primary-btn" style={{ padding: '12px 24px', fontSize: '1rem', marginTop: '10px' }}>
+                Save News / செய்தியைச் சேமி
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Event Modal */}
+      {isEventModalOpen && (
+        <div className="admin-modal-overlay" onClick={() => setIsEventModalOpen(false)}>
+          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <button className="admin-modal-close" onClick={() => setIsEventModalOpen(false)}><X size={24} /></button>
+            <h3 style={{ color: '#5a0c12', borderBottom: '2.5px solid #ffd84a', paddingBottom: '10px', marginTop: 0, marginBottom: '20px' }}>
+              {selectedEvent ? 'Edit Gallery Photo / புகைப்படத்தை திருத்துக' : 'Add Gallery Photo / புதிய புகைப்படம்'}
+            </h3>
+            <form onSubmit={handleSaveEvent} className="membership-form">
+              <div className="form-group">
+                <label>Caption (English)</label>
+                <input type="text" value={eventCaptionEn} onChange={e => setEventCaptionEn(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Caption (Tamil / தமிழ்)</label>
+                <input type="text" value={eventCaptionTa} onChange={e => setEventCaptionTa(e.target.value)} required />
+              </div>
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label>Column Span (Width: 1 to 4)</label>
+                  <select value={eventColSpan} onChange={e => setEventColSpan(parseInt(e.target.value))}>
+                    <option value={1}>1 (Narrow)</option>
+                    <option value={2}>2 (Medium)</option>
+                    <option value={3}>3 (Wide)</option>
+                    <option value={4}>4 (Full Width)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Row Span (Height: 1 to 2)</label>
+                  <select value={eventRowSpan} onChange={e => setEventRowSpan(parseInt(e.target.value))}>
+                    <option value={1}>1 (Normal)</option>
+                    <option value={2}>2 (Double Height)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Image Selection (Upload File or Enter URL)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => handleImageUpload(e.target.files[0], setEventSrc)} 
+                  style={{ marginBottom: '8px' }} 
+                />
+                <input 
+                  type="text" 
+                  value={eventSrc} 
+                  onChange={e => setEventSrc(e.target.value)} 
+                  placeholder="Or enter image URL path (e.g. /assets/...)" 
+                  required
+                />
+                {eventSrc && (
+                  <div style={{ marginTop: '10px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>Preview:</span>
+                    <img src={eventSrc} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', border: '1px solid #ffd84a', borderRadius: '6px' }} />
+                  </div>
+                )}
+              </div>
+              <button type="submit" className="primary-btn" style={{ padding: '12px 24px', fontSize: '1rem', marginTop: '10px' }}>
+                Save Photo / புகைப்படத்தைச் சேமி
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function JoinPartyBanner({ lang }) {
   const isEn = lang === 'en';
   return (
@@ -3388,6 +4295,10 @@ function App() {
 
   if (hash === "#admin") {
     return <AdminPanel lang={lang} />;
+  }
+
+  if (hash === "#itwing") {
+    return <ITWingPanel lang={lang} />;
   }
 
   return (

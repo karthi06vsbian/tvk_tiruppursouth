@@ -7,7 +7,7 @@ class News(models.Model):
     text_ta = models.TextField(verbose_name="Text (Tamil)")
     tag_en = models.CharField(max_length=100, verbose_name="Tag (English)", default="Organisation")
     tag_ta = models.CharField(max_length=100, verbose_name="Tag (Tamil)", default="அமைப்பு")
-    img = models.CharField(max_length=500, verbose_name="Image Path or URL", default="/assets/branding/flag.png")
+    img = models.TextField(verbose_name="Image Path or URL", default="/assets/branding/flag.png")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -20,7 +20,7 @@ class News(models.Model):
 
 
 class Event(models.Model):
-    src = models.CharField(max_length=500, verbose_name="Event Image Path or URL")
+    src = models.TextField(verbose_name="Event Image Path or URL")
     caption_en = models.CharField(max_length=255, verbose_name="Caption (English)")
     caption_ta = models.CharField(max_length=255, verbose_name="Caption (Tamil)")
     col_span = models.IntegerField(default=2, verbose_name="Layout Column Span")

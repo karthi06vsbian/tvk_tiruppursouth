@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width: 1000px; margin: 40px auto 0 auto; padding: 0 20px;">
+  <div style="text-align: center; margin-bottom: 40px;">
+    <h2 style="color: #5a0c12; font-family: 'Teko', sans-serif; font-size: 2.6rem; text-transform: uppercase; margin: 0; letter-spacing: 0.5px;">
+      Administrative Control Centre
+    </h2>
+    <p style="color: #746464; margin: 6px 0 0 0; font-weight: bold; font-size: 0.95rem;">
+      Select a module below to manage data / தகவல்களை நிர்வகிக்க பகுதியைத் தேர்ந்தெடுக்கவும்
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px;">
+    <!-- Petitions Card -->
+    <a href="/admin/api/petition/" style="text-decoration: none; color: inherit; display: block;">
+      <div class="module" style="background: linear-gradient(135deg, #ffffff, #fffdf6); border: 2px solid rgba(90, 12, 18, 0.15); border-radius: 16px; padding: 40px 30px; text-align: center; cursor: pointer; transition: all 0.25s ease-in-out; box-shadow: 0 10px 25px rgba(90, 12, 18, 0.04); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+        <div style="width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, rgba(255, 216, 74, 0.25), rgba(90, 12, 18, 0.05)); display: flex; align-items: center; justify-content: center; padding: 16px; border: 2px solid rgba(255, 216, 74, 0.5); box-shadow: inset 0 4px 8px rgba(255,255,255,0.8), 0 8px 16px rgba(0,0,0,0.06);">
+          <img src="/static/assets/icons/petition_box_icon.png" alt="Petitions" style="width: 100%; height: 100%; object-fit: contain;" />
+        </div>
+        <div>
+          <h3 style="font-family: 'Teko', sans-serif; font-size: 2rem; color: #5a0c12; margin: 0;">Petitions Box</h3>
+          <p style="font-weight: 800; color: #360507; margin: 6px 0 0 0; font-size: 1rem;">மனுக்கள்</p>
+        </div>
+      </div>
+    </a>
+
+    <!-- Membership Forms Card -->
+    <a href="/admin/api/joinrequest/" style="text-decoration: none; color: inherit; display: block;">
+      <div class="module" style="background: linear-gradient(135deg, #ffffff, #fffdf6); border: 2px solid rgba(90, 12, 18, 0.15); border-radius: 16px; padding: 40px 30px; text-align: center; cursor: pointer; transition: all 0.25s ease-in-out; box-shadow: 0 10px 25px rgba(90, 12, 18, 0.04); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+        <div style="width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, rgba(255, 216, 74, 0.25), rgba(90, 12, 18, 0.05)); display: flex; align-items: center; justify-content: center; padding: 16px; border: 2px solid rgba(255, 216, 74, 0.5); box-shadow: inset 0 4px 8px rgba(255,255,255,0.8), 0 8px 16px rgba(0,0,0,0.06);">
+          <img src="/static/assets/icons/membership_icon.png" alt="Membership Forms" style="width: 100%; height: 100%; object-fit: contain;" />
+        </div>
+        <div>
+          <h3 style="font-family: 'Teko', sans-serif; font-size: 2rem; color: #5a0c12; margin: 0;">Membership Forms</h3>
+          <p style="font-weight: 800; color: #360507; margin: 6px 0 0 0; font-size: 1rem;">உறுப்பினர் படிவங்கள்</p>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<style>
+  .module {
+    transition: all 0.25s ease-in-out !important;
+  }
+  .module:hover {
+    transform: translateY(-5px) !important;
+    border-color: #ffd84a !important;
+    box-shadow: 0 16px 35px rgba(90, 12, 18, 0.1) !important;
+  }
+</style>
+{% endblock %}
