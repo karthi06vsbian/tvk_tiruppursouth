@@ -68,8 +68,12 @@ export default function Join() {
     setError('');
     setLoading(true);
 
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? ''
+      : 'https://tvk-tiruppursouth.onrender.com';
+
     try {
-      const response = await fetch('/api/join/', {
+      const response = await fetch(`${API_BASE}/api/join/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

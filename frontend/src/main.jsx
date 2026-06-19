@@ -57,6 +57,19 @@ const resolveAssetPath = (path) => {
   return `/${cleanPath}`;
 };
 
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''
+  : 'https://tvk-tiruppursouth.onrender.com';
+
+const apiFetch = (url, options = {}) => {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return fetch(url, options);
+  }
+  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  return fetch(`${API_BASE}${cleanUrl}`, options);
+};
+
+
 
 const copy = {
   en: {
@@ -863,7 +876,7 @@ function NewsSection({ lang }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/news/?lang=${lang}`)
+    apiFetch(`/api/news/?lang=${lang}`)
       .then((res) => {
         if (!res.ok) throw new Error("API Error");
         return res.json();
@@ -908,7 +921,7 @@ function EventsSection({ lang }) {
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
   useEffect(() => {
-    fetch(`/api/events/?lang=${lang}`)
+    apiFetch(`/api/events/?lang=${lang}`)
       .then((res) => { if (!res.ok) throw new Error("API Error"); return res.json(); })
       .then((data) => { setEvents(data.length > 0 ? data : defaultEvents); setLoading(false); })
       .catch(() => { setEvents(defaultEvents); setLoading(false); });
@@ -1118,7 +1131,7 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
     }
 
     setStatus('submitting');
-    fetch("/api/petitions/submit/", {
+    apiFetch("/api/petitions/submit/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1328,7 +1341,7 @@ function ContactModal({ lang, isOpen, onClose }) {
       return;
     }
     setStatus('submitting');
-    fetch("/api/contact/submit/", {
+    apiFetch("/api/contact/submit/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, phone: cleanPhone, topic, message })
@@ -1525,7 +1538,7 @@ function JoinMembershipModal({ lang, isOpen, onClose }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/join/', {
+      const response = await apiFetch('/api/join/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -2021,7 +2034,7 @@ function ChatBot() {
     } else {
       addMsg("bot", t.pet_submitting);
 
-      fetch("/api/petitions/submit/", {
+      apiFetch("/api/petitions/submit/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2229,7 +2242,7 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
     setSearched(false);
 
     try {
-      const response = await fetch(`/api/petitions/track/?phone=${phone}`);
+      const response = await apiFetch(`/api/petitions/track/?phone=${phone}`);
       const data = await response.json();
       if (data.status === 'success') {
         setPetitions(data.data);
@@ -2377,7 +2390,7 @@ function AdminPanel({ lang }) {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/members/');
+      const response = await apiFetch('/api/members/');
       const data = await response.json();
       if (data.status === 'success') {
         setMembers(data.data);
@@ -2392,7 +2405,7 @@ function AdminPanel({ lang }) {
   const fetchPetitions = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/petitions/');
+      const response = await apiFetch('/api/petitions/');
       const data = await response.json();
       setPetitions(data);
     } catch (err) {
@@ -2405,7 +2418,7 @@ function AdminPanel({ lang }) {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/contacts/');
+      const response = await apiFetch('/api/contacts/');
       const data = await response.json();
       if (data.status === 'success') {
         setContacts(data.data);
@@ -2445,7 +2458,7 @@ function AdminPanel({ lang }) {
 
   const handleSelectMember = async (memberId) => {
     try {
-      const response = await fetch(`/api/members/${memberId}/`);
+      const response = await apiFetch(`/api/members/${memberId}/`);
       const data = await response.json();
       if (data.status === 'success') {
         setSelectedMember(data.data);
@@ -2462,7 +2475,7 @@ function AdminPanel({ lang }) {
     if (!selectedMember) return;
     setSavingMember(true);
     try {
-      const response = await fetch(`/api/members/${selectedMember.id}/update/`, {
+      const response = await apiFetch(`/api/members/${selectedMember.id}/update/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: memberStatus, admin_notes: memberNotes })
@@ -2491,7 +2504,7 @@ function AdminPanel({ lang }) {
     if (!selectedPetition) return;
     setSavingPetition(true);
     try {
-      const response = await fetch(`/api/petitions/${selectedPetition.id}/update/`, {
+      const response = await apiFetch(`/api/petitions/${selectedPetition.id}/update/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: petitionStatus })
@@ -3680,7 +3693,7 @@ function ITWingPanel({ lang }) {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/news/');
+      const response = await apiFetch('/api/news/');
       const data = await response.json();
       setNews(data);
     } catch (err) {
@@ -3693,7 +3706,7 @@ function ITWingPanel({ lang }) {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/events/');
+      const response = await apiFetch('/api/events/');
       const data = await response.json();
       setEvents(data);
     } catch (err) {
@@ -3766,7 +3779,7 @@ function ITWingPanel({ lang }) {
 
     const url = selectedNews ? `/api/news/${selectedNews.id}/update/` : '/api/news/create/';
     try {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -3788,7 +3801,7 @@ function ITWingPanel({ lang }) {
   const handleDeleteNews = async (newsId) => {
     if (!window.confirm(lang === 'en' ? 'Are you sure you want to delete this news update?' : 'இந்த செய்தியை நீக்க வேண்டுமா?')) return;
     try {
-      const response = await fetch(`/api/news/${newsId}/delete/`, { method: 'POST' });
+      const response = await apiFetch(`/api/news/${newsId}/delete/`, { method: 'POST' });
       const data = await response.json();
       if (data.status === 'success') {
         alert(lang === 'en' ? 'News deleted successfully!' : 'செய்தி நீக்கப்பட்டது!');
@@ -3831,7 +3844,7 @@ function ITWingPanel({ lang }) {
 
     const url = selectedEvent ? `/api/events/${selectedEvent.id}/update/` : '/api/events/create/';
     try {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -3853,7 +3866,7 @@ function ITWingPanel({ lang }) {
   const handleDeleteEvent = async (eventId) => {
     if (!window.confirm(lang === 'en' ? 'Are you sure you want to delete this event/photo?' : 'இந்த புகைப்படத்தை நீக்க வேண்டுமா?')) return;
     try {
-      const response = await fetch(`/api/events/${eventId}/delete/`, { method: 'POST' });
+      const response = await apiFetch(`/api/events/${eventId}/delete/`, { method: 'POST' });
       const data = await response.json();
       if (data.status === 'success') {
         alert(lang === 'en' ? 'Photo deleted successfully!' : 'புகைப்படம் நீக்கப்பட்டது!');
