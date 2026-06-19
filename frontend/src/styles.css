@@ -793,51 +793,42 @@ img {
   .site-header {
     left: 8px;
     right: 8px;
-    min-height: 62px;
-    padding: 8px 10px;
+    top: 8px;
+    min-height: 58px;
+    padding: 6px 10px;
     border-width: 2px;
-    border-radius: 16px;
+    border-radius: 14px;
   }
 
   .brand img {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .brand b {
-    max-width: 230px;
+    max-width: 200px;
     overflow: hidden;
-    font-size: 1.18rem;
+    font-size: 1.08rem;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .brand small {
     display: block;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     color: #fff8dc;
     opacity: 0.85;
     margin-top: 1px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
   }
 
-  @media (max-width: 480px) {
-    .brand b {
-      max-width: 180px;
-      font-size: 1.05rem;
-    }
-    .brand small {
-      font-size: 0.6rem;
-    }
+  .lang-switcher-pill {
+    margin-left: 4px;
   }
 
-  @media (max-width: 360px) {
-    .brand b {
-      max-width: 130px;
-      font-size: 0.95rem;
-    }
-    .brand small {
-      font-size: 0.55rem;
-    }
+  .lang-switcher-pill button {
+    padding: 5px 10px;
+    font-size: 12px;
   }
 
   .lang-btn {
@@ -846,38 +837,64 @@ img {
     font-size: 1.05rem;
   }
 
+  /* Section padding on mobile */
+  .section {
+    padding: 36px 16px;
+  }
+
+  .section-head {
+    margin-bottom: 20px;
+  }
+
+  /* Track modal / contact modal width */
+  .track-modal-content {
+    max-width: calc(100vw - 24px) !important;
+    width: 100%;
+    border-radius: 14px !important;
+    margin: 12px;
+  }
+
   .hero {
     min-height: auto;
   }
 
   .hero-video-stage {
-    min-height: 48svh;
+    min-height: 100svh;
   }
 
   .hero-copy {
-    position: relative;
-    right: auto;
-    left: auto;
-    bottom: auto;
-    padding: 24px 16px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 16px 24px;
     margin-top: 0 !important;
   }
 
   .hero h1 {
-    font-size: clamp(2.5rem, 12vw, 3.8rem);
+    font-size: clamp(2.4rem, 10vw, 3.6rem);
+  }
+
+  .hero-lead {
+    font-size: 0.9rem;
+    line-height: 1.55;
   }
 
   .hero-actions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
     width: 100%;
-    margin-top: 18px;
+    margin-top: 14px;
   }
 
   .hero-actions a {
-    width: 100%;
+    flex: 1 1 140px;
     justify-content: center;
+    font-size: 0.9rem;
+    min-height: 42px;
+    padding: 10px 14px;
   }
 
   .hero-visual {
@@ -885,15 +902,23 @@ img {
   }
 
   .stat-row {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 14px;
   }
 
   .stat {
-    flex: 1 1 100%;
-    padding: 12px 16px;
+    min-width: 0;
+    padding: 10px 12px;
+  }
+
+  .stat b {
+    font-size: 1.4rem;
+  }
+
+  .stat span {
+    font-size: 0.78rem;
   }
 
   .pillar-grid,
@@ -915,6 +940,23 @@ img {
   .flag-panel {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .about-pledge {
+    padding: 20px 16px;
+  }
+
+  .about-pledge .body {
+    font-size: 1rem;
+  }
+
+  .leadership {
+    grid-template-columns: 1fr;
+  }
+
+  .join {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 
@@ -4511,5 +4553,203 @@ body.ta .foot-builtby-label {
   
   .admin-sidebar-filters {
     width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   GLOBAL MOBILE FIXES (≤680px)
+   ========================================================================== */
+
+@media (max-width: 680px) {
+  /* --- Quick Action Cards --- */
+  .quick-actions-banner {
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 16px;
+  }
+
+  .quick-action-card {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 22px 18px;
+  }
+
+  .quick-action-card h4 {
+    font-size: 1.7rem;
+  }
+
+  .quick-action-card p {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  .quick-action-btn {
+    max-width: 100%;
+    font-size: 1.2rem;
+  }
+
+  /* --- Modals --- */
+  .track-modal-overlay {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .track-modal-content {
+    max-width: 100% !important;
+    width: 100%;
+    border-radius: 18px 18px 0 0 !important;
+    padding: 22px 18px 28px;
+    margin: 0 !important;
+    max-height: 90svh;
+    overflow-y: auto;
+  }
+
+  .petition-modal-content {
+    max-width: 100%;
+    border-radius: 18px 18px 0 0;
+    padding: 22px 16px 28px;
+    max-height: 90svh;
+    overflow-y: auto;
+  }
+
+  /* --- Hero section tiny screens --- */
+  .eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 9vw, 3rem);
+    line-height: 0.9;
+  }
+
+  .hero-lead {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    max-width: 100%;
+  }
+
+  .hero-actions a {
+    flex: 1 1 120px;
+    font-size: 0.82rem;
+    padding: 9px 10px;
+    min-height: 38px;
+  }
+
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .stat {
+    padding: 8px 10px;
+  }
+
+  .stat b {
+    font-size: 1.2rem;
+  }
+
+  .stat span {
+    font-size: 0.72rem;
+  }
+
+  /* --- Contact profile modal full screen sheet --- */
+  .contact-profile-modal {
+    max-width: 100% !important;
+    width: 100%;
+    border-radius: 18px 18px 0 0 !important;
+    overflow-y: auto !important;
+    max-height: 94svh;
+  }
+
+  /* --- Section headings --- */
+  .section h2 {
+    font-size: clamp(2rem, 8vw, 3.2rem);
+  }
+
+  /* --- About / Party section --- */
+  .about-tvk {
+    padding: 36px 16px;
+  }
+
+  .flag-feature {
+    gap: 24px;
+    margin: 24px auto;
+  }
+
+  .flag-card {
+    padding: 12px;
+  }
+
+  .about-stats-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  /* --- Join section --- */
+  .join {
+    padding: 36px 16px;
+  }
+
+  .join-form {
+    padding: 16px;
+  }
+
+  /* --- Footer --- */
+  .foot-cta {
+    padding: 32px 16px;
+  }
+
+  .foot-wordmark-container {
+    padding: 28px 16px;
+  }
+
+  .foot-cols {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  .foot-meta {
+    padding: 20px 16px;
+  }
+
+  /* --- Gallery --- */
+  .gallery-grid {
+    grid-auto-rows: 180px;
+  }
+}
+
+/* Extra small screens (≤400px) */
+@media (max-width: 400px) {
+  .brand b {
+    max-width: 160px;
+    font-size: 0.95rem;
+  }
+
+  .brand small {
+    font-size: 0.58rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+
+  .stat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .hero-actions a {
+    width: 100%;
+  }
+
+  .quick-action-card {
+    padding: 18px 14px;
   }
 }
