@@ -1017,12 +1017,6 @@ function Footer({ lang, setShowJoinModal }) {
             <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
           </a>
         </div>
-        <div className="foot-builtby" style={{ margin: 0 }}>
-          <a href="#itwing" className="foot-builtby-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-            <span className="foot-builtby-label">{lang === "en" ? "IT WING DESK" : "ஐடி விங் பிரிவு"}</span>
-            <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>IT WING</span>
-          </a>
-        </div>
       </div>
       <button className="scroll-to-top-btn" onClick={scrollToTop} aria-label="Scroll to top">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
