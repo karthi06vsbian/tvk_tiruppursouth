@@ -123,6 +123,7 @@ def petition_submit_api(request):
             phone = data.get('phone')
             subject = data.get('subject')
             summary = data.get('summary')
+            address = data.get('address')
             
             # Expanded fields
             email = data.get('email', '')
@@ -130,9 +131,10 @@ def petition_submit_api(request):
             problem_type = data.get('problem_type', 'Others')
             photo_data = data.get('photo_data', '')
             photo_name = data.get('photo_name', '')
+            google_map_location = data.get('google_map_location', '')
 
-            if not name or not phone or not subject or not summary:
-                return JsonResponse({'status': 'error', 'message': 'All fields are required'}, status=400)
+            if not name or not phone or not subject or not summary or not address:
+                return JsonResponse({'status': 'error', 'message': 'All fields (including address) are required'}, status=400)
 
             cleaned_phone = clean_phone_number(phone)
             petition = Petition.objects.create(
@@ -144,7 +146,9 @@ def petition_submit_api(request):
                 subject=subject,
                 summary=summary,
                 photo_data=photo_data,
-                photo_name=photo_name
+                photo_name=photo_name,
+                address=address,
+                google_map_location=google_map_location
             )
             return JsonResponse({'status': 'success', 'message': 'Petition submitted successfully', 'id': petition.id})
         except Exception as e:
@@ -162,6 +166,8 @@ def petition_list_api(request):
             'phone': p.phone,
             'email': p.email,
             'area': p.area,
+            'address': p.address,
+            'google_map_location': p.google_map_location,
             'problem_type': p.problem_type,
             'photo_data': p.photo_data,
             'photo_name': p.photo_name,
@@ -309,6 +315,8 @@ def petition_track_api(request):
                     'phone': p.phone,
                     'email': p.email,
                     'area': p.area,
+                    'address': p.address,
+                    'google_map_location': p.google_map_location,
                     'problem_type': p.problem_type,
                     'photo_data': p.photo_data,
                     'photo_name': p.photo_name,
@@ -415,10 +423,73 @@ def petition_print_view(request, petition_id):
         
     submitted_date_str = p.submitted_at.strftime('%Y-%m-%d') if p.submitted_at else 'N/A'
     
+    google_map_url_html = 'N/A'
+    google_map_html = ''
+    if p.google_map_location:
+        google_map_url_html = f'<a href="{escape(p.google_map_location)}" target="_blank" style="color: #5a0c12; font-weight: bold; text-decoration: underline;">{escape(p.google_map_location)}</a>'
+        
+        import re
+        url = p.google_map_location
+        lat = None
+        lng = None
+        q_match = re.search(r'[?&]q=([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)', url)
+        if q_match:
+            lat = float(q_match.group(1))
+            lng = float(q_match.group(2))
+        else:
+            at_match = re.search(r'@([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)', url)
+            if at_match:
+                lat = float(at_match.group(1))
+                lng = float(at_match.group(2))
+            else:
+                place_match = re.search(r'/place/([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)', url)
+                if place_match:
+                    lat = float(place_match.group(1))
+                    lng = float(place_match.group(2))
+                    
+        if lat is not None and lng is not None:
+            min_lon = lng - 0.005
+            min_lat = lat - 0.005
+            max_lon = lng + 0.005
+            max_lat = lat + 0.005
+            google_map_html = f"""
+            <div class="content-section" style="margin-top: 30px;">
+              <h3>Location Map / இருப்பிட வரைபடம்</h3>
+              <div style="border: 1.5px solid rgba(90, 12, 18, 0.12); border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                <iframe 
+                  id="map-iframe"
+                  width="100%" 
+                  height="320" 
+                  frameborder="0" 
+                  scrolling="no" 
+                  marginheight="0" 
+                  marginwidth="0" 
+                  src="https://www.openstreetmap.org/export/embed.html?bbox={min_lon}%2C{min_lat}%2C{max_lon}%2C{max_lat}&amp;layer=mapnik&amp;marker={lat}%2C{lng}" 
+                  style="border: none; display: block;">
+                </iframe>
+              </div>
+              <div style="margin-top: 10px; text-align: right;">
+                <a href="{escape(url)}" target="_blank" style="color: #5a0c12; font-weight: bold; text-decoration: underline; font-size: 13px;">📍 Open in Google Maps / கூகுள் மேப்பில் திறக்கவும்</a>
+              </div>
+            </div>
+            """
+        else:
+            google_map_html = f"""
+            <div class="content-section" style="margin-top: 30px;">
+              <h3>Location Map / இருப்பிட வரைபடம்</h3>
+              <div style="padding: 20px; border: 1.5px dashed rgba(90, 12, 18, 0.15); border-radius: 8px; text-align: center; color: #746464; font-size: 14px;">
+                Map preview not available. Please click the link to view the location. / வரைபட முன்னோட்டம் கிடைக்கவில்லை. இருப்பிடத்தைக் காண இணைப்பைக் கிளிக் செய்யவும்.
+              </div>
+              <div style="margin-top: 10px; text-align: right;">
+                <a href="{escape(url)}" target="_blank" style="color: #5a0c12; font-weight: bold; text-decoration: underline; font-size: 13px;">📍 Open in Google Maps / கூகுள் மேப்பில் திறக்கவும்</a>
+              </div>
+            </div>
+            """
+
     html = f"""<!DOCTYPE html>
     <html>
       <head>
-        <title>TVK Petition #{p.id} - {escape(p.name)}</title>
+        <title>TVK Petition / மக்கள் மனு #{p.id} - {escape(p.name)}</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Instrument+Sans:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -460,6 +531,7 @@ def petition_print_view(request, petition_id):
             padding-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-radius: 0;
           }}
           .petition-meta {{
             display: grid;
@@ -573,9 +645,11 @@ def petition_print_view(request, petition_id):
           <div class="meta-item"><span class="meta-label">Petitioner Name / பெயர்:</span> {escape(p.name)}</div>
           <div class="meta-item"><span class="meta-label">Submitted On / சமர்ப்பிக்கப்பட்ட தேதி:</span> {submitted_date_str}</div>
           <div class="meta-item"><span class="meta-label">Phone / தொலைபேசி:</span> {escape(p.phone)}</div>
-          <div class="meta-item"><span class="meta-label">Area / பகுதி:</span> {escape(p.area or 'N/A')}</div>
+          <div class="meta-item"><span class="meta-label">Assembly / சட்டமன்ற தொகுதி:</span> {escape(p.area or 'N/A')}</div>
           <div class="meta-item"><span class="meta-label">Email / மின்னஞ்சல்:</span> {escape(p.email or 'N/A')}</div>
           <div class="meta-item"><span class="meta-label">Problem Type / பிரச்சனை வகை:</span> {escape(p.problem_type)}</div>
+          <div class="meta-item" style="grid-column: span 2;"><span class="meta-label">Address / வீட்டு முகவரி:</span> {escape(p.address or 'N/A')}</div>
+          <div class="meta-item" style="grid-column: span 2;"><span class="meta-label">Google Map Location / கூகுள் மேப் இடம்:</span> {google_map_url_html}</div>
         </div>
         
         <div class="content-section">
@@ -597,6 +671,8 @@ def petition_print_view(request, petition_id):
           </div>
         </div>
 
+        {google_map_html}
+
         {photo_html}
         
         <div class="footer">
@@ -606,7 +682,25 @@ def petition_print_view(request, petition_id):
         
         <script>
           window.onload = function() {{
-            window.print();
+            var iframe = document.getElementById('map-iframe');
+            if (iframe) {{
+              iframe.onload = function() {{
+                setTimeout(function() {{
+                  window.print();
+                }}, 500);
+              }};
+              if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {{
+                setTimeout(function() {{
+                  window.print();
+                }}, 500);
+              }} else {{
+                setTimeout(function() {{
+                  window.print();
+                }}, 2500);
+              }}
+            }} else {{
+              window.print();
+            }}
           }};
         </script>
       </body>
@@ -640,6 +734,8 @@ def membership_print_view(request, member_id):
     from django.http import HttpResponse
     
     m = get_object_or_404(JoinRequest, id=member_id)
+    lang = request.GET.get('lang', 'en')
+    is_en = lang == 'en'
     
     photo_html = ""
     if m.photo_data:
@@ -649,9 +745,9 @@ def membership_print_view(request, member_id):
         </div>
         """
     else:
-        photo_html = """
+        photo_html = f"""
         <div style="text-align: center; margin-bottom: 25px;">
-          <div style="width: 150px; height: 150px; border-radius: 50%; border: 3px dashed #cbd5e0; display: inline-flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: bold; font-size: 14px;">No Photo</div>
+          <div style="width: 150px; height: 150px; border-radius: 50%; border: 3px dashed #cbd5e0; display: inline-flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: bold; font-size: 14px;">{"No Photo" if is_en else "படம் இல்லை"}</div>
         </div>
         """
         
@@ -661,7 +757,7 @@ def membership_print_view(request, member_id):
     html = f"""<!DOCTYPE html>
     <html>
       <head>
-        <title>TVK Membership Card #{m.id} - {escape(m.name)}</title>
+        <title>{"TVK Membership Card" if is_en else "தமிழக வெற்றிக் கழக உறுப்பினர் அட்டை"} #{m.id} - {escape(m.name)}</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Instrument+Sans:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -792,13 +888,13 @@ def membership_print_view(request, member_id):
       </head>
       <body>
         <div class="no-print" style="margin-bottom: 20px; text-align: right;">
-          <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
-          <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">Close Window</button>
+          <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">{"Print / Save as PDF" if is_en else "அச்சிடு / PDF ஆக சேமி"}</button>
+          <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">{"Close Window" if is_en else "சாளரத்தை மூடு"}</button>
         </div>
         
         <div class="header">
           <h1>TAMILAGA VETTRI KAZHAGAM</h1>
-          <h2>Tiruppur South District Committee | திருப்பூர் தெற்கு மாவட்ட அமைப்பு</h2>
+          <h2>{"Tiruppur South District Committee" if is_en else "திருப்பூர் தெற்கு மாவட்ட அமைப்பு"}</h2>
           <div style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;" class="pdf-leaders">
             <img src="/static/assets/branding/thalaivar-cutout.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
             <img src="/static/assets/leaders/kamarajar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
@@ -810,34 +906,34 @@ def membership_print_view(request, member_id):
         </div>
         
         <h2 class="petition-title">
-          MEMBERSHIP APPLICATION / உறுப்பினர் சேர்க்கை படிவம் - #{m.id}
+          {f"MEMBERSHIP APPLICATION - #{m.id}" if is_en else f"உறுப்பினர் சேர்க்கை படிவம் - #{m.id}"}
         </h2>
         
         {photo_html}
         
         <div class="petition-meta">
-          <div class="meta-item"><span class="meta-label">Full Name / பெயர்:</span> {escape(m.name)}</div>
-          <div class="meta-item"><span class="meta-label">Submitted On / சமர்ப்பிக்கப்பட்ட தேதி:</span> {submitted_date_str}</div>
-          <div class="meta-item"><span class="meta-label">Phone / தொலைபேசி:</span> {escape(m.phone)}</div>
-          <div class="meta-item"><span class="meta-label">Area / பகுதி:</span> {escape(m.area)}</div>
-          <div class="meta-item"><span class="meta-label">Email / மின்னஞ்சல்:</span> {escape(m.email or 'N/A')}</div>
-          <div class="meta-item"><span class="meta-label">Date of Birth / பிறந்த தேதி:</span> {dob_str}</div>
-          <div class="meta-item"><span class="meta-label">Gender / பாலினம்:</span> {escape(m.gender or 'N/A')}</div>
-          <div class="meta-item"><span class="meta-label">Occupation / தொழில்:</span> {escape(m.occupation or 'N/A')}</div>
+          <div class="meta-item"><span class="meta-label">{"Full Name:" if is_en else "பெயர்:"}</span> {escape(m.name)}</div>
+          <div class="meta-item"><span class="meta-label">{"Submitted On:" if is_en else "சமர்ப்பிக்கப்பட்ட தேதி:"}</span> {submitted_date_str}</div>
+          <div class="meta-item"><span class="meta-label">{"Phone:" if is_en else "தொலைபேசி:"}</span> {escape(m.phone)}</div>
+          <div class="meta-item"><span class="meta-label">{"Area:" if is_en else "பகுதி:"}</span> {escape(m.area)}</div>
+          <div class="meta-item"><span class="meta-label">{"Email:" if is_en else "மின்னஞ்சல்:"}</span> {escape(m.email or 'N/A')}</div>
+          <div class="meta-item"><span class="meta-label">{"Date of Birth:" if is_en else "பிறந்த தேதி:"}</span> {dob_str}</div>
+          <div class="meta-item"><span class="meta-label">{"Gender:" if is_en else "பாலினம்:"}</span> {escape(m.gender or 'N/A')}</div>
+          <div class="meta-item"><span class="meta-label">{"Occupation:" if is_en else "தொழில்:"}</span> {escape(m.occupation or 'N/A')}</div>
         </div>
         
         <div class="content-section">
-          <h3>Residential Address / வீட்டு முகவரி</h3>
+          <h3>{"Residential Address" if is_en else "வீட்டு முகவரி"}</h3>
           <div class="content-text">{escape(m.address or 'N/A')}</div>
         </div>
         
         <div class="content-section">
-          <h3>Interests / ஆர்வங்கள்</h3>
+          <h3>{"Interests" if is_en else "ஆர்வங்கள்"}</h3>
           <div class="content-text" style="text-transform: capitalize;">{escape(m.interests or 'None')}</div>
         </div>
         
         <div class="content-section">
-          <h3>Application Status & Notes / விண்ணப்ப நிலை மற்றும் குறிப்புகள்</h3>
+          <h3>{"Application Status & Notes" if is_en else "விண்ணப்ப நிலை மற்றும் குறிப்புகள்"}</h3>
           <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 10px;">
             <div>
               <span class="status-badge {'status-approved' if m.status == 'approved' else 'status-rejected' if m.status == 'rejected' else 'status-pending'}">
@@ -849,8 +945,7 @@ def membership_print_view(request, member_id):
         </div>
         
         <div class="footer">
-          Tamilaga Vettri Kazhagam - Tiruppur South District Office. Generated electronically.<br>
-          சிறந்த தமிழ்நாட்டிற்கான மக்கள் சக்தி - தமிழக வெற்றிக் கழகம்
+          {"Tamilaga Vettri Kazhagam - Tiruppur South District Office. Generated electronically." if is_en else "சிறந்த தமிழ்நாட்டிற்கான மக்கள் சக்தி - தமிழக வெற்றிக் கழகம்"}
         </div>
         
         <script>

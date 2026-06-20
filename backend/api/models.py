@@ -85,18 +85,31 @@ class Petition(models.Model):
     ]
 
     PROBLEM_CHOICES = [
-        ('Water', 'Water'),
-        ('Road', 'Road'),
-        ('Electricity', 'Electricity'),
-        ('Garbage', 'Garbage'),
-        ('Personal', 'Personal'),
-        ('Others', 'Others'),
+        ('Water', 'Drinking Water / குடிநீர்'),
+        ('Road', 'Road Facilities / சாலை வசதி'),
+        ('StreetLight', 'Street Light / தெருவிளக்கு'),
+        ('Sewage', 'Drainage / Sewage Canal / கழிவுநீர் கால்வாய்'),
+        ('Garbage', 'Sanitation / Garbage Removal / தூய்மை / குப்பை அகற்றுதல்'),
+        ('PublicToilet', 'Public Toilet / பொது கழிப்பறை'),
+        ('Electricity', 'Electricity / மின்சாரம்'),
+        ('Hospital', 'Government Hospital / அரசு மருத்துவமனை'),
+        ('Education', 'School / Education / பள்ளி / கல்வி'),
+        ('Transport', 'Bus Facilities / பேருந்து வசதி'),
+        ('Pension', 'Old Age Pension / முதியோர் உதவித்தொகை'),
+        ('DifferentlyAbled', 'Differently Abled Welfare / மாற்றுத்திறனாளி நலன்'),
+        ('RationShop', 'Ration Shop / ரேஷன் கடை'),
+        ('Revenue', 'Revenue Department / வருவாய் துறை'),
+        ('TASMAC', 'TASMAC Related Issue / டாஸ்மாக் தொடர்பான பிரச்சனை'),
+        ('Safety', 'Women\'s Safety / பெண்கள் பாதுகாப்பு'),
+        ('Others', 'Other Issues / பிற பிரச்சனை'),
     ]
 
     name = models.CharField(max_length=255, verbose_name="Petitioner Name")
     phone = models.CharField(max_length=50, verbose_name="Phone Number")
     email = models.EmailField(verbose_name="Email Address", blank=True, null=True)
-    area = models.CharField(max_length=255, verbose_name="Area / Ward", blank=True)
+    area = models.CharField(max_length=255, verbose_name="Assembly", blank=True)
+    address = models.TextField(verbose_name="Residential Address", default="")
+    google_map_location = models.CharField(max_length=500, verbose_name="Google Map Location", blank=True, null=True)
     problem_type = models.CharField(max_length=50, choices=PROBLEM_CHOICES, default='Others', verbose_name="Problem Type")
     subject = models.CharField(max_length=500, verbose_name="Subject")
     summary = models.TextField(verbose_name="Summary")

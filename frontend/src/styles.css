@@ -309,11 +309,11 @@ img {
   z-index: 3;
   max-width: 100%;
   margin: 0;
-  padding: clamp(28px, 4vw, 56px) clamp(16px, 5vw, 48px);
+  padding: clamp(28px, 4vw, 56px) clamp(16px, 5vw, 48px) clamp(54px, 6vw, 84px);
 }
 
 .hero-lead {
-  color: rgba(255, 248, 220, 0.88);
+  color: rgba(255, 248, 220, 0.98);
   font-size: clamp(1rem, 3.5vw, 1.15rem);
   line-height: 1.6;
   max-width: 780px;
@@ -430,7 +430,7 @@ img {
 
 .stat span {
   display: block;
-  color: rgba(255, 248, 220, 0.74);
+  color: rgba(255, 248, 220, 0.92);
   font-size: 0.86rem;
 }
 
@@ -867,7 +867,7 @@ img {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 20px 16px 24px;
+    padding: 20px 16px 48px;
     margin-top: 0 !important;
   }
 
@@ -4130,6 +4130,8 @@ body.ta .foot-builtby-label {
 .modal-form-group input,
 .modal-form-group select,
 .modal-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
   padding: 11px 14px;
   border: 1.5px solid rgba(90, 12, 18, 0.15);
   border-radius: 8px;

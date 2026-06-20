@@ -61,14 +61,14 @@ class JoinRequestAdmin(admin.ModelAdmin):
 @admin.register(Petition)
 class PetitionAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'area', 'problem_type', 'status', 'is_read', 'submitted_at', 'download_pdf_link', 'share_whatsapp_link')
-    search_fields = ('name', 'phone', 'subject', 'summary', 'email', 'area', 'problem_type')
-    list_filter = ('area',)
+    search_fields = ('name', 'phone', 'subject', 'summary', 'email', 'area', 'problem_type', 'address')
+    list_filter = ('area', 'problem_type', 'status')
     list_editable = ('status', 'is_read')
-    readonly_fields = ('submitted_at', 'photo_preview')
+    readonly_fields = ('submitted_at', 'photo_preview', 'google_map_link')
     
     fieldsets = (
         ('Petitioner Information', {
-            'fields': ('name', 'phone', 'email', 'area')
+            'fields': ('name', 'phone', 'email', 'area', 'address', 'google_map_location', 'google_map_link')
         }),
         ('Petition Details', {
             'fields': ('problem_type', 'subject', 'summary')
@@ -88,6 +88,12 @@ class PetitionAdmin(admin.ModelAdmin):
     def share_whatsapp_link(self, obj):
         return format_html('<a class="button" href="/api/petitions/{}/share/" target="_blank" style="background-color: #25D366; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 0.85rem; border-color: #25D366;">Share</a>', obj.id)
     share_whatsapp_link.short_description = 'Share'
+
+    def google_map_link(self, obj):
+        if obj.google_map_location:
+            return format_html('<a href="{}" target="_blank" style="background-color: #25D366; color: white; padding: 5px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 0.85rem;">📍 Open in Google Maps</a>', obj.google_map_location)
+        return "No location provided"
+    google_map_link.short_description = "Google Map Link"
 
     def photo_preview(self, obj):
         if obj.photo_data:

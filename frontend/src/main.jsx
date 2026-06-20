@@ -375,7 +375,7 @@ function Header({ lang, setLang, setShowTrackModal, setShowJoinModal, setShowCon
           {lang === 'en' ? 'Track Petition' : 'மனுவைத் தேட'}
         </button>
         <a 
-          href="https://tvk.world/register" 
+          href="https://tvk.family/" 
           target="_blank" 
           rel="noopener noreferrer"
           style={{ background: '#ffd84a', color: '#3f0608', padding: '8px 16px', borderRadius: '20px', marginLeft: '10px', fontWeight: 'bold' }}
@@ -416,7 +416,7 @@ function Header({ lang, setLang, setShowTrackModal, setShowJoinModal, setShowCon
               {lang === 'en' ? 'Track Petition' : 'மனுவைக் கண்காணிக்க'}
             </a>
             <a 
-              href="https://tvk.world/register" 
+              href="https://tvk.family/" 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => setOpen(false)} 
@@ -1044,7 +1044,7 @@ function QuickActions({ lang, setShowPetitionModal, setShowJoinModal, setShowCon
       </div>
 
       <div className="quick-action-card">
-        <h4>{isEn ? "Contact Us" : "தொடர்பu கொள்ள"}</h4>
+        <h4>{isEn ? "Contact Us" : "தொடர்பு கொள்ள"}</h4>
         <p>
           {isEn
             ? "Have questions or need support? Reach out to our Tiruppur South district office."
@@ -1077,23 +1077,24 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [area, setArea] = useState("Udumalpet");
+  const [address, setAddress] = useState("");
+  const [googleMapLocation, setGoogleMapLocation] = useState("");
   const [problemType, setProblemType] = useState("Water");
   const [subject, setSubject] = useState("");
   const [summary, setSummary] = useState("");
   const [photoData, setPhotoData] = useState("");
   const [photoName, setPhotoName] = useState("");
   const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
+  const [gpsError, setGpsError] = useState("");
   const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
-
-  const isEn = lang === 'en';
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert(isEn ? "File size must be less than 5MB." : "கோப்பின் அளவு 5MB க்கும் குறைவாக இருக்க வேண்டும்.");
+        alert("File size must be less than 5MB. / கோப்பின் அளவு 5MB க்கும் குறைவாக இருக்க வேண்டும்.");
         return;
       }
       const reader = new FileReader();
@@ -1111,16 +1112,44 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleGetCurrentLocation = () => {
+    setGpsError("");
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+          setGoogleMapLocation(mapLink);
+        },
+        (error) => {
+          console.error("GPS error:", error);
+          setGpsError(
+            "Unable to retrieve location. Please allow location access in your settings, or paste the link manually. / இருப்பிடத்தைப் பெற முடியவில்லை. தயவுசெய்து இருப்பிட அனுமதியை வழங்கவும் அல்லது இணைப்பை கைமுறையாக ஒட்டவும்."
+          );
+        }
+      );
+    } else {
+      setGpsError(
+        "Geolocation is not supported by your browser. / உங்கள் உலாவியில் புவிஇருப்பிட (Geolocation) வசதி ஆதரிக்கப்படவில்லை."
+      );
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const cleanPhone = phone.replace(/\D/g, '');
     if (cleanPhone.length < 10) {
-      alert(isEn ? "Please enter a valid 10-digit phone number." : "தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.");
+      alert("Please enter a valid 10-digit phone number. / தயவுசெய்து செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும்.");
+      return;
+    }
+
+    if (!address.trim()) {
+      alert("Address is required. / வீட்டு முகவரி தேவை.");
       return;
     }
 
     if (!photoData) {
-      alert(isEn ? "Please upload a required photo or PDF document." : "தயவுசெய்து தேவையான புகைப்படம் அல்லது PDF ஆவணத்தை பதிவேற்றவும்.");
+      alert("Please upload a required photo or PDF document. / தயவுசெய்து தேவையான புகைப்படம் அல்லது PDF ஆவணத்தை பதிவேற்றவும்.");
       return;
     }
 
@@ -1133,6 +1162,8 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
         phone: cleanPhone,
         email,
         area,
+        address,
+        google_map_location: googleMapLocation,
         problem_type: problemType,
         subject,
         summary: summary || subject,
@@ -1147,11 +1178,14 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
         setPhone('');
         setEmail('');
         setArea('Udumalpet');
+        setAddress('');
+        setGoogleMapLocation('');
         setProblemType('Water');
         setSubject('');
         setSummary('');
         setPhotoData('');
         setPhotoName('');
+        setGpsError('');
       })
       .catch((err) => {
         console.error(err);
@@ -1201,46 +1235,42 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
 
             {/* Success text */}
             <h3 className="petition-submitted-title">
-              {isEn ? "Petition Submitted!" : "மனு சமர்ப்பிக்கப்பட்டது!"}
+              Petition Submitted! / மனு சமர்ப்பிக்கப்பட்டது!
             </h3>
             <p className="petition-submitted-sub">
-              {isEn
-                ? "Thank you! Your petition has been recorded. You can track its status using your phone number."
-                : "நன்றி! உங்கள் மனு பதிவு செய்யப்பட்டுள்ளது. உங்கள் தொலைபேசி எண்ணைப் பயன்படுத்தி அதன் நிலையை நீங்கள் கண்காணிக்கலாம்."}
+              Thank you! Your petition has been recorded. You can track its status using your phone number. / நன்றி! உங்கள் மனு பதிவு செய்யப்பட்டுள்ளது. உங்கள் தொலைபேசி எண்ணைப் பயன்படுத்தி அதன் நிலையை நீங்கள் கண்காணிக்கலாம்.
             </p>
             <button
               className="petition-submitted-close"
               onClick={() => { setStatus(null); onClose(); }}
             >
-              {isEn ? "✓ Done" : "✓ முடிந்தது"}
+              ✓ Done / ✓ முடிந்தது
             </button>
           </div>
         ) : (
           <>
             <h3 className="track-modal-title" style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '6px' }}>
-              {isEn ? "Submit Your Petition" : "உங்கள் மனுவைச் சமர்ப்பிக்கவும்"}
+              Submit Your Petition / உங்கள் மனுவைச் சமர்ப்பிக்கவும்
             </h3>
             <p className="track-modal-subtitle" style={{ textAlign: 'center', marginBottom: '24px' }}>
-              {isEn 
-                ? "Submit local or personal grievances directly to the party." 
-                : "உள்ளூர் அல்லது தனிப்பட்ட குறைகளை நேரடியாக கட்சியிடம் சமர்ப்பிக்கவும்."}
+              Submit local or personal grievances directly to the party. / உள்ளூர் அல்லது தனிப்பட்ட குறைகளை நேரடியாக கட்சியிடம் சமர்ப்பிக்கவும்.
             </p>
 
             <form onSubmit={handleSubmit}>
               <div className="modal-form-group">
-                <label>{isEn ? "Your Full Name *" : "உங்கள் முழு பெயர் *"}</label>
+                <label>Your Full Name * / உங்கள் முழு பெயர் *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={isEn ? "Enter name" : "பெயரை உள்ளிடவும்"}
+                  placeholder="Enter name / பெயரை உள்ளிடவும்"
                 />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="modal-form-group">
-                  <label>{isEn ? "Phone Number *" : "தொலைபேசி எண் *"}</label>
+                  <label>Phone Number * / தொலைபேசி எண் *</label>
                   <input
                     type="tel"
                     required
@@ -1248,64 +1278,128 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
                     maxLength="10"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                    placeholder={isEn ? "10-digit number" : "10-இலக்க எண்"}
+                    placeholder="10-digit number / 10-இலக்க எண்"
                   />
                 </div>
                 <div className="modal-form-group">
-                  <label>{isEn ? "Email Address" : "மின்னஞ்சல் முகவரி"}</label>
+                  <label>Email Address / மின்னஞ்சல் முகவரி</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={isEn ? "Optional" : "விருப்பத்திற்குரியது"}
+                    placeholder="Optional / விருப்பத்திற்குரியது"
                   />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="modal-form-group">
-                  <label>{isEn ? "Area / Ward *" : "பகுதி / வார்டு *"}</label>
+                  <label>Assembly * / சட்டமன்ற தொகுதி *</label>
                   <select value={area} onChange={(e) => setArea(e.target.value)}>
                     <option value="Udumalpet">Udumalpet (உடுமலைப்பேட்டை)</option>
                     <option value="Madathukkulam">Madathukkulam (மடத்துக்குளம்)</option>
                   </select>
                 </div>
                 <div className="modal-form-group">
-                  <label>{isEn ? "Type of Problem *" : "பிரச்சனை வகை *"}</label>
+                  <label>Type of Problem * / பிரச்சனை வகை *</label>
                   <select value={problemType} onChange={(e) => setProblemType(e.target.value)}>
-                    <option value="Water">Water (குடிநீர்)</option>
-                    <option value="Road">Road (சாலை)</option>
-                    <option value="Electricity">Electricity (மின்சாரம்)</option>
-                    <option value="Garbage">Garbage (கழிவுநீர் / குப்பை)</option>
-                    <option value="Personal">Personal (தனிப்பட்ட)</option>
-                    <option value="Others">Others (இதர)</option>
+                    <option value="Water">Drinking Water / குடிநீர்</option>
+                    <option value="Road">Road Facilities / சாலை வசதி</option>
+                    <option value="StreetLight">Street Light / தெருவிளக்கு</option>
+                    <option value="Sewage">Drainage / Sewage Canal / கழிவுநீர் கால்வாய்</option>
+                    <option value="Garbage">Sanitation / Garbage Removal / தூய்மை / குப்பை அகற்றுதல்</option>
+                    <option value="PublicToilet">Public Toilet / பொது கழிப்பறை</option>
+                    <option value="Electricity">Electricity / மின்சாரம்</option>
+                    <option value="Hospital">Government Hospital / அரசு மருத்துவமனை</option>
+                    <option value="Education">School / Education / பள்ளி / கல்வி</option>
+                    <option value="Transport">Bus Facilities / பேருந்து வசதி</option>
+                    <option value="Pension">Old Age Pension / முதியோர் உதவித்தொகை</option>
+                    <option value="DifferentlyAbled">Differently Abled Welfare / மாற்றுத்திறனாளி நலன்</option>
+                    <option value="RationShop">Ration Shop / ரேஷன் கடை</option>
+                    <option value="Revenue">Revenue Department / வருவாய் துறை</option>
+                    <option value="TASMAC">TASMAC Related Issue / டாஸ்மாக் தொடர்பான பிரச்சனை</option>
+                    <option value="Safety">Women's Safety / பெண்கள் பாதுகாப்பு</option>
+                    <option value="Others">Other Issues / பிற பிரச்சனை</option>
                   </select>
                 </div>
               </div>
 
               <div className="modal-form-group">
-                <label>{isEn ? "Subject / Issue Title *" : "தலைப்பு / பிரச்சனை *"}</label>
+                <label>Residential Address * / வீட்டு முகவரி *</label>
+                <textarea
+                  required
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Enter your complete residential address / உங்கள் முழு வீட்டு முகவரியை உள்ளிடவும்"
+                  rows={2}
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>Location from Google Map / கூகுள் மேப் இடம்</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={googleMapLocation}
+                    onChange={(e) => setGoogleMapLocation(e.target.value)}
+                    placeholder="Paste Google Map link or coordinates (lat,lng) / கூகுள் மேப் இணைப்பு அல்லது ஒருங்கிணைப்புகளை ஒட்டவும் (lat,lng)"
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGetCurrentLocation}
+                    className="primary-btn"
+                    style={{
+                      padding: '0 12px',
+                      minHeight: '44px',
+                      fontSize: '0.85rem',
+                      whiteSpace: 'nowrap',
+                      background: 'linear-gradient(135deg, #ffd84a 0%, #f3ad20 100%)',
+                      color: '#3f0608',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                      border: 'none',
+                      borderRadius: '10px'
+                    }}
+                  >
+                    📍 Get GPS / ஜிபிஎஸ் பெற
+                  </button>
+                </div>
+                <small style={{ fontSize: '0.78rem', color: '#ffd84a99', marginTop: '2px' }}>
+                  Use 'Get GPS' to fetch your current location or paste a Google Maps share link. / தற்போதைய இடத்தைப் பெற 'ஜிபிஎஸ் பெற' பயன்படுத்தவும் அல்லது கூகுள் மேப் இணைப்பை ஒட்டவும்.
+                </small>
+                {gpsError && (
+                  <div style={{ color: '#E53E3E', fontSize: '0.82rem', marginTop: '6px', textAlign: 'left', fontWeight: '500', lineHeight: '1.4' }}>
+                    ⚠️ {gpsError}
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-form-group">
+                <label>Subject / Issue Title * / தலைப்பு / பிரச்சனை *</label>
                 <input
                   type="text"
                   required
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder={isEn ? "Brief title of the issue" : "பிரச்சனையின் சுருக்கமான தலைப்பு"}
+                  placeholder="Brief title of the issue / பிரச்சனையின் சுருக்கமான தலைப்பு"
                 />
               </div>
 
               <div className="modal-form-group">
-                <label>{isEn ? "Summary / Details" : "மனுவின் விவரம்"}</label>
+                <label>Summary / Details / மனுவின் விவரம்</label>
                 <textarea
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
-                  placeholder={isEn ? "Explain the problem in detail (optional)..." : "பிரச்சனையை விரிவாக விளக்கவும் (விருப்பத்திற்குரியது)..."}
+                  placeholder="Explain the problem in detail (optional)... / பிரச்சனையை விரிவாக விளக்கவும் (விருப்பத்திற்குரியது)..."
                   rows={3}
                 />
               </div>
 
               <div className="modal-form-group">
-                <label>{isEn ? "Upload Photo or PDF *" : "படம் அல்லது PDF பதிவேற்றவும் *"}</label>
+                <label>Upload Photo or PDF * / படம் அல்லது PDF பதிவேற்றவும் *</label>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1316,8 +1410,8 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
                 {!photoData ? (
                   <div className="modal-file-drop" onClick={() => fileInputRef.current?.click()}>
                     <span className="modal-file-drop-icon">📁</span>
-                    <span className="modal-file-drop-text">{isEn ? "Click to Upload Image or PDF (Max 5MB)" : "படம் அல்லது PDF பதிவேற்ற கிளிக் செய்யவும்"}</span>
-                    <span className="modal-file-drop-subtext">{isEn ? "Supported: JPG, PNG, PDF" : "ஆதரவு: JPG, PNG, PDF"}</span>
+                    <span className="modal-file-drop-text">Click to Upload Image or PDF (Max 5MB) / படம் அல்லது PDF பதிவேற்ற கிளிக் செய்யவும்</span>
+                    <span className="modal-file-drop-subtext">Supported: JPG, PNG, PDF / ஆதரவு: JPG, PNG, PDF</span>
                   </div>
                 ) : (
                   <div className="modal-file-preview">
@@ -1333,13 +1427,13 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
                 style={{ width: '100%', marginTop: '8px' }}
                 disabled={status === 'submitting'}
               >
-                {status === 'submitting' 
-                  ? (isEn ? "Submitting..." : "சமர்ப்பிக்கப்படுகிறது...") 
-                  : (isEn ? "Submit Petition" : "மனுவைச் சமர்ப்பிக்கவும்")}
+                {status === 'submitting'
+                  ? "Submitting... / சமர்ப்பிக்கப்படுகிறது..."
+                  : "Submit Petition / மனுவைச் சமர்ப்பிக்கவும்"}
               </button>
               {status === 'error' && (
                 <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginTop: '10px', textAlign: 'center' }}>
-                  {isEn ? "❌ Something went wrong. Please try again." : "❌ பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்."}
+                  ❌ Something went wrong. Please try again. / ❌ பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.
                 </div>
               )}
             </form>
@@ -2466,6 +2560,7 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
 }
 
 function AdminPanel({ lang }) {
+  const isEn = lang === 'en';
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!sessionStorage.getItem('tvkAdminLogged'));
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -2635,9 +2730,10 @@ function AdminPanel({ lang }) {
   };
 
   const handleDownloadMemberPDF = (m) => {
+    const isEn = true;
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     if (!printWindow) {
-      alert(lang === 'en' ? "Please allow popups to download/print." : "பதிவிறக்க பாப்-அப்களை அனுமதிக்கவும்.");
+      alert(isEn ? "Please allow popups to download/print." : "பதிவிறக்க பாப்-அப்களை அனுமதிக்கவும்.");
       return;
     }
     
@@ -2650,14 +2746,14 @@ function AdminPanel({ lang }) {
       </div>
     ` : `
       <div style="text-align: center; margin-bottom: 25px;">
-        <div style="width: 150px; height: 150px; border-radius: 50%; border: 3px dashed #cbd5e0; display: inline-flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: bold; font-size: 14px;">No Photo</div>
+        <div style="width: 150px; height: 150px; border-radius: 50%; border: 3px dashed #cbd5e0; display: inline-flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: bold; font-size: 14px;">${isEn ? 'No Photo' : 'படம் இல்லை'}</div>
       </div>
     `;
     
     const htmlContent = `
       <html>
         <head>
-          <title>TVK Membership Card #${m.id} - ${m.name}</title>
+          <title>${isEn ? `TVK Membership Card #${m.id} - ${m.name}` : `தமிழக வெற்றிக் கழக உறுப்பினர் சேர்க்கை படிவம் #${m.id} - ${m.name}`}</title>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
           <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Instrument+Sans:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -2788,13 +2884,13 @@ function AdminPanel({ lang }) {
         </head>
         <body>
           <div class="no-print" style="margin-bottom: 20px; text-align: right;">
-            <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
-            <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">Close Window</button>
+            <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">${isEn ? 'Print / Save as PDF' : 'அச்சிடு / PDF ஆக சேமி'}</button>
+            <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">${isEn ? 'Close Window' : 'சாளரத்தை மூடு'}</button>
           </div>
           
           <div class="header">
             <h1>TAMILAGA VETTRI KAZHAGAM</h1>
-            <h2>Tiruppur South District Committee | திருப்பூர் தெற்கு மாவட்ட அமைப்பு</h2>
+            <h2>${isEn ? 'Tiruppur South District Committee' : 'திருப்பூர் தெற்கு மாவட்ட அமைப்பு'}</h2>
             <div style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;" class="pdf-leaders">
               <img src="/assets/branding/thalaivar-cutout.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
               <img src="/assets/leaders/kamarajar-thumbnail.png" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd84a; object-fit: cover;" />
@@ -2806,34 +2902,34 @@ function AdminPanel({ lang }) {
           </div>
           
           <h2 class="petition-title">
-            MEMBERSHIP APPLICATION / உறுப்பினர் சேர்க்கை படிவம் - #${m.id}
+            ${isEn ? `MEMBERSHIP APPLICATION - #${m.id}` : `உறுப்பினர் சேர்க்கை படிவம் - #${m.id}`}
           </h2>
           
           ${photoHtml}
           
           <div class="petition-meta">
-            <div class="meta-item"><span class="meta-label">Full Name / பெயர்:</span> ${m.name}</div>
-            <div class="meta-item"><span class="meta-label">Submitted On / சமர்ப்பிக்கப்பட்ட தேதி:</span> ${submittedDateStr}</div>
-            <div class="meta-item"><span class="meta-label">Phone / தொலைபேசி:</span> ${m.phone}</div>
-            <div class="meta-item"><span class="meta-label">Area / பகுதி:</span> ${m.area}</div>
-            <div class="meta-item"><span class="meta-label">Email / மின்னஞ்சல்:</span> ${m.email || 'N/A'}</div>
-            <div class="meta-item"><span class="meta-label">Date of Birth / பிறந்த தேதி:</span> ${dobStr}</div>
-            <div class="meta-item"><span class="meta-label">Gender / பாலினம்:</span> ${m.gender || 'N/A'}</div>
-            <div class="meta-item"><span class="meta-label">Occupation / தொழில்:</span> ${m.occupation || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Full Name:' : 'பெயர்:'}</span> ${m.name}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Submitted On:' : 'சமர்ப்பிக்கப்பட்ட தேதி:'}</span> ${submittedDateStr}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Phone:' : 'தொலைபேசி:'}</span> ${m.phone}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Area:' : 'பகுதி:'}</span> ${m.area}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Email:' : 'மின்னஞ்சல்:'}</span> ${m.email || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Date of Birth:' : 'பிறந்த தேதி:'}</span> ${dobStr}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Gender:' : 'பாலினம்:'}</span> ${m.gender || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">${isEn ? 'Occupation:' : 'தொழில்:'}</span> ${m.occupation || 'N/A'}</div>
           </div>
           
           <div class="content-section">
-            <h3>Residential Address / வீட்டு முகவரி</h3>
+            <h3>${isEn ? 'Residential Address' : 'வீட்டு முகவரி'}</h3>
             <div class="content-text">${m.address || 'N/A'}</div>
           </div>
           
           <div class="content-section">
-            <h3>Interests / ஆர்வங்கள்</h3>
+            <h3>${isEn ? 'Interests' : 'ஆர்வங்கள்'}</h3>
             <div class="content-text" style="text-transform: capitalize;">${m.interests || 'None'}</div>
           </div>
           
           <div class="content-section">
-            <h3>Application Status & Notes / விண்ணப்ப நிலை மற்றும் குறிப்புகள்</h3>
+            <h3>${isEn ? 'Application Status & Notes' : 'விண்ணப்ப நிலை மற்றும் குறிப்புகள்'}</h3>
             <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 10px;">
               <div>
                 <span class="status-badge ${m.status === 'approved' ? 'status-approved' : m.status === 'rejected' ? 'status-rejected' : 'status-pending'}">
@@ -2845,8 +2941,7 @@ function AdminPanel({ lang }) {
           </div>
           
           <div class="footer">
-            Tamilaga Vettri Kazhagam - Tiruppur South District Office. Generated electronically.<br>
-            சிறந்த தமிழ்நாட்டிற்கான மக்கள் சக்தி - தமிழக வெற்றிக் கழகம்
+            ${isEn ? 'Tamilaga Vettri Kazhagam - Tiruppur South District Office. Generated electronically.' : 'சிறந்த தமிழ்நாட்டிற்கான மக்கள் சக்தி - தமிழக வெற்றிக் கழகம்'}
           </div>
         </body>
       </html>
@@ -2869,16 +2964,79 @@ function AdminPanel({ lang }) {
   const handleDownloadPDF = (p) => {
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     if (!printWindow) {
-      alert(lang === 'en' ? "Please allow popups to download/print." : "மனுவைப் பதிவிறக்க பாப்-அப்களை அனுமதிக்கவும்.");
+      alert("Please allow popups to download/print. / மனுவைப் பதிவிறக்க பாப்-அப்களை அனுமதிக்கவும்.");
       return;
     }
     
     const submittedDateStr = new Date(p.submitted_at).toLocaleDateString();
     
+    let googleMapHtml = '';
+    if (p.google_map_location) {
+      const url = p.google_map_location;
+      let lat = null, lng = null;
+      
+      const qMatch = url.match(/[?&]q=([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/);
+      if (qMatch) {
+        lat = parseFloat(qMatch[1]);
+        lng = parseFloat(qMatch[2]);
+      } else {
+        const atMatch = url.match(/@([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/);
+        if (atMatch) {
+          lat = parseFloat(atMatch[1]);
+          lng = parseFloat(atMatch[2]);
+        } else {
+          const placeMatch = url.match(/\/place\/([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/);
+          if (placeMatch) {
+            lat = parseFloat(placeMatch[1]);
+            lng = parseFloat(placeMatch[2]);
+          }
+        }
+      }
+      
+      if (lat !== null && lng !== null) {
+        const minLon = lng - 0.005;
+        const minLat = lat - 0.005;
+        const maxLon = lng + 0.005;
+        const maxLat = lat + 0.005;
+        googleMapHtml = `
+          <div class="content-section" style="margin-top: 30px;">
+            <h3>Location Map / இருப்பிட வரைபடம்</h3>
+            <div style="border: 1.5px solid rgba(90, 12, 18, 0.12); border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+              <iframe 
+                width="100%" 
+                height="320" 
+                frameborder="0" 
+                scrolling="no" 
+                marginheight="0" 
+                marginwidth="0" 
+                src="https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&amp;layer=mapnik&amp;marker=${lat}%2C${lng}" 
+                style="border: none; display: block;">
+              </iframe>
+            </div>
+            <div style="margin-top: 10px; text-align: right;">
+              <a href="${url}" target="_blank" style="color: #5a0c12; font-weight: bold; text-decoration: underline; font-size: 13px;">📍 Open in Google Maps / கூகுள் மேப்பில் திறக்கவும்</a>
+            </div>
+          </div>
+        `;
+      } else {
+        googleMapHtml = `
+          <div class="content-section" style="margin-top: 30px;">
+            <h3>Location Map / இருப்பிட வரைபடம்</h3>
+            <div style="padding: 20px; border: 1.5px dashed rgba(90, 12, 18, 0.15); border-radius: 8px; text-align: center; color: #746464; font-size: 14px;">
+              Map preview not available. Please click the link to view the location. / வரைபட முன்னோட்டம் கிடைக்கவில்லை. இருப்பிடத்தைக் காண இணைப்பைக் கிளிக் செய்யவும்.
+            </div>
+            <div style="margin-top: 10px; text-align: right;">
+              <a href="${url}" target="_blank" style="color: #5a0c12; font-weight: bold; text-decoration: underline; font-size: 13px;">📍 Open in Google Maps / கூகுள் மேப்பில் திறக்கவும்</a>
+            </div>
+          </div>
+        `;
+      }
+    }
+
     const htmlContent = `
       <html>
         <head>
-          <title>TVK Petition #${p.id} - ${p.name}</title>
+          <title>TVK Petition / மக்கள் மனு #${p.id} - ${p.name}</title>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
           <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Instrument+Sans:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -3008,8 +3166,8 @@ function AdminPanel({ lang }) {
         </head>
         <body>
           <div class="no-print" style="margin-bottom: 20px; text-align: right;">
-            <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF</button>
-            <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">Close Window</button>
+            <button onclick="window.print();" style="background: #5a0c12; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Print / Save as PDF | அச்சிடு / PDF ஆக சேமி</button>
+            <button onclick="window.close();" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 6px; margin-left: 10px; cursor: pointer;">Close Window | சாளரத்தை மூடு</button>
           </div>
           
           <div class="header">
@@ -3033,9 +3191,14 @@ function AdminPanel({ lang }) {
             <div class="meta-item"><span class="meta-label">Petitioner Name / பெயர்:</span> ${p.name}</div>
             <div class="meta-item"><span class="meta-label">Submitted On / சமர்ப்பிக்கப்பட்ட தேதி:</span> ${submittedDateStr}</div>
             <div class="meta-item"><span class="meta-label">Phone / தொலைபேசி:</span> ${p.phone}</div>
-            <div class="meta-item"><span class="meta-label">Area / பகுதி:</span> ${p.area || 'N/A'}</div>
+            <div class="meta-item"><span class="meta-label">Assembly / சட்டமன்ற தொகுதி:</span> ${p.area || 'N/A'}</div>
             <div class="meta-item"><span class="meta-label">Email / மின்னஞ்சல்:</span> ${p.email || 'N/A'}</div>
             <div class="meta-item"><span class="meta-label">Problem Type / பிரச்சனை வகை:</span> ${p.problem_type}</div>
+            <div class="meta-item" style="grid-column: span 2;"><span class="meta-label">Address / வீட்டு முகவரி:</span> ${p.address || 'N/A'}</div>
+            <div class="meta-item" style="grid-column: span 2;">
+              <span class="meta-label">Google Map Location / கூகுள் மேப் இடம்:</span> 
+              ${p.google_map_location ? `<a href="${p.google_map_location}" target="_blank" style="color: #5a0c12; font-weight: bold; text-decoration: underline;">${p.google_map_location}</a>` : 'N/A'}
+            </div>
           </div>
           
           <div class="content-section">
@@ -3056,6 +3219,8 @@ function AdminPanel({ lang }) {
               </span>
             </div>
           </div>
+
+          ${googleMapHtml}
 
           ${p.photo_data && !p.photo_data.startsWith('data:application/pdf') ? `
           <div class="content-section" style="page-break-before: always; margin-top: 30px;">
@@ -3576,17 +3741,17 @@ function AdminPanel({ lang }) {
 
               <div className="member-detail-right">
                 <div className="detail-section">
-                  <h4>Residential Address / வீட்டு முகவரி</h4>
+                  <h4>Residential Address</h4>
                   <p className="detail-value address-box">{selectedMember.address || 'N/A'}</p>
                 </div>
 
                 <div className="detail-section">
-                  <h4>Ward or Area / பகுதி</h4>
+                  <h4>Ward or Area</h4>
                   <p className="detail-value">{selectedMember.area}</p>
                 </div>
 
                 <div className="detail-section">
-                  <h4>Interests / ஆர்வமுள்ள துறைகள்</h4>
+                  <h4>Interests</h4>
                   <p className="detail-value text-capitalize">
                     {selectedMember.interests ? selectedMember.interests.split(', ').join(', ') : 'None'}
                   </p>
@@ -3598,14 +3763,14 @@ function AdminPanel({ lang }) {
                     className="primary-btn" 
                     style={{ flex: 1, background: '#ffd84a', color: '#3f0608', borderColor: '#ffd84a' }}
                   >
-                    Download PDF / பிடிஎப் ஆக டவுன்லோட்
+                    Download PDF
                   </button>
                   <button 
                     onClick={() => handleShareMember(selectedMember)} 
                     className="primary-btn" 
                     style={{ flex: 1, background: '#25D366', color: '#fff', borderColor: '#25D366' }}
                   >
-                    Share Application / வாட்ஸ்அப்பில் பகிர்
+                    Share Application
                   </button>
                 </div>
 
@@ -3665,42 +3830,61 @@ function AdminPanel({ lang }) {
             <button className="admin-modal-close" onClick={() => setSelectedPetition(null)}>
               <X size={24} />
             </button>
-            <h3 className="petition-modal-title">Petition Details / மனு விபரம்</h3>
+            <h3 className="petition-modal-title">Petition Details</h3>
             <div className="petition-detail-body">
               <div className="p-detail-item">
-                <span className="p-label">Petitioner / மனுதாரர்:</span>
+                <span className="p-label">Petitioner:</span>
                 <span className="p-val">{selectedPetition.name}</span>
               </div>
               <div className="p-detail-item">
-                <span className="p-label">Phone / தொலைபேசி:</span>
+                <span className="p-label">Phone:</span>
                 <span className="p-val">{selectedPetition.phone}</span>
               </div>
               <div className="p-detail-item">
-                <span className="p-label">Email / மின்னஞ்சல்:</span>
+                <span className="p-label">Email:</span>
                 <span className="p-val">{selectedPetition.email || 'N/A'}</span>
               </div>
               <div className="p-detail-item">
-                <span className="p-label">Area / பகுதி:</span>
+                <span className="p-label">Assembly:</span>
                 <span className="p-val">{selectedPetition.area || 'N/A'}</span>
               </div>
+              <div className="p-detail-item" style={{ gridColumn: 'span 2' }}>
+                <span className="p-label">Address:</span>
+                <span className="p-val" style={{ display: 'block', whiteSpace: 'pre-wrap' }}>{selectedPetition.address || 'N/A'}</span>
+              </div>
+              <div className="p-detail-item" style={{ gridColumn: 'span 2' }}>
+                <span className="p-label">Google Map Location:</span>
+                <span className="p-val">
+                  {selectedPetition.google_map_location ? (
+                    <a 
+                      href={selectedPetition.google_map_location} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      style={{ color: '#5a0c12', fontWeight: 'bold', textDecoration: 'underline' }}
+                    >
+                      📍 Open in Google Maps
+                    </a>
+                  ) : 'N/A'}
+                </span>
+              </div>
               <div className="p-detail-item">
-                <span className="p-label">Problem Type / பிரச்சனை வகை:</span>
+                <span className="p-label">Problem Type:</span>
                 <span className="p-val" style={{ background: 'rgba(90, 12, 18, 0.08)', color: '#5a0c12', padding: '3px 8px', borderRadius: '4px', fontWeight: 'bold', display: 'inline-block' }}>{selectedPetition.problem_type || 'Others'}</span>
               </div>
               <div className="p-detail-item">
-                <span className="p-label">Subject / தலைப்பு:</span>
+                <span className="p-label">Subject:</span>
                 <span className="p-val">{selectedPetition.subject}</span>
               </div>
-              <div className="p-detail-item">
-                <span className="p-label">Summary / சுருக்கம்:</span>
-                <p className="p-val summary-text-box">{selectedPetition.summary}</p>
+              <div className="p-detail-item" style={{ gridColumn: 'span 2' }}>
+                <span className="p-label">Summary:</span>
+                <p className="p-val summary-text-box" style={{ whiteSpace: 'pre-wrap' }}>{selectedPetition.summary}</p>
               </div>
               <div className="p-detail-item">
-                <span className="p-label">Submitted / சமர்ப்பித்தது:</span>
+                <span className="p-label">Submitted:</span>
                 <span className="p-val">{new Date(selectedPetition.submitted_at).toLocaleString()}</span>
               </div>
-              <div className="p-detail-item" style={{ display: 'block' }}>
-                <span className="p-label" style={{ display: 'block', marginBottom: '6px' }}>Attached File / இணைக்கப்பட்ட கோப்பு:</span>
+              <div className="p-detail-item" style={{ display: 'block', gridColumn: 'span 2' }}>
+                <span className="p-label" style={{ display: 'block', marginBottom: '6px' }}>Attached File:</span>
                 {selectedPetition.photo_data ? (
                   <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-block', maxWidth: '100%' }}>
                     {selectedPetition.photo_data.startsWith('data:application/pdf') ? (
@@ -3713,7 +3897,7 @@ function AdminPanel({ lang }) {
                           className="quick-action-btn primary"
                           style={{ padding: '6px 14px', fontSize: '1.1rem', minHeight: 'auto', maxHeight: '40px', maxWidth: '200px' }}
                         >
-                          Download PDF / பதிவிறக்கு
+                          Download PDF
                         </a>
                       </div>
                     ) : (
@@ -3727,26 +3911,26 @@ function AdminPanel({ lang }) {
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', margin: '20px 0 10px 0' }}>
+              <div style={{ display: 'flex', gap: '10px', margin: '20px 0 10px 0', width: '100%' }}>
                 <button 
                   onClick={() => handleDownloadPDF(selectedPetition)} 
                   className="primary-btn" 
                   style={{ flex: 1, background: '#ffd84a', color: '#3f0608', borderColor: '#ffd84a' }}
                 >
-                  Download PDF / பிடிஎப் ஆக டவுன்லோட்
+                  Download PDF
                 </button>
                 <button 
                   onClick={() => handleSharePetition(selectedPetition)} 
                   className="primary-btn" 
                   style={{ flex: 1, background: '#25D366', color: '#fff', borderColor: '#25D366' }}
                 >
-                  Share Petition / வாட்ஸ்அப்பில் பகிர்
+                  Share Petition
                 </button>
               </div>
 
-              <form onSubmit={handleUpdatePetition} className="admin-update-form" style={{ borderTop: '1px solid rgba(90, 12, 18, 0.1)', paddingTop: '15px' }}>
+              <form onSubmit={handleUpdatePetition} className="admin-update-form" style={{ borderTop: '1px solid rgba(90, 12, 18, 0.1)', paddingTop: '15px', width: '100%' }}>
                 <div className="form-group">
-                  <label>Update Status / மனு நிலைமை</label>
+                  <label>Update Status</label>
                   <select value={petitionStatus} onChange={(e) => setPetitionStatus(e.target.value)}>
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
