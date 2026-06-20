@@ -18,6 +18,7 @@ urlpatterns = [
     path('petitions/<int:petition_id>/share/', views.petition_share_view, name='petition_share_view'),
     path('contacts/', views.contact_list_api, name='contact_list_api'),
     path('contact/submit/', views.contact_submit_api, name='contact_submit_api'),
+    path('leaders/', views.leaders_list_api, name='leaders_list_api'),
     # News management CRUD
     path('news/create/', views.news_create_api, name='news_create_api'),
     path('news/<int:news_id>/update/', views.news_update_api, name='news_update_api'),
@@ -26,4 +27,8 @@ urlpatterns = [
     path('events/create/', views.event_create_api, name='event_create_api'),
     path('events/<int:event_id>/update/', views.event_update_api, name='event_update_api'),
     path('events/<int:event_id>/delete/', views.event_delete_api, name='event_delete_api'),
+    # Leaders management CRUD
+    path('leaders/create/', views.leader_create_api, name='leader_create_api'),
+    path('leaders/<int:leader_id>/update/', views.leader_update_api, name='leader_update_api'),
+    path('leaders/<int:leader_id>/delete/', views.leader_delete_api, name='leader_delete_api'),
 ]

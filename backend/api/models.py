@@ -142,3 +142,24 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.email} - {self.topic} ({self.submitted_at.strftime('%Y-%m-%d')})"
+
+
+class BranchLeader(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Name / பெயர்")
+    constituency = models.CharField(max_length=255, default='மடத்துக்குளம் சட்டமன்ற தொகுதி', verbose_name="Constituency / சட்டமன்ற தொகுதி")
+    branch = models.CharField(max_length=255, verbose_name="Branch / ஒன்றியம் / பேரூராட்சி")
+    phone = models.CharField(max_length=50, verbose_name="Phone Number / தொலைபேசி எண்")
+    email = models.EmailField(verbose_name="Email Address / மின்னஞ்சல் முகவரி", blank=True, null=True)
+    photo_data = models.TextField(verbose_name="Photo (Base64)", blank=True, null=True)
+    photo_name = models.CharField(max_length=255, verbose_name="Photo Filename", blank=True)
+    is_mla_candidate = models.BooleanField(default=False, verbose_name="Is MLA Candidate / சட்டமன்ற வேட்பாளர்")
+    order = models.IntegerField(default=0, verbose_name="Display Order")
+
+    class Meta:
+        verbose_name = "Branch Leader / Candidate"
+        verbose_name_plural = "Branch Leaders & Candidates"
+        ordering = ['-is_mla_candidate', 'order', 'id']
+
+    def __str__(self):
+        role = "MLA Candidate" if self.is_mla_candidate else "Branch Leader"
+        return f"{self.name} - {self.branch} ({role})"

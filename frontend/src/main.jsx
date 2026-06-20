@@ -1054,7 +1054,24 @@ function QuickActions({ lang, setShowPetitionModal, setShowJoinModal, setShowCon
       </div>
 
       <div className="quick-action-card">
-        <h4>{isEn ? "Contact Us" : "தொடர்பு கொள்ள"}</h4>
+        <h4>{isEn ? "Help & Our Team" : "உதவி & எங்களது குழு"}</h4>
+        <p>
+          {isEn
+            ? "Need help? Contact our branch leaders and assembly constituency representatives directly."
+            : "உதவி தேவையா? எங்களது கிளைத் தலைவர்கள் மற்றும் சட்டமன்ற தொகுதிப் பொறுப்பாளர்களைத் தொடர்பு கொள்ளவும்."}
+        </p>
+        <a 
+          href="#our-team" 
+          className="quick-action-btn primary" 
+          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', boxSizing: 'border-box' }}
+        >
+          <Users size={20} />
+          {isEn ? "Contact Us" : "தொடர்பு கொள்ள"}
+        </a>
+      </div>
+
+      <div className="quick-action-card">
+        <h4>{isEn ? "Contact Us" : "செய்தி அனுப்ப"}</h4>
         <p>
           {isEn
             ? "Have questions or need support? Reach out to our Tiruppur South district office."
@@ -4037,10 +4054,23 @@ function ITWingPanel({ lang }) {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('news'); // 'news' | 'events'
+  const [activeTab, setActiveTab] = useState('news'); // 'news' | 'events' | 'leaders'
   const [news, setNews] = useState([]);
   const [events, setEvents] = useState([]);
+  const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Form states for Leaders
+  const [leaderName, setLeaderName] = useState('');
+  const [leaderConstituency, setLeaderConstituency] = useState('மடத்துக்குளம் சட்டமன்ற தொகுதி');
+  const [leaderBranch, setLeaderBranch] = useState('');
+  const [leaderPhone, setLeaderPhone] = useState('');
+  const [leaderEmail, setLeaderEmail] = useState('');
+  const [leaderPhotoData, setLeaderPhotoData] = useState('');
+  const [leaderIsMla, setLeaderIsMla] = useState(false);
+  const [leaderOrder, setLeaderOrder] = useState(1);
+  const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false);
+  const [selectedLeader, setSelectedLeader] = useState(null);
 
   // Modals state
   const [selectedNews, setSelectedNews] = useState(null); // for editing
@@ -4090,10 +4120,26 @@ function ITWingPanel({ lang }) {
     }
   };
 
+  const fetchLeaders = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetch('/api/leaders/');
+      const data = await response.json();
+      if (data.status === 'success') {
+        setLeaders(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchNews();
       fetchEvents();
+      fetchLeaders();
     }
   }, [isLoggedIn]);
 
@@ -4251,6 +4297,80 @@ function ITWingPanel({ lang }) {
     }
   };
 
+  // Leaders Actions
+  const handleOpenLeaderModal = (item = null) => {
+    if (item) {
+      setSelectedLeader(item);
+      setLeaderName(item.name || '');
+      setLeaderConstituency(item.constituency || 'மடத்துக்குளம் சட்டமன்ற தொகுதி');
+      setLeaderBranch(item.branch || '');
+      setLeaderPhone(item.phone || '');
+      setLeaderEmail(item.email || '');
+      setLeaderPhotoData(item.photo_data || '');
+      setLeaderIsMla(item.is_mla_candidate || false);
+      setLeaderOrder(item.order || 0);
+    } else {
+      setSelectedLeader(null);
+      setLeaderName('');
+      setLeaderConstituency('மடத்துக்குளம் சட்டமன்ற தொகுதி');
+      setLeaderBranch('');
+      setLeaderPhone('');
+      setLeaderEmail('');
+      setLeaderPhotoData('');
+      setLeaderIsMla(false);
+      setLeaderOrder(1);
+    }
+    setIsLeaderModalOpen(true);
+  };
+
+  const handleSaveLeader = async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: leaderName,
+      constituency: leaderConstituency,
+      branch: leaderBranch,
+      phone: leaderPhone,
+      email: leaderEmail,
+      photo_data: leaderPhotoData,
+      is_mla_candidate: leaderIsMla,
+      order: leaderOrder
+    };
+
+    const url = selectedLeader ? `/api/leaders/${selectedLeader.id}/update/` : '/api/leaders/create/';
+    try {
+      const response = await apiFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(lang === 'en' ? 'Leader details saved successfully!' : 'பொறுப்பாளர் விபரங்கள் சேமிக்கப்பட்டுவிட்டது!');
+        setIsLeaderModalOpen(false);
+        fetchLeaders();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error saving leader details');
+    }
+  };
+
+  const handleDeleteLeader = async (leaderId) => {
+    if (!window.confirm(lang === 'en' ? 'Are you sure you want to delete this leader?' : 'இந்த பொறுப்பாளரை நீக்க வேண்டுமா?')) return;
+    try {
+      const response = await apiFetch(`/api/leaders/${leaderId}/delete/`, { method: 'POST' });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(lang === 'en' ? 'Leader deleted successfully!' : 'பொறுப்பாளர் நீக்கப்பட்டுவிட்டது!');
+        fetchLeaders();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Base64 helper
   const handleImageUpload = (file, setter) => {
     if (!file) return;
@@ -4375,6 +4495,13 @@ function ITWingPanel({ lang }) {
               <p>Gallery Photos / புகைப்படங்கள்</p>
             </div>
           </div>
+          <div className="admin-stat-card">
+            <span className="stat-icon">👥</span>
+            <div className="stat-details">
+              <h3>{leaders.length}</h3>
+              <p>Leaders & Candidate / பொறுப்பாளர்கள்</p>
+            </div>
+          </div>
         </div>
 
         <div className="admin-tab-bar" style={{ marginBottom: '24px' }}>
@@ -4390,11 +4517,17 @@ function ITWingPanel({ lang }) {
           >
             Gallery (Events) / புகைப்படத் தொகுப்பு
           </button>
+          <button 
+            onClick={() => setActiveTab('leaders')} 
+            className={`admin-tab-btn ${activeTab === 'leaders' ? 'active' : ''}`}
+          >
+            Leaders / கிளைப் பொறுப்பாளர்கள்
+          </button>
         </div>
 
         {activeTab === 'news' && (
           <div className="dashboard-content-panel" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div className="panel-title-bar">
               <h3 style={{ margin: 0, color: '#5a0c12', fontWeight: 'bold' }}>Manage News Updates</h3>
               <button className="primary-btn" onClick={() => handleOpenNewsModal()} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 + Add News / புதிய செய்தி சேர்க்க
@@ -4439,7 +4572,7 @@ function ITWingPanel({ lang }) {
 
         {activeTab === 'events' && (
           <div className="dashboard-content-panel" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div className="panel-title-bar">
               <h3 style={{ margin: 0, color: '#5a0c12', fontWeight: 'bold' }}>Manage Gallery Photos</h3>
               <button className="primary-btn" onClick={() => handleOpenEventModal()} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 + Add Photo / புகைப்படம் சேர்க்க
@@ -4471,6 +4604,71 @@ function ITWingPanel({ lang }) {
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button className="view-details-btn" onClick={() => handleOpenEventModal(ev)}>Edit</button>
                             <button className="view-details-btn" style={{ background: '#e53e3e', color: '#fff', borderColor: '#e53e3e' }} onClick={() => handleDeleteEvent(ev.id)}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'leaders' && (
+          <div className="dashboard-content-panel" style={{ padding: '24px' }}>
+            <div className="panel-title-bar">
+              <h3 style={{ margin: 0, color: '#5a0c12', fontWeight: 'bold' }}>Manage Leaders & Candidates</h3>
+              <button className="primary-btn" onClick={() => handleOpenLeaderModal()} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                + Add Leader / புதியவர் சேர்க்க
+              </button>
+            </div>
+
+            {loading ? <div className="admin-panel-loading">Loading Leaders...</div> : (
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Photo / படம்</th>
+                      <th>Name / பெயர்</th>
+                      <th>Constituency / தொகுதி</th>
+                      <th>Branch / பிரிவு</th>
+                      <th>Phone / தொலைபேசி</th>
+                      <th>Role / வகை</th>
+                      <th>Order / வரிசை</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaders.map(item => (
+                      <tr key={item.id}>
+                        <td>
+                          {item.photo_data ? (
+                            <img src={item.photo_data} alt={item.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '50%', border: '1px solid #ffd84a' }} />
+                          ) : (
+                            <span style={{ fontSize: '1.5rem' }}>👤</span>
+                          )}
+                        </td>
+                        <td><b>{item.name}</b></td>
+                        <td>{item.constituency}</td>
+                        <td>{item.branch}</td>
+                        <td>{item.phone}</td>
+                        <td>
+                          {item.is_mla_candidate ? (
+                            <span style={{ background: '#5a0c12', color: '#ffd84a', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                              MLA Candidate
+                            </span>
+                          ) : (
+                            <span style={{ background: '#edf2f7', color: '#4a5568', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                              Branch Leader
+                            </span>
+                          )}
+                        </td>
+                        <td>{item.order}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="view-details-btn" onClick={() => handleOpenLeaderModal(item)}>Edit</button>
+                            <button className="view-details-btn" style={{ background: '#e53e3e', color: '#fff', borderColor: '#e53e3e' }} onClick={() => handleDeleteLeader(item.id)}>Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -4613,6 +4811,73 @@ function ITWingPanel({ lang }) {
           </div>
         </div>
       )}
+
+      {/* Leader Modal */}
+      {isLeaderModalOpen && (
+        <div className="admin-modal-overlay" onClick={() => setIsLeaderModalOpen(false)}>
+          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <button className="admin-modal-close" onClick={() => setIsLeaderModalOpen(false)}><X size={24} /></button>
+            <h3 style={{ color: '#5a0c12', borderBottom: '2.5px solid #ffd84a', paddingBottom: '10px', marginTop: 0, marginBottom: '20px' }}>
+              {selectedLeader ? 'Edit Leader / பொறுப்பாளர் விவரம் திருத்துக' : 'Add New Leader / புதிய பொறுப்பாளர்'}
+            </h3>
+            <form onSubmit={handleSaveLeader} className="membership-form">
+              <div className="form-group">
+                <label>Name / பெயர்</label>
+                <input type="text" value={leaderName} onChange={e => setLeaderName(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Constituency / சட்டமன்ற தொகுதி</label>
+                <select value={leaderConstituency} onChange={e => setLeaderConstituency(e.target.value)} required style={{ padding: '8px', borderRadius: '6px', border: '1px solid rgba(90, 12, 18, 0.15)' }}>
+                  <option value="மடத்துக்குளம் சட்டமன்ற தொகுதி">மடத்துக்குளம் சட்டமன்ற தொகுதி (Madathukulam Constituency)</option>
+                  <option value="உடுமலை சட்டமன்ற தொகுதி">உடுமலை சட்டமன்ற தொகுதி (Udumalaipettai Constituency)</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Branch / ஒன்றியம் / பேரூராட்சி</label>
+                <input type="text" value={leaderBranch} onChange={e => setLeaderBranch(e.target.value)} placeholder="e.g. ஜமீன்ஊத்துக்குளி பேரூராட்சி" required />
+              </div>
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label>Phone Number / தொலைபேசி</label>
+                  <input type="text" value={leaderPhone} onChange={e => setLeaderPhone(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label>Email Address / மின்னஞ்சல் (Optional)</label>
+                  <input type="email" value={leaderEmail} onChange={e => setLeaderEmail(e.target.value)} />
+                </div>
+              </div>
+              <div className="form-group-row">
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 0' }}>
+                  <input type="checkbox" id="is_mla" checked={leaderIsMla} onChange={e => setLeaderIsMla(e.target.checked)} style={{ width: '20px', height: '20px' }} />
+                  <label htmlFor="is_mla" style={{ margin: 0, cursor: 'pointer' }}>Is MLA Candidate? / சட்டமன்ற வேட்பாளரா?</label>
+                </div>
+                <div className="form-group">
+                  <label>Display Order / வரிசை எண் (0 for top)</label>
+                  <input type="number" value={leaderOrder} onChange={e => setLeaderOrder(parseInt(e.target.value) || 0)} />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Photo Selection (Upload File)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => handleImageUpload(e.target.files[0], setLeaderPhotoData)} 
+                  style={{ marginBottom: '8px' }} 
+                />
+                {leaderPhotoData && (
+                  <div style={{ marginTop: '10px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>Preview:</span>
+                    <img src={leaderPhotoData} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ffd84a' }} />
+                  </div>
+                )}
+              </div>
+              <button type="submit" className="primary-btn" style={{ padding: '12px 24px', fontSize: '1rem', marginTop: '10px' }}>
+                Save Leader / விவரங்களைச் சேமி
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -4690,6 +4955,343 @@ function JoinPartyBanner({ lang }) {
   );
 }
 
+function OurTeamPage({ lang, setLang, setShowTrackModal, setShowJoinModal, setShowContactModal }) {
+  const [leaders, setLeaders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const isEn = lang === 'en';
+
+  const translationDict = {
+    // Constituencies
+    "மடத்துக்குளம் சட்டமன்ற தொகுதி": "Madathukulam Constituency",
+    "உடுமலை சட்டமன்ற தொகுதி": "Udumalpet Constituency",
+    
+    // Madathukulam Branches
+    "உடுமலை ஒன்றியம்": "Udumalai Union",
+    "உடுமலை தெற்கு ஒன்றியம்": "Udumalai South Union",
+    "மடத்துக்குளம் மேற்கு ஒன்றியம்": "Madathukulam West Union",
+    "மடத்துக்குளம் வடக்கு ஒன்றியம்": "Madathukulam North Union",
+    "மடத்துக்குளம் மத்திய ஒன்றியம்": "Madathukulam Central Union",
+    "தளி பேரூராட்சி": "Dhali Town Panchayat",
+    "மடத்துக்குளம் பேரூராட்சி": "Madathukulam Town Panchayat",
+    "கணியூர் பேரூராட்சி": "Kaniyur Town Panchayat",
+    "சங்கரமநல்லூர் பேரூராட்சி": "Sankaramanallur Town Panchayat",
+    "குமரலிங்கம் பேரூராட்சி": "Kumaralingam Town Panchayat",
+
+    // Udumalpet Branches
+    "ஜமீன்ஊத்துக்குளி பேரூராட்சி": "Jamin Uthukuli Town Panchayat",
+    "சூளேஸ்வரன்பட்டி பேரூராட்சி": "Suleswaranpatti Town Panchayat",
+    "சமத்தூர் பேரூராட்சி": "Samathur Town Panchayat",
+    "பொள்ளாச்சி தெற்கு ஒன்றியம்": "Pollachi South Union",
+    "உடுமலை கிழக்கு ஒன்றியம்": "Udumalai East Union",
+    "உடுமலை வடமேற்கு ஒன்றியம்": "Udumalai Northwest Union",
+    "குடிமங்கலம் கிழக்கு ஒன்றியம்": "Gudimangalam East Union",
+    "குடிமங்கலம் வடக்கு ஒன்றியம்": "Gudimangalam North Union",
+    "குடிமங்கலம் மேற்கு ஒன்றியம்": "Gudimangalam West Union",
+
+    // Names
+    "திருமலை": "Thirumalai",
+    "சங்கர்": "Sanker",
+    
+    "மோதி முகமது": "Mothi Mohamed",
+    "யுவராஜ்": "Yuvaraj",
+    "மனோஜ் குமார்": "Manoj Kumar",
+    "பாபு": "Babu",
+    "செல்வகணேஷ்": "Selvaganesh",
+    "சரவணன்": "Saravanan",
+    "ஜெபஸ்டின் சூர்யா": "Jebastin Surya",
+    "ஆதவன்": "Athavan",
+    "ஐயப்பன்": "Ayyappan",
+    "முனிஷ்": "Munish",
+    
+    "கார்த்திகேயன்": "Karthikeyan",
+    "அசாரூதீன்": "Azarudeen",
+    "கார்த்திக்": "Karthik",
+    "காஜா மைதீன்": "Kaja Maideen",
+    "மோகன்": "Mohan",
+    "சரஸ்வதி": "Saraswathi",
+    "ஜெயப்பிரகாஷ்": "Jayaprakash",
+    "காந்தி": "Gandhi"
+  };
+
+  const t = (str) => {
+    if (isEn && str && translationDict[str]) {
+      return translationDict[str];
+    }
+    return str;
+  };
+
+  useEffect(() => {
+    apiFetch('/api/leaders/')
+      .then((res) => {
+        if (!res.ok) throw new Error("API Error");
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData.status === 'success') {
+          setLeaders(resData.data);
+        } else {
+          throw new Error(resData.message || "Failed to fetch");
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  // Group leaders by constituency dynamically
+  const groupedLeaders = useMemo(() => {
+    return leaders.reduce((acc, leader) => {
+      const key = leader.constituency || "மடத்துக்குளம் சட்டமன்ற தொகுதி";
+      if (!acc[key]) {
+        acc[key] = {
+          mla: null,
+          branches: []
+        };
+      }
+      if (leader.is_mla_candidate) {
+        acc[key].mla = leader;
+      } else {
+        acc[key].branches.push(leader);
+      }
+      return acc;
+    }, {});
+  }, [leaders]);
+
+  const DefaultAvatar = () => (
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#5a0c12' }}>
+      <svg width="60%" height="60%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="40" r="20" fill="#ffd84a" />
+        <path d="M15 85C15 65 30 55 50 55C70 55 85 65 85 85" stroke="#ffd84a" strokeWidth="8" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+
+  return (
+    <>
+      <Header 
+        lang={lang} 
+        setLang={setLang} 
+        setShowTrackModal={setShowTrackModal} 
+        setShowJoinModal={setShowJoinModal} 
+        setShowContactModal={setShowContactModal} 
+      />
+      
+      <main style={{ minHeight: '80vh', background: '#fdfbf7', padding: '40px 16px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          
+          {/* Header Title */}
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h1 style={{ color: '#5a0c12', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: '800', margin: '0' }}>
+              {isEn ? "Our Team & Representatives" : "எங்கள் குழு மற்றும் பொறுப்பாளர்கள்"}
+            </h1>
+            <p style={{ color: '#360507', fontSize: '1rem', marginTop: '8px', opacity: 0.85 }}>
+              {isEn ? "Tamilaga Vettri Kazhagam constituency leaders details" : "தமிழக வெற்றிக் கழக சட்டமன்ற தொகுதி பொறுப்பாளர்கள் விவரம்"}
+            </p>
+            <div style={{ width: '60px', height: '4px', background: '#ffd84a', margin: '16px auto', borderRadius: '2px' }}></div>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '50px 0', color: '#5a0c12', fontSize: '1.2rem', fontWeight: '600' }}>
+              Loading team details... / லோடிங் செய்யப்படுகிறது...
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: 'center', padding: '40px', background: '#fff5f5', borderRadius: '12px', border: '1px solid #fed7d7', color: '#c53030' }}>
+              {isEn ? "Failed to load team data." : "குழு விவரங்களை ஏற்றுவதில் தோல்வி."}
+            </div>
+          ) : Object.keys(groupedLeaders).length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', color: '#718096' }}>
+              {isEn ? "No team members configured yet." : "பொறுப்பாளர்கள் விவரம் இன்னும் சேர்க்கப்படவில்லை."}
+            </div>
+          ) : (
+            Object.keys(groupedLeaders).map((constituencyName) => {
+              const group = groupedLeaders[constituencyName];
+              return (
+                <div key={constituencyName} style={{ marginBottom: '60px', borderBottom: '1px dashed rgba(90, 12, 18, 0.1)', paddingBottom: '40px' }}>
+                  
+                  {/* Constituency Section Header Banner */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#5a0c12',
+                    border: '1.5px solid #ffd84a',
+                    borderRadius: '12px',
+                    padding: '12px 24px',
+                    marginBottom: '35px',
+                    boxShadow: '0 4px 15px rgba(90, 12, 18, 0.12)'
+                  }}>
+                    <Flag size={20} color="#ffd84a" style={{ marginRight: '10px' }} />
+                    <h2 style={{
+                      color: '#ffd84a',
+                      fontSize: '1.3rem',
+                      fontWeight: '800',
+                      margin: 0,
+                      letterSpacing: '0.5px',
+                      textTransform: 'uppercase'
+                    }}>
+                      {t(constituencyName)}
+                    </h2>
+                  </div>
+
+                  {/* 1. MLA Candidate Box for this Constituency */}
+                  {group.mla && (
+                    <div style={{ marginBottom: '40px' }}>
+                      <h3 style={{ color: '#5a0c12', fontSize: '1.3rem', marginBottom: '15px', fontWeight: 'bold', borderLeft: '4px solid #ffd84a', paddingLeft: '10px' }}>
+                        {isEn ? "MLA Candidate" : "சட்டமன்ற வேட்பாளர்"}
+                      </h3>
+                      <div className="mla-candidate-card" style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        background: '#ffffff',
+                        border: '1.5px solid rgba(90, 12, 18, 0.15)',
+                        borderRadius: '20px',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 30px rgba(90, 12, 18, 0.04)'
+                      }}>
+                        <div style={{ flex: '1 1 250px', height: '280px', position: 'relative' }}>
+                          {group.mla.photo_data ? (
+                            <img 
+                              src={group.mla.photo_data} 
+                              alt={group.mla.name} 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                            />
+                          ) : (
+                            <DefaultAvatar />
+                          )}
+                        </div>
+                        <div style={{ flex: '2 1 350px', padding: '30px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          <h4 style={{ fontSize: '1.8rem', color: '#5a0c12', margin: '0 0 8px 0', fontWeight: '800' }}>
+                            {t(group.mla.name)}
+                          </h4>
+                          <p style={{ fontSize: '0.95rem', color: '#ffd84a', fontWeight: 'bold', background: '#5a0c12', display: 'inline-block', alignSelf: 'flex-start', padding: '5px 12px', borderRadius: '4px', margin: '0 0 20px 0' }}>
+                            {t(group.mla.branch)}
+                          </p>
+                          
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ background: 'rgba(90, 12, 18, 0.04)', color: '#5a0c12', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Phone size={16} />
+                              </span>
+                              <div>
+                                <span style={{ fontSize: '0.8rem', color: '#718096', display: 'block' }}>{isEn ? "Phone Number" : "தொலைபேசி எண்"}</span>
+                                <a href={`tel:${group.mla.phone}`} style={{ fontSize: '1rem', color: '#2d3748', textDecoration: 'none', fontWeight: 'bold' }}>
+                                  {group.mla.phone}
+                                </a>
+                              </div>
+                            </div>
+
+                            {group.mla.email && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ background: 'rgba(90, 12, 18, 0.04)', color: '#5a0c12', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <Mail size={16} />
+                                </span>
+                                <div>
+                                  <span style={{ fontSize: '0.8rem', color: '#718096', display: 'block' }}>{isEn ? "Email Address" : "மின்னஞ்சல் முகவரி"}</span>
+                                  <a href={`mailto:${group.mla.email}`} style={{ fontSize: '1rem', color: '#2d3748', textDecoration: 'none', fontWeight: 'bold' }}>
+                                    {group.mla.email}
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. Branch Leaders Grid for this Constituency */}
+                  {group.branches.length > 0 && (
+                    <div>
+                      <h3 style={{ color: '#5a0c12', fontSize: '1.3rem', marginBottom: '20px', fontWeight: 'bold', borderLeft: '4px solid #ffd84a', paddingLeft: '10px' }}>
+                        {isEn ? "Union & Town Branch Leaders" : "ஒன்றிய மற்றும் நகர கிளைப் பொறுப்பாளர்கள்"}
+                      </h3>
+                      
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: '24px'
+                      }}>
+                        {group.branches.map((leader) => (
+                          <div 
+                            key={leader.id} 
+                            className="team-member-card"
+                            style={{
+                              background: '#ffffff',
+                              border: '1.5px solid rgba(90, 12, 18, 0.08)',
+                              borderRadius: '16px',
+                              overflow: 'hidden',
+                              boxShadow: '0 8px 24px rgba(90, 12, 18, 0.02)',
+                              transition: 'all 0.3s ease',
+                              display: 'flex',
+                              flexDirection: 'column'
+                            }}
+                          >
+                            <div style={{ height: '220px', width: '100%', position: 'relative', overflow: 'hidden' }}>
+                              {leader.photo_data ? (
+                                <img 
+                                  src={leader.photo_data} 
+                                  alt={leader.name} 
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                />
+                              ) : (
+                                <DefaultAvatar />
+                              )}
+                            </div>
+                            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                              <div>
+                                <span style={{ fontSize: '0.8rem', color: '#5a0c12', fontWeight: 'bold', background: 'rgba(90, 12, 18, 0.05)', padding: '4px 10px', borderRadius: '4px', display: 'inline-block', marginBottom: '8px' }}>
+                                  {t(leader.branch)}
+                                </span>
+                                <h4 style={{ fontSize: '1.15rem', color: '#2d3748', margin: '0 0 12px 0', fontWeight: '700' }}>
+                                  {t(leader.name)}
+                                </h4>
+                              </div>
+                              
+                              <div style={{ borderTop: '1px solid #edf2f7', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#4a5568', fontSize: '0.9rem', fontWeight: '600' }}>
+                                  {leader.phone}
+                                </span>
+                                <a 
+                                  href={`tel:${leader.phone}`} 
+                                  style={{
+                                    background: '#25D366',
+                                    color: '#fff',
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    textDecoration: 'none',
+                                    boxShadow: '0 4px 10px rgba(37, 211, 102, 0.3)'
+                                  }}
+                                  title={isEn ? "Call Leader" : "அழைக்க"}
+                                >
+                                  <Phone size={16} />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </main>
+
+      <Footer lang={lang} setShowJoinModal={setShowJoinModal} />
+    </>
+  );
+}
+
 function App() {
   const [lang, setLang] = useState("ta");
   const [showTrackModal, setShowTrackModal] = useState(false);
@@ -4717,6 +5319,18 @@ function App() {
 
   if (hash === "#itwing") {
     return <ITWingPanel lang={lang} />;
+  }
+
+  if (hash === "#our-team") {
+    return (
+      <OurTeamPage 
+        lang={lang} 
+        setLang={setLang} 
+        setShowTrackModal={setShowTrackModal} 
+        setShowJoinModal={setShowJoinModal} 
+        setShowContactModal={setShowContactModal} 
+      />
+    );
   }
 
   return (

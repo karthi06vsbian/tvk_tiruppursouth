@@ -4770,3 +4770,206 @@ body.ta .foot-builtby-label {
     padding: 18px 14px;
   }
 }
+
+/* ==========================================================================
+   IT WING DASHBOARD MOBILE RESPONSIVE FIXES
+   ========================================================================== */
+
+/* 1. Header alignments */
+@media (max-width: 768px) {
+  .admin-dashboard-header {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 15px 20px !important;
+    text-align: center !important;
+  }
+  
+  .admin-header-title {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+  }
+  
+  .admin-header-title h2 {
+    font-size: 1.6rem !important;
+  }
+
+  .header-leaders-strip {
+    display: none !important; /* Hide to prevent clutter / horizontal scroll on mobile */
+  }
+
+  .admin-header-actions {
+    width: 100% !important;
+    justify-content: center !important;
+    gap: 12px !important;
+  }
+
+  .admin-header-actions a, 
+  .admin-header-actions button {
+    flex: 1 !important;
+    text-align: center !important;
+    justify-content: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    font-size: 0.8rem !important;
+    padding: 10px 12px !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* 2. Container and stats grid */
+@media (max-width: 768px) {
+  .admin-dashboard-container {
+    padding: 16px 12px !important;
+  }
+  
+  .admin-stats-grid {
+    grid-template-columns: 1fr !important; /* Stack vertically on small screens */
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .admin-stat-card {
+    padding: 14px 16px !important;
+    gap: 12px !important;
+  }
+  
+  .stat-icon {
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 1.8rem !important;
+  }
+  
+  .stat-details h3 {
+    font-size: 1.6rem !important;
+  }
+}
+
+/* 3. Horizontal scrolling tabs bar */
+@media (max-width: 768px) {
+  .admin-tab-bar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    border-bottom: 2px solid rgba(90, 12, 18, 0.1) !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 16px !important;
+    scrollbar-width: none !important; /* Hide scrollbar Firefox */
+    -ms-overflow-style: none !important;  /* Hide scrollbar IE/Edge */
+  }
+  
+  .admin-tab-bar::-webkit-scrollbar {
+    display: none !important; /* Hide scrollbar Chrome/Safari */
+  }
+  
+  .admin-tab-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 1.15rem !important;
+    padding: 8px 14px !important;
+  }
+}
+
+/* 4. Section titles & Add buttons */
+.panel-title-bar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+@media (max-width: 600px) {
+  .panel-title-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: center !important;
+  }
+  
+  .panel-title-bar h3 {
+    text-align: center !important;
+    font-size: 1.2rem !important;
+  }
+  
+  .panel-title-bar button.primary-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .dashboard-content-panel {
+    padding: 16px 12px !important;
+  }
+}
+
+/* 5. Data table responsive spacing & column wrapping prevention */
+.admin-table-container {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+@media (max-width: 768px) {
+  .admin-table th, 
+  .admin-table td {
+    padding: 10px 8px !important;
+    font-size: 0.82rem !important;
+    white-space: nowrap !important; /* Prevent text wrapping inside cells */
+  }
+  
+  .admin-table td b {
+    font-size: 0.85rem !important;
+  }
+
+  .admin-table td img {
+    width: 48px !important;
+    height: 32px !important;
+  }
+}
+
+/* 6. Modals & Modal buttons responsive adjustments */
+@media (max-width: 680px) {
+  .admin-modal-overlay {
+    padding: 10px !important;
+    align-items: center !important;
+  }
+  
+  .admin-modal-box {
+    padding: 20px 14px !important;
+    max-height: calc(100vh - 20px) !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+  }
+  
+  .admin-modal-box h3 {
+    font-size: 1.3rem !important;
+    padding-right: 32px !important; /* Prevent collision with close button */
+  }
+
+  .admin-modal-close {
+    top: 15px !important;
+    right: 10px !important;
+  }
+
+  /* Make form groups stack on smaller screens */
+  .admin-modal-box .form-group-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .admin-modal-box .form-group {
+    margin-bottom: 12px !important;
+  }
+
+  /* Full-width save button inside modal for better UX */
+  .admin-modal-box button[type="submit"].primary-btn {
+    width: 100% !important;
+    margin-top: 16px !important;
+    justify-content: center !important;
+  }
+}
+

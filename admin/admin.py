@@ -1,6 +1,7 @@
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
-from api.models import JoinRequest, Petition
+from api.models import JoinRequest, Petition, BranchLeader
 from django.contrib.auth.models import Group, User
 
 # Remove Authentication and Authorization options (Groups & Users) from Django Admin
@@ -106,3 +107,50 @@ class PetitionAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+class BranchLeaderAdminForm(forms.ModelForm):
+    image_file = forms.FileField(required=False, label="Upload Photo (Automatically saved as Base64 in Database)")
+
+    class Meta:
+        model = BranchLeader
+        fields = ['name', 'constituency', 'branch', 'phone', 'email', 'image_file', 'photo_data', 'photo_name', 'is_mla_candidate', 'order']
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        image_file = self.cleaned_data.get('image_file')
+        if image_file:
+            import base64
+            file_data = image_file.read()
+            encoded = base64.b64encode(file_data).decode('utf-8')
+            content_type = getattr(image_file, 'content_type', 'image/jpeg')
+            instance.photo_data = f"data:{content_type};base64,{encoded}"
+            instance.photo_name = image_file.name
+        if commit:
+            instance.save()
+        return instance
+
+
+@admin.register(BranchLeader)
+class BranchLeaderAdmin(admin.ModelAdmin):
+    form = BranchLeaderAdminForm
+    list_display = ('name', 'constituency', 'branch', 'phone', 'email', 'is_mla_candidate', 'order', 'photo_preview')
+    list_editable = ('order', 'is_mla_candidate')
+    search_fields = ('name', 'branch', 'phone', 'email', 'constituency')
+    list_filter = ('is_mla_candidate', 'constituency', 'branch')
+    readonly_fields = ('photo_preview', 'photo_data', 'photo_name')
+    
+    fieldsets = (
+        ('Leader Info / விவரங்கள்', {
+            'fields': ('name', 'constituency', 'branch', 'phone', 'email', 'is_mla_candidate', 'order')
+        }),
+        ('Photo / புகைப்படம்', {
+            'fields': ('image_file', 'photo_preview', 'photo_data', 'photo_name')
+        }),
+    )
+
+    def photo_preview(self, obj):
+        if obj.photo_data:
+            return format_html('<img src="{}" style="max-width: 60px; max-height: 60px; border-radius: 50%; border: 1.5px solid #ffd84a; object-fit: cover;" />', obj.photo_data)
+        return "No photo"
+    photo_preview.short_description = "Preview"

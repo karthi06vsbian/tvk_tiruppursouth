@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import News, Event, JoinRequest, Petition, ContactMessage
+from .models import News, Event, JoinRequest, Petition, ContactMessage, BranchLeader
 
 def clean_phone_number(phone_str):
     if not phone_str:
@@ -1138,6 +1138,110 @@ def event_delete_api(request, event_id):
             return JsonResponse({'status': 'success', 'message': 'Event deleted successfully'})
         except Event.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Event not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Only DELETE/POST method is allowed'}, status=405)
+
+
+def leaders_list_api(request):
+    try:
+        leaders = BranchLeader.objects.all().order_by('-is_mla_candidate', 'order', 'id')
+        data = []
+        for leader in leaders:
+            data.append({
+                'id': leader.id,
+                'name': leader.name,
+                'constituency': leader.constituency,
+                'branch': leader.branch,
+                'phone': leader.phone,
+                'email': leader.email or '',
+                'photo_data': leader.photo_data or '',
+                'is_mla_candidate': leader.is_mla_candidate,
+                'order': leader.order
+            })
+        return JsonResponse({'status': 'success', 'data': data})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+def leader_create_api(request):
+    if request.method == 'POST':
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            
+            name = data.get('name')
+            constituency = data.get('constituency', 'மடத்துக்குளம் சட்டமன்ற தொகுதி')
+            branch = data.get('branch')
+            phone = data.get('phone')
+            email = data.get('email', '')
+            photo_data = data.get('photo_data', '')
+            photo_name = data.get('photo_name', '')
+            is_mla_candidate = str(data.get('is_mla_candidate', 'false')).lower() == 'true'
+            order = int(data.get('order', 0))
+            
+            if not name or not branch or not phone:
+                return JsonResponse({'status': 'error', 'message': 'Name, branch and phone number are required'}, status=400)
+                
+            item = BranchLeader.objects.create(
+                name=name,
+                constituency=constituency,
+                branch=branch,
+                phone=phone,
+                email=email,
+                photo_data=photo_data,
+                photo_name=photo_name,
+                is_mla_candidate=is_mla_candidate,
+                order=order
+            )
+            return JsonResponse({'status': 'success', 'message': 'Leader created successfully', 'id': item.id})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'}, status=405)
+
+
+@csrf_exempt
+def leader_update_api(request, leader_id):
+    if request.method == 'POST':
+        try:
+            item = BranchLeader.objects.get(id=leader_id)
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            
+            if 'name' in data: item.name = data.get('name')
+            if 'constituency' in data: item.constituency = data.get('constituency')
+            if 'branch' in data: item.branch = data.get('branch')
+            if 'phone' in data: item.phone = data.get('phone')
+            if 'email' in data: item.email = data.get('email')
+            if 'photo_data' in data: item.photo_data = data.get('photo_data')
+            if 'photo_name' in data: item.photo_name = data.get('photo_name')
+            if 'is_mla_candidate' in data:
+                item.is_mla_candidate = str(data.get('is_mla_candidate')).lower() == 'true'
+            if 'order' in data: item.order = int(data.get('order', 0))
+            
+            item.save()
+            return JsonResponse({'status': 'success', 'message': 'Leader updated successfully'})
+        except BranchLeader.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Leader not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'}, status=405)
+
+
+@csrf_exempt
+def leader_delete_api(request, leader_id):
+    if request.method in ['DELETE', 'POST']:
+        try:
+            item = BranchLeader.objects.get(id=leader_id)
+            item.delete()
+            return JsonResponse({'status': 'success', 'message': 'Leader deleted successfully'})
+        except BranchLeader.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Leader not found'}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Only DELETE/POST method is allowed'}, status=405)
