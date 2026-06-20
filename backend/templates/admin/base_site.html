@@ -166,3 +166,21 @@
   }
 </style>
 {% endblock %}
+
+{% block userlinks %}
+  <a href="http://127.0.0.1:5173/#admin" id="react-admin-link">React Admin</a> /
+  {{ block.super }}
+  <script>
+    (function() {
+      var link = document.getElementById('react-admin-link');
+      if (link) {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          link.href = 'http://' + window.location.hostname + ':5173/#admin';
+        } else {
+          link.href = '/#admin';
+        }
+      }
+    })();
+  </script>
+{% endblock %}
+

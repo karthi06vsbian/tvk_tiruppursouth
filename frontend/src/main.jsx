@@ -1012,7 +1012,13 @@ function Footer({ lang, setShowJoinModal }) {
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '30px', background: '#120203', gap: '20px', flexWrap: 'wrap' }}>
         <div className="foot-builtby" style={{ margin: 0 }}>
-          <a href="#admin" className="foot-builtby-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+          <a 
+            href="https://www.google.com/search?q=devopschanakya&rlz=1C5GCEM_enIN1204IN1204&oq=devops&gs_lcrp=EgZjaHJvbWUqCAgBEEUYJxg7MgYIABBFGDkyCAgBEEUYJxg7MgoIAhAAGLEDGIAEMgoIAxAAGLEDGIAEMgcIBBAAGIAEMgcIBRAAGIAEMg0IBhAAGIMBGLEDGIAEMgoIBxAAGLEDGIAEMgoICBAAGLEDGIAEMgcICRAAGIAE0gEIMjczNGowajeoAgCwAgA&sourceid=chrome&ie=UTF-8" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="foot-builtby-card" 
+            style={{ textDecoration: 'none', cursor: 'pointer' }}
+          >
             <span className="foot-builtby-label">{lang === "en" ? "SITE BUILT & MAINTAINED BY" : "வடிவமைப்பு & பராமரிப்பு"}</span>
             <span className="foot-builtby-name" style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffd84a', letterSpacing: '1px' }}>devopschanakya</span>
           </a>
@@ -2442,12 +2448,23 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!phone.trim()) return;
+
+    // Clean non-digits and extract the last 10 digits
+    const cleanedPhone = phone.replace(/\D/g, '').slice(-10);
+    if (cleanedPhone.length < 10) {
+      setError(lang === 'en' 
+        ? 'Please enter a valid 10-digit phone number (e.g. with country code).' 
+        : 'செல்லுபடியாகும் 10 இலக்க தொலைபேசி எண்ணை உள்ளிடவும் (எ.கா. நாட்டுக்குறியீட்டுடன்).'
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
     setSearched(false);
 
     try {
-      const response = await apiFetch(`/api/petitions/track/?phone=${phone}`);
+      const response = await apiFetch(`/api/petitions/track/?phone=${cleanedPhone}`);
       const data = await response.json();
       if (data.status === 'success') {
         setPetitions(data.data);
@@ -2478,18 +2495,17 @@ function TrackPetitionModal({ lang, isOpen, onClose }) {
         </button>
         <h3 className="track-modal-title">{lang === 'en' ? 'Track Your Petitions' : 'மனுவைக் கண்காணித்தல்'}</h3>
         <p className="track-modal-subtitle">
-          {lang === 'en' ? 'Enter your 10-digit registered phone number to view submitted petitions.' : 'நீங்கள் பதிவு செய்த 10 இலக்க தொலைபேசி எண்ணை உள்ளிட்டு மனுக்களைத் தேடவும்.'}
+          {lang === 'en' ? 'Enter your registered phone number (with or without country code) to view submitted petitions.' : 'மனுக்களைக் கண்காணிக்க உங்கள் பதிவு செய்யப்பட்ட தொலைபேசி எண்ணை உள்ளிடவும்.'}
         </p>
 
         <form onSubmit={handleSearch} className="track-search-form">
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-            placeholder={lang === 'en' ? 'e.g. 9876543210' : 'எ.கா. 9876543210'}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder={lang === 'en' ? 'e.g. +91 98765 43210' : 'எ.கா. +91 98765 43210'}
             required
-            pattern="[0-9]{10}"
-            maxLength="10"
+            maxLength="20"
             style={{
               padding: '10px 14px',
               border: '1px solid #ddd',
@@ -2647,7 +2663,7 @@ function AdminPanel({ lang }) {
   const handleLogin = (e) => {
     e.preventDefault();
     setLoginError('');
-    if (username === 'admin' && password === 'tvk123') {
+    if (username === 'admin1' && password === 'tvk123') {
       sessionStorage.setItem('tvkAdminLogged', 'true');
       setIsLoggedIn(true);
     } else {
@@ -2952,12 +2968,18 @@ function AdminPanel({ lang }) {
   };
 
   const handleShareMember = (m) => {
-    const shareUrl = `/api/members/${m.id}/share/`;
+    const backendBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:8000'
+      : 'https://tvk-tiruppursouth.onrender.com';
+    const shareUrl = `${backendBase}/api/members/${m.id}/share/`;
     window.open(shareUrl, '_blank');
   };
 
   const handleSharePetition = (p) => {
-    const shareUrl = `/api/petitions/${p.id}/share/`;
+    const backendBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:8000'
+      : 'https://tvk-tiruppursouth.onrender.com';
+    const shareUrl = `${backendBase}/api/petitions/${p.id}/share/`;
     window.open(shareUrl, '_blank');
   };
 
@@ -3356,6 +3378,7 @@ function AdminPanel({ lang }) {
 
         <div className="admin-header-actions" style={{ display: 'flex', gap: '10px' }}>
           <a href="/" className="back-site-btn" style={{ fontSize: '0.85rem', padding: '8px 14px' }}>Back to Site / தளம்</a>
+          <a href={window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/admin/' : '/admin/'} target="_blank" rel="noopener noreferrer" className="back-site-btn" style={{ fontSize: '0.85rem', padding: '8px 14px' }}>Django Admin / ஜாங்கோ</a>
           <button onClick={handleLogout} className="view-details-btn" style={{ background: '#5a0c12', color: '#fff', borderColor: '#5a0c12', fontSize: '0.85rem', padding: '8px 14px' }}>Logout / வெளியேறு</button>
         </div>
       </header>

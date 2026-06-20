@@ -133,6 +133,9 @@ def petition_submit_api(request):
             photo_name = data.get('photo_name', '')
             google_map_location = data.get('google_map_location', '')
 
+            # Default address if missing (e.g. Chatbot submissions)
+            address = data.get('address') or 'Submitted via Chatbot / அரட்டை மூலம் சமர்ப்பிக்கப்பட்டது'
+
             if not name or not phone or not subject or not summary or not address:
                 return JsonResponse({'status': 'error', 'message': 'All fields (including address) are required'}, status=400)
 
