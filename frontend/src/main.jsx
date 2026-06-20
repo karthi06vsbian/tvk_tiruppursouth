@@ -4663,7 +4663,7 @@ function JoinPartyBanner({ lang }) {
             : "நமது தவெக தலைவர் தளபதி விஜய் அவர்களின் வழியில் நேர்மையான, சமத்துவமான மற்றும் முற்போக்கான தமிழ்நாட்டை உருவாக்க அதிகாரப்பூர்வ உறுப்பினராக எங்களோடு இணையுங்கள்."}
         </p>
         <a 
-          href="https://tvk.world/register" 
+          href="https://tvk.family/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="primary-btn" 
