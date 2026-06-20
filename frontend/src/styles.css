@@ -289,7 +289,9 @@ img {
 .hero::after {
   content: "";
   position: absolute;
-  inset: calc(100svh - 18px) 0 auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 18px;
   background: linear-gradient(90deg, var(--red), var(--gold), var(--red));
   z-index: 3;
@@ -856,19 +858,36 @@ img {
 
   .hero {
     min-height: auto;
+    padding-top: 74px; /* Push below the floating mobile header */
+    background: var(--maroon-2); /* Cover the white space above the video with the dark maroon theme color */
   }
 
   .hero-video-stage {
-    min-height: 100svh;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-bg {
+    display: none; /* Hide background gradient fade since layout is stacked */
+  }
+
+  .hero-visual {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    min-height: auto;
+  }
+
+  .hero-visual video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .hero-copy {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 20px 16px 48px;
-    margin-top: 0 !important;
+    display: none;
   }
 
   .hero h1 {
@@ -895,10 +914,6 @@ img {
     font-size: 0.9rem;
     min-height: 42px;
     padding: 10px 14px;
-  }
-
-  .hero-visual {
-    min-height: 0;
   }
 
   .stat-row {
