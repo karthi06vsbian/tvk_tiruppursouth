@@ -1032,7 +1032,7 @@ function Footer({ lang, setShowJoinModal }) {
 }
 
 /* ─── New Custom Components: Banner and Modals ─── */
-function QuickActions({ lang, setShowPetitionModal, setShowJoinModal, setShowContactModal }) {
+function QuickActions({ lang, setShowPetitionModal, setShowJoinModal, setShowContactModal, setShowTrackModal }) {
   const isEn = lang === 'en';
   return (
     <section className="quick-actions-banner">
@@ -1046,6 +1046,10 @@ function QuickActions({ lang, setShowPetitionModal, setShowJoinModal, setShowCon
         <button className="quick-action-btn primary" onClick={() => setShowPetitionModal(true)}>
           <Inbox size={20} />
           {isEn ? "Open Petition Form" : "மனுப் படிவத்தைத் திறக்கவும்"}
+        </button>
+        <button className="quick-action-btn secondary" onClick={() => setShowTrackModal(true)} style={{ marginTop: '10px' }}>
+          <Search size={20} />
+          {isEn ? "Track My Petition" : "எனது மனுவைக் கண்காணிக்க"}
         </button>
       </div>
 
@@ -1092,6 +1096,7 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
   const [photoName, setPhotoName] = useState("");
   const [status, setStatus] = useState(null); // null | 'submitting' | 'success' | 'error'
   const [gpsError, setGpsError] = useState("");
+  const [submitErrorMsg, setSubmitErrorMsg] = useState("");
   const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
@@ -1099,16 +1104,55 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be less than 5MB. / கோப்பின் அளவு 5MB க்கும் குறைவாக இருக்க வேண்டும்.");
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size must be less than 10MB. / கோப்பின் அளவு 10MB க்கும் குறைவாக இருக்க வேண்டும்.");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setPhotoData(event.target.result);
-        setPhotoName(file.name);
-      };
-      reader.readAsDataURL(file);
+
+      // For images: compress and resize before converting to base64
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX_DIM = 1200;
+            let width = img.width;
+            let height = img.height;
+            if (width > MAX_DIM || height > MAX_DIM) {
+              if (width > height) {
+                height = Math.round(height * MAX_DIM / width);
+                width = MAX_DIM;
+              } else {
+                width = Math.round(width * MAX_DIM / height);
+                height = MAX_DIM;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+            setPhotoData(compressedData);
+            setPhotoName(file.name);
+          };
+          img.onerror = () => {
+            // Fallback: use raw file if image decode fails
+            setPhotoData(event.target.result);
+            setPhotoName(file.name);
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // PDF or other file types: read as-is
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setPhotoData(event.target.result);
+          setPhotoName(file.name);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -1177,7 +1221,14 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
         photo_name: photoName
       })
     })
-      .then(res => { if (!res.ok) throw new Error("Failed"); return res.json(); })
+      .then(async (res) => {
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          const msg = (data && data.message) ? data.message : `Server error (${res.status})`;
+          throw new Error(msg);
+        }
+        return data;
+      })
       .then(() => {
         setStatus('success');
         setName('');
@@ -1194,8 +1245,9 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
         setGpsError('');
       })
       .catch((err) => {
-        console.error(err);
+        console.error('Petition submission error:', err);
         setStatus('error');
+        setSubmitErrorMsg(err.message || 'Something went wrong');
       });
   };
 
@@ -1439,7 +1491,11 @@ function SubmitPetitionModal({ lang, isOpen, onClose }) {
               </button>
               {status === 'error' && (
                 <div style={{ color: '#E53E3E', fontSize: '0.9rem', marginTop: '10px', textAlign: 'center' }}>
-                  ❌ Something went wrong. Please try again. / ❌ பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.
+                  ❌ {submitErrorMsg || 'Something went wrong.'} Please try again. / ❌ பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.
+                  <br />
+                  <button type="button" onClick={() => { setStatus(null); setSubmitErrorMsg(''); }} style={{ marginTop: '8px', padding: '6px 16px', borderRadius: '6px', border: '1px solid #E53E3E', background: '#FFF5F5', color: '#E53E3E', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}>
+                    Retry / மீண்டும்
+                  </button>
                 </div>
               )}
             </form>
@@ -4668,7 +4724,7 @@ function App() {
       <Header lang={lang} setLang={setLang} setShowTrackModal={setShowTrackModal} setShowJoinModal={setShowJoinModal} setShowContactModal={setShowContactModal} />
       <main>
         <Hero lang={lang} setShowJoinModal={setShowJoinModal} setShowPetitionModal={setShowPetitionModal} setShowContactModal={setShowContactModal} />
-        <QuickActions lang={lang} setShowPetitionModal={setShowPetitionModal} setShowJoinModal={setShowJoinModal} setShowContactModal={setShowContactModal} />
+        <QuickActions lang={lang} setShowPetitionModal={setShowPetitionModal} setShowJoinModal={setShowJoinModal} setShowContactModal={setShowContactModal} setShowTrackModal={setShowTrackModal} />
         <PartySection lang={lang} />
         <JoinPartyBanner lang={lang} />
         <PartyFeatures lang={lang} />

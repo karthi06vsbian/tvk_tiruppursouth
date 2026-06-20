@@ -406,6 +406,21 @@ def contact_submit_api(request):
     return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'}, status=405)
 
 
+def contact_list_api(request):
+    contacts = ContactMessage.objects.all()
+    data = []
+    for c in contacts:
+        data.append({
+            'id': c.id,
+            'email': c.email,
+            'phone': c.phone,
+            'topic': c.topic,
+            'message': c.message,
+            'submitted_at': c.submitted_at.isoformat()
+        })
+    return JsonResponse({'status': 'success', 'data': data})
+
+
 def petition_print_view(request, petition_id):
     from django.shortcuts import get_object_or_404
     from django.utils.html import escape

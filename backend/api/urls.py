@@ -16,6 +16,7 @@ urlpatterns = [
     path('petitions/<int:petition_id>/update/', views.petition_update_api, name='petition_update_api'),
     path('petitions/<int:petition_id>/pdf/', views.petition_print_view, name='petition_print_view'),
     path('petitions/<int:petition_id>/share/', views.petition_share_view, name='petition_share_view'),
+    path('contacts/', views.contact_list_api, name='contact_list_api'),
     path('contact/submit/', views.contact_submit_api, name='contact_submit_api'),
     # News management CRUD
     path('news/create/', views.news_create_api, name='news_create_api'),
